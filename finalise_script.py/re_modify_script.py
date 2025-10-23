@@ -262,7 +262,6 @@ class AutomationScriptForSetupInstalltion:
         os.chdir("dpdk")
         self.run_command(["git", "checkout","-b", "v25.03-rc3"], "Checking out DPDK version v25.03-rc3")
 
-
     def install_required_packages(self):
 
         """
