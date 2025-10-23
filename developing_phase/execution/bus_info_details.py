@@ -1,33 +1,11 @@
 import re
-import os
 import time
-import subprocess
-import platform
+from constant import CommonFuntion
 
-
-
-def check_os():
-    """
-    Checks and prints operating system details using platform and os.uname (if available).
-    """
-    print("\n🔍 Checking Operating System Info...\n")
-
-    # Method 1: Using platform
-    os_name = platform.system()
-    os_version = platform.version()
-    os_release = platform.release()
-    print(f"🖥️ OS Name: {os_name}")
-    print(f"📦 Version: {os_version}")
-    print(f"📤 Release: {os_release}")
-
-    # Method 2: Using os.uname() (Linux/Unix only)
-    if hasattr(os, "uname"):
-        uname_info = os.uname()
-        print(f"🧾 Detailed Info: {uname_info}")
 
 # --------------------------------------------------------------------------------------------------
 
-class InterfaceManager:
+class InterfaceManager(CommonFuntion):
     """
     A class to manage network interfaces using Linux 'ip' commands.
     Provides functionality to check interface status and bring DOWN interfaces UP.
@@ -36,30 +14,6 @@ class InterfaceManager:
     def __init__(self):
         self.interFaceDetails = []
 
-    def run_command(self, command, description="", check_output=False):
-        """
-        Executes a shell command.
-
-        Args:
-            command (list): Command and arguments as a list.
-            description (str): Description for logging.
-            check_output (bool): If True, returns command output.
-
-        Returns:
-            tuple: (success: bool, output: str)
-        """
-        try:
-            print(f"\n🔧 Executing: {description}")
-            if check_output:
-                result = subprocess.check_output(command, stderr=subprocess.STDOUT, text=True)
-                return True, result
-            else:
-                subprocess.run(command, check=True)
-                return True, ""
-        except subprocess.CalledProcessError as e:
-            print(f"❌ Error during '{description}': {e}")
-            return False, str(e)
-        
 
     def interface_details(self,search=""):
         """
@@ -343,32 +297,32 @@ class PairingManagerInfo(InterfaceManager):
 
 # #######################################   Main Execution Block   ###########################################################
 
-if __name__ == "__main__":
-    print("\n🚀 Starting Interface Pairing Manager...\n")
+# if __name__ == "__main__":
+#     print("\n🚀 Starting Interface Pairing Manager...\n")
 
-    try:
-        # Initialize and run pairing manager
-        print("🧩 Initializing PairingManagerInfo object...")
-        obj = PairingManagerInfo()
+#     try:
+#         # Initialize and run pairing manager
+#         print("🧩 Initializing PairingManagerInfo object...")
+#         obj = PairingManagerInfo()
 
-        print("\n🔍 Fetching Interface and Bus Pairing Information...\n")
-        obj.fetchingInterFacePairingInfo()
+#         print("\n🔍 Fetching Interface and Bus Pairing Information...\n")
+#         obj.fetchingInterFacePairingInfo()
 
-        print("\n🔗 Fetching Interface Connection Details...\n")
-        obj.fetchingPairDetailsFromInterface()
+#         print("\n🔗 Fetching Interface Connection Details...\n")
+#         obj.fetchingPairDetailsFromInterface()
 
-        print("\nMapping Interface With Bus Info")
-        interfaceDetails = obj.mapInterfaceToBus()
+#         print("\nMapping Interface With Bus Info")
+#         interfaceDetails = obj.mapInterfaceToBus()
 
-        print(interfaceDetails)
+#         print(interfaceDetails)
 
        
-        # Display the loaded configuration details
+#         # Display the loaded configuration details
 
      
-    except Exception as e:
-        print(f"\n❌ An error occurred during execution: {e}\n")
+#     except Exception as e:
+#         print(f"\n❌ An error occurred during execution: {e}\n")
 
-    print("\n✅ Script Execution Completed Successfully.\n")
+#     print("\n✅ Script Execution Completed Successfully.\n")
 
 

@@ -3,41 +3,16 @@ import os
 import time
 import subprocess
 import platform
+from constant import CommonFuntion
 
 
 
-
-class DutCrbsConfig:
+class DutCrbsConfig(CommonFuntion):
 
     def __init__(self,dts_path):
         self.dts_setup_path = dts_path
         self.filter_crbs_data = "" # Filter crbs data to be updated 
 
-    def run_command(self, command, description="", check_output=False):
-        """
-        Executes a shell command.
-
-        Args:
-            command (list): Command and arguments as a list.
-            description (str): Description for logging.
-            check_output (bool): If True, returns command output.
-
-        Returns:
-            tuple: (success: bool, output: str)
-        """
-        try:
-            print(f"\n🔧 Executing: {description}")
-            if check_output:
-                result = subprocess.check_output(command, stderr=subprocess.STDOUT, text=True)
-                return True, result
-            else:
-                subprocess.run(command, check=True)
-                return True, ""
-        except subprocess.CalledProcessError as e:
-            print(f"❌ Error during '{description}': {e}")
-            return False, str(e)
-
-        self.crbs_data = None
     def read_file_data(self,file_path):
         """
         Reads and returns the contents of a file.
@@ -130,18 +105,18 @@ class DutCrbsConfig:
 
 # --------------------------------------------------------------------------------------------------
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
     
-    crfs_file_obj = DutCrbsConfig("")
-    dut_ip= "10.190.213.109"
-    dut_user = "root"
-    dut_passwd = "password"
-    tester_ip = "10.190.213.109"
-    tester_passwd = "password"
-    crfs_file_obj.updating_crbs_file(
-        dut_ip=dut_ip,
-        dut_user=dut_user,
-        dut_passwd=dut_passwd,
-        tester_ip=tester_ip,
-        tester_passwd=tester_passwd
-    )
+#     crfs_file_obj = DutCrbsConfig("")
+#     dut_ip= "10.190.213.109"
+#     dut_user = "root"
+#     dut_passwd = "password"
+#     tester_ip = "10.190.213.109"
+#     tester_passwd = "password"
+#     crfs_file_obj.updating_crbs_file(
+#         dut_ip=dut_ip,
+#         dut_user=dut_user,
+#         dut_passwd=dut_passwd,
+#         tester_ip=tester_ip,
+#         tester_passwd=tester_passwd
+#     )
