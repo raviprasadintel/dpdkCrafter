@@ -1,6 +1,6 @@
 import re
 import time
-from dpdkCrafter.script_container.execution.constant import CommonFuntion
+from script_container.execution.constant import CommonFuntion
 
 
 # --------------------------------------------------------------------------------------------------
