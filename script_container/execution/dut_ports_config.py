@@ -5,13 +5,13 @@ import socket
 import platform
 import subprocess
 
-from constant import (port_config_prompt_update, 
+from script_container.execution.constant import (port_config_prompt_update, 
                       port_config_auth_prompt, port_config_auth_confirm,
                       port_config_success, port_config_fail, 
                       port_config_mismatch)
 
 # Importing Common Method :
-from constant import CommonFuntion
+from script_container.execution.constant import CommonFuntion
 
 
 class DutPortConfig(CommonFuntion):
