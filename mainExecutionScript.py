@@ -31,12 +31,12 @@ def main():
     try:
         print("\n🚀 Starting Setup Scripts...\n")\
         # STEP 1: Define paths for firmware and driver packages
-        firmware_file_path = "/root/E810_NVMUpdatePackage_v4_90_Linux.tar.gz"
-        driver_path = "/root/ice-2.3.10 (1).tar.gz"
+        firmware_file_path = os.environ['FIRMWARE_PATH']
+        driver_path = os.environ['DRIVER_PATH']
 
         # 🔐 Replace with environment variables for security
-        git_user = "*****"
-        git_token = "*****"
+        git_user = os.environ['GIT_USERNAME']
+        git_token = os.environ['GIT_TOKEN']
 
         # Initialize automation script
         script = AutomationScriptForSetupInstalltion(
@@ -108,4 +108,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # main()
+    print("Testing That Script Execution working fine")
+    print(os.environ['GIT_USERNAME'],os.environ['GIT_TOKEN'],os.environ['DRIVER_PATH'])
+
