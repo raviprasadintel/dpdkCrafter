@@ -5,96 +5,22 @@ import socket
 import platform
 import subprocess
 
-# from constant import (port_config_prompt_update, 
-#                       port_config_auth_prompt, port_config_auth_confirm,
-#                       port_config_success, port_config_fail, 
-#                       port_config_mismatch)
+from constant import (port_config_prompt_update, 
+                      port_config_auth_prompt, port_config_auth_confirm,
+                      port_config_success, port_config_fail, 
+                      port_config_mismatch)
+
+# Importing Common Method :
+from constant import CommonFuntion
 
 
-port_config_prompt_update = """# DUT Port Configuration
-# [DUT IP]
-# ports=
-#     pci=Pci BDF,intf=Kernel interface;
-#     pci=Pci BDF,mac=Mac address,peer=Tester Pci BDF,numa=Port Numa
-#     pci=Pci BDF,peer=IXIA:card.port
-#     pci=Pci BDF,peer=TREX:port
-#     pci=Pci BDF,peer=Tester Pci BDF,tp_ip=$(IP),tp_path=$({{PERL_PATH}});
-#     pci=Pci BDF,peer=Tester Pci BDF,sec_port=yes,first_port=Pci BDF;
-# [VM NAME] virtual machine name; This section is for virtual scenario
-# ports =
-#     dev_idx=device index of ports info, peer=Tester Pci BDF
-[{}]
-ports =
-{}
-"""
-
-port_config_auth_prompt = (
-    "\n🔐 **Authentication Required**\n"
-    "----------------------------------\n"
-    "👤 Username : {username}\n"
-    "🌐 IP Address : {ip}\n"
-    "\n💬 Please enter your password to proceed...\n"
-)
-port_config_auth_confirm = (
-    "\n🔐 **Authentication Confirmation**\n"
-    "--------------------------------------\n"
-    "👤 Username : {username}\n"
-    "🌐 IP Address : {ip}\n"
-    "\n🔁 Please re-enter your password to confirm...\n"
-)
-port_config_success = "\n✅ Password confirmed successfully!\n"
-port_config_mismatch = "\n❌ Passwords do not match or are empty. Attempts left: {attempts_left}\n"
-port_config_fail = "🚫 Maximum attempts reached. Authentication failed.\n"
-
-
-# --------------------------------------------------------------------------------------------------
-#                              Constant : dut_ports_config.py   (END)
-# --------------------------------------------------------------------------------------------------
-
-
-
-# --------------------------------------------------------------------------------------------------
-#                              Constant : dut_crbs_config.py   (END)
-# --------------------------------------------------------------------------------------------------
-
-
-# --------------------------------------------------------------------------------------------------
-
-
-class DutPortConfig:
+class DutPortConfig(CommonFuntion):
     def __init__(self,dts_path):
         self.dts_setup_path = dts_path 
         # Initialize configuration
         self.ip_address = self.get_ipv4_address()
         self.username = os.getlogin()
         self.password = "tester" #self.get_password()
-
-    def run_command(self, command, description="", check_output=False):
-        """
-        Executes a shell command.
-
-        Args:
-            command (list): Command and arguments as a list.
-            description (str): Description for logging.
-            check_output (bool): If True, returns command output.
-
-        Returns:
-            tuple: (success: bool, output: str)
-        """
-        try:
-            print(f"\n🔧 Executing: {description}")
-            if check_output:
-                result = subprocess.check_output(command, stderr=subprocess.STDOUT, text=True)
-                return True, result
-            else:
-                subprocess.run(command, check=True)
-                return True, ""
-        except subprocess.CalledProcessError as e:
-            print(f"❌ Error during '{description}': {e}")
-            return False, str(e)
-
-
-
 
     def get_ipv4_address(self):
         """
@@ -266,41 +192,41 @@ class DutPortConfig:
         print("✅ Awake and starting interface pairing check!\n")
 # --------------------------------------------------------------------------------------------------
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
    
-    print("Starting -> Port Updating Process")
-    dts_path = "/root/testing/dts_setup/"
-    ports_config_obj = DutPortConfig(dts_path)
+#     print("Starting -> Port Updating Process")
+#     dts_path = "/root/testing/dts_setup/"
+#     ports_config_obj = DutPortConfig(dts_path)
     
-    # Display the loaded configuration details
+#     # Display the loaded configuration details
 
-    # Example Showing Interface Deatails    
-    interfaceDetails = {   'bus_info': [{'bus': 'pci@0000:17:00.0', 'device': 'ens260f0np0', 'description': 'Ethernet Controller X710 for 10GBASE-T'}, 
-                  {'bus': 'pci@0000:17:00.1', 'device': 'ens260f1np1', 'description': 'Ethernet Controller X710 for 10GBASE-T'}, 
-                  {'bus': 'pci@0000:31:00.0', 'device': 'ens786f0', 'description': 'I350 Gigabit Network Connection'}, 
-                  {'bus': 'pci@0000:31:00.1', 'device': 'ens786f1', 'description': 'I350 Gigabit Network Connection'}, 
-                  {'bus': 'pci@0000:31:00.2', 'device': 'ens786f2', 'description': 'I350 Gigabit Network Connection'}, 
-                  {'bus': 'pci@0000:31:00.3', 'device': 'ens786f3', 'description': 'I350 Gigabit Network Connection'}, 
-                  {'bus': 'pci@0000:4b:00.0', 'device': 'ens785f0np0', 'description': 'Ethernet Controller E810-C for QSFP'}, 
-                  {'bus': 'pci@0000:4b:00.1', 'device': 'ens785f1np1', 'description': 'Ethernet Controller E810-C for QSFP'}, 
-                  {'bus': 'pci@0000:b1:00.0', 'device': 'ens801f0np0', 'description': 'Ethernet Controller E810-C for QSFP'}, 
-                  {'bus': 'pci@0000:b1:00.1', 'device': 'ens801f1np1', 'description': 'Ethernet Controller E810-C for QSFP'}, 
-                  {'bus': 'pci@0000:ca:00.0', 'device': 'ens802f0np0', 'description': 'Ethernet Controller E810-C for QSFP'}, 
-                  {'bus': 'pci@0000:ca:00.1', 'device': 'ens802f1np1', 'description': 'Ethernet Controller E810-C for QSFP'}],
-        'interface_connection': [['ens802f0np0', 'ens801f0np0'], ['ens802f1np1', 'ens801f1np1']], 
-        'mapped_pair': [{'interface': ['ens802f0np0', 'ens801f0np0'], 'bus_info': ['0000:ca:00.0', '0000:b1:00.0']}, 
-                        {'interface': ['ens802f1np1', 'ens801f1np1'], 'bus_info': ['0000:ca:00.1', '0000:b1:00.1']}]
-    }
+#     # Example Showing Interface Deatails    
+#     interfaceDetails = {   'bus_info': [{'bus': 'pci@0000:17:00.0', 'device': 'ens260f0np0', 'description': 'Ethernet Controller X710 for 10GBASE-T'}, 
+#                   {'bus': 'pci@0000:17:00.1', 'device': 'ens260f1np1', 'description': 'Ethernet Controller X710 for 10GBASE-T'}, 
+#                   {'bus': 'pci@0000:31:00.0', 'device': 'ens786f0', 'description': 'I350 Gigabit Network Connection'}, 
+#                   {'bus': 'pci@0000:31:00.1', 'device': 'ens786f1', 'description': 'I350 Gigabit Network Connection'}, 
+#                   {'bus': 'pci@0000:31:00.2', 'device': 'ens786f2', 'description': 'I350 Gigabit Network Connection'}, 
+#                   {'bus': 'pci@0000:31:00.3', 'device': 'ens786f3', 'description': 'I350 Gigabit Network Connection'}, 
+#                   {'bus': 'pci@0000:4b:00.0', 'device': 'ens785f0np0', 'description': 'Ethernet Controller E810-C for QSFP'}, 
+#                   {'bus': 'pci@0000:4b:00.1', 'device': 'ens785f1np1', 'description': 'Ethernet Controller E810-C for QSFP'}, 
+#                   {'bus': 'pci@0000:b1:00.0', 'device': 'ens801f0np0', 'description': 'Ethernet Controller E810-C for QSFP'}, 
+#                   {'bus': 'pci@0000:b1:00.1', 'device': 'ens801f1np1', 'description': 'Ethernet Controller E810-C for QSFP'}, 
+#                   {'bus': 'pci@0000:ca:00.0', 'device': 'ens802f0np0', 'description': 'Ethernet Controller E810-C for QSFP'}, 
+#                   {'bus': 'pci@0000:ca:00.1', 'device': 'ens802f1np1', 'description': 'Ethernet Controller E810-C for QSFP'}],
+#         'interface_connection': [['ens802f0np0', 'ens801f0np0'], ['ens802f1np1', 'ens801f1np1']], 
+#         'mapped_pair': [{'interface': ['ens802f0np0', 'ens801f0np0'], 'bus_info': ['0000:ca:00.0', '0000:b1:00.0']}, 
+#                         {'interface': ['ens802f1np1', 'ens801f1np1'], 'bus_info': ['0000:ca:00.1', '0000:b1:00.1']}]
+#     }
 
-    print(
-        "\n🔧 Loaded Configuration:\n"
-        "-----------------------------\n"
-        f"🌐 IP Address : {ports_config_obj.ip_address}\n"
-        f"👤 Username   : {ports_config_obj.username}\n"
-        f"🔑 Password   : {'*' * len(ports_config_obj.password) if ports_config_obj.password else 'Not Set'}\n"
-    )
+#     print(
+#         "\n🔧 Loaded Configuration:\n"
+#         "-----------------------------\n"
+#         f"🌐 IP Address : {ports_config_obj.ip_address}\n"
+#         f"👤 Username   : {ports_config_obj.username}\n"
+#         f"🔑 Password   : {'*' * len(ports_config_obj.password) if ports_config_obj.password else 'Not Set'}\n"
+#     )
 
 
-    ports_config_obj.update_ports(interfaceDetails)
+#     ports_config_obj.update_ports(interfaceDetails)
 
 
