@@ -9,9 +9,9 @@ Modules Used:
 """
 
 import os
-from script_container.execution.setup_installation import AutomationScriptForSetupInstalltion
-from script_container.execution.bus_info_details import PairingManagerInfo
-from script_container.execution.dut_ports_config import DutPortConfig
+from dpdkCrafter.script_container.execution.setup_installation import AutomationScriptForSetupInstalltion
+from dpdkCrafter.script_container.execution.bus_info_details import PairingManagerInfo
+from dpdkCrafter.script_container.execution.dut_ports_config import DutPortConfig
 
 
 def main():

@@ -3,7 +3,7 @@ import os
 import time
 import subprocess
 import platform
-from constant import CommonFuntion
+from dpdkCrafter.script_container.execution.constant import CommonFuntion
 
 
 

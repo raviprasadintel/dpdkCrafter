@@ -1,7 +1,7 @@
 import os
 import re
 import subprocess
-from script_container.execution.constant import CommonFuntion
+from dpdkCrafter.script_container.execution.constant import CommonFuntion
 
 class AutomationScriptForSetupInstalltion(CommonFuntion):
 

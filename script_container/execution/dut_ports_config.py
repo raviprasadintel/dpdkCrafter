@@ -11,7 +11,7 @@ from script_container.execution.constant import (port_config_prompt_update,
                       port_config_mismatch)
 
 # Importing Common Method :
-from script_container.execution.constant import CommonFuntion
+from dpdkCrafter.script_container.execution.constant import CommonFuntion
 
 
 class DutPortConfig(CommonFuntion):
