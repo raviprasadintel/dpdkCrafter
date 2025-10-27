@@ -5,7 +5,7 @@ import socket
 import platform
 import subprocess
 
-from script_container.execution.constant import (port_config_prompt_update, 
+from dpdkCrafter.script_container.execution.constant import (port_config_prompt_update, 
                       port_config_auth_prompt, port_config_auth_confirm,
                       port_config_success, port_config_fail, 
                       port_config_mismatch)
