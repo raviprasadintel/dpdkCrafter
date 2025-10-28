@@ -10,7 +10,7 @@ class AutomationScriptForSetupInstalltion(CommonFuntion):
         self.driver_path =  driver_path
 
         # Github Credential integration username and token with url for verfication \ Authentication
-        self.dts_url = f"https://{git_user}:{git_token}@github.com/intel-sandbox/networking.dataplane.dpdk.dts.local.upstream.git"
+        self.dts_url = f"https://{git_user}:{git_token}@github.com/intel-sandbox/networking.dataplane.dpdk.dts.local.upstream.git".replace(" ","")
         self.dpdk_url = "https://github.com/DPDK/dpdk.git"
         self.error_logs = []
         self.error_logs_cmd = []

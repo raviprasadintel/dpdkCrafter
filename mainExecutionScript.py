@@ -36,8 +36,8 @@ def main():
         driver_path = os.environ.get('DRIVER_PATH',"****")
 
         # 🔐 Replace with environment variables for security
-        git_user = os.environ.get('GIT_USERNAME',None)
-        git_token = os.environ.get('GIT_TOKEN',None)
+        git_user = os.environ.get('GIT_USERNAME',"").strip()
+        git_token = os.environ.get('GIT_TOKEN',"").strip()
         
         if git_token == None or git_token == "" or git_user == None or git_user == "" or dpdk_dts_path =="":
             print("Error: Missing GIT_USERNAME / GIT_TOKEN / DPDK_INSTALLTION_PATH . Please define  in your environment variables to proceed.")
