@@ -73,6 +73,7 @@ def main():
         
         print("git_user => ",git_user,type(git_user))
         print("git_token => ",git_token,type(git_token))
+
         # STEP 1.4: Clone DPDK and DTS repositories
         print("\n🚀 Starting DPDK and DTS setup process...\n")
         script.clone_dts_repo()
@@ -88,19 +89,20 @@ def main():
         for log in error_logs_cmd:
             print("ERROR LOG CMD:",log)
 
-        # # STEP 2: Fetch interface pairing info
-        # print("🧩 Initializing PairingManagerInfo object...")
-        # obj = PairingManagerInfo()
+        # STEP 2: Fetch interface pairing info
+        print("🧩 Initializing PairingManagerInfo object...")
+        obj = PairingManagerInfo()
 
-        # print("\n🔍 Fetching Interface and Bus Pairing Information...\n")
-        # obj.fetchingInterFacePairingInfo()
+        print("\n🔍 Fetching Interface and Bus Pairing Information...\n")
+        obj.fetchingInterFacePairingInfo()
 
-        # print("\n🔗 Fetching Interface Connection Details...\n")
-        # obj.fetchingPairDetailsFromInterface()
+        print("\n🔗 Fetching Interface Connection Details...\n")
+        obj.fetchingPairDetailsFromInterface()
 
-        # print("\nMapping Interface With Bus Info")
-        # interface_details = obj.mapInterfaceToBus()
+        print("\nMapping Interface With Bus Info")
+        interface_details = obj.mapInterfaceToBus()
 
+        print("INTERFACE DETAILS :\n\n",interface_details)
         # # STEP 3: Configure DUT ports
        
         # ports_config_obj = DutPortConfig(dpdk_dts_path)
