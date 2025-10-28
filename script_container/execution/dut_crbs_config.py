@@ -57,8 +57,9 @@ class DutCrbsConfig(CommonFuntion):
 
         # 🛠️ Step 2: Update fields if username and password are provided
         if dut_user:
-            filter_crbs_data = re.sub(r"dut_user=.*", f"dut_user={dut_user}", filter_crbs_data)
+            filter_crbs_data = re.sub(r"[DUT IP1].*", f"[{dut_user}]", filter_crbs_data)
         if dut_ip:
+            filter_crbs_data = re.sub(r"dut_ip=.*",f"dut_ip={dut_ip}",filter_crbs_data)
             filter_crbs_data = re.sub(r"dut_ip=.*",f"dut_ip={dut_ip}",filter_crbs_data)
         if dut_passwd:
             filter_crbs_data = re.sub(r"dut_passwd=.*", f"dut_passwd={dut_passwd}", filter_crbs_data)
