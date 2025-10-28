@@ -61,7 +61,10 @@ def main():
             script.install_required_packages()
 
         # STEP 1.3: Prepare environment for DPDK/DTS setup
+        print("Current Path =>",os.getcwd())
+        print("dpdk_dts_path = >",dpdk_dts_path)
         os.chdir(dpdk_dts_path)
+        print("Current Path =>",os.getcwd())
         script.creating_folder_setup(dpdk_dts_folder_name)
         os.chdir(dpdk_dts_folder_name)
 
