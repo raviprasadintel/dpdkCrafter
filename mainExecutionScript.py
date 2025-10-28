@@ -105,17 +105,17 @@ def main():
         print("INTERFACE DETAILS :\n\n",interface_details)
         # # STEP 3: Configure DUT ports
        
-        # ports_config_obj = DutPortConfig(dpdk_dts_path)
+        ports_config_obj = DutPortConfig(dpdk_dts_path)
 
-        # print(
-        #     "\n🔧 Loaded Configuration:\n"
-        #     "-----------------------------\n"
-        #     f"🌐 IP Address : {ports_config_obj.ip_address}\n"
-        #     f"👤 Username   : {ports_config_obj.username}\n"
-        #     f"🔑 Password   : {'*' * len(ports_config_obj.password) if ports_config_obj.password else 'Not Set'}\n"
-        # )
+        print(
+            "\n🔧 Loaded Configuration:\n"
+            "-----------------------------\n"
+            f"🌐 IP Address : {ports_config_obj.ip_address}\n"
+            f"👤 Username   : {ports_config_obj.username}\n"
+            f"🔑 Password   : {'*' * len(ports_config_obj.password) if ports_config_obj.password else 'Not Set'}\n"
+        )
 
-        # ports_config_obj.update_ports(interface_details)
+        ports_config_obj.update_ports(interface_details)
 
     except Exception as e:
         print(f"\n❌ An error occurred during execution: {e}\n")
