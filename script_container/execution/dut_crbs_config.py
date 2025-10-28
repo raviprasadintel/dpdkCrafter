@@ -10,10 +10,12 @@ from script_container.execution.constant import CommonFuntion
 class DutCrbsConfig(CommonFuntion):
 
     def __init__(self,dts_path):
-        self.dts_setup_path = dts_path
-        self.filter_crbs_data = "" # Filter crbs data to be updated 
+        path = dts_path.strip() + "/networking.dataplane.dpdk.dts.local.upstream/conf"
+        os.chdir(path)
+        self.filter_crbs_data = self.read_file_data() # Filter crbs data to be updated 
+        self.file_name = "crbs.cfg"
 
-    def read_file_data(self,file_path):
+    def read_file_data(self):
         """
         Reads and returns the contents of a file.
 
@@ -24,7 +26,7 @@ class DutCrbsConfig(CommonFuntion):
         str: Contents of the file as a string.
         """
         try:
-            with open(file_path, 'r', encoding='utf-8') as file:
+            with open(self.file_name, 'r', encoding='utf-8') as file:
                 data = file.read()
             self.crbs_data = data
         except FileNotFoundError:
@@ -79,11 +81,9 @@ class DutCrbsConfig(CommonFuntion):
         self.write_crbs_config(filter_crbs_data)
 
     
-    def write_crbs_config(self,pair_text, file_name="crbs.cfg"):
+    def write_crbs_config(self,pair_text):
         # 📁 Step 4: Navigate to the configuration directory
-        path = self.dts_setup_path.strip() + "networking.dataplane.dpdk.dts.local.upstream/conf"
-        os.chdir(path)
-
+        file_name=self.file_name
         self.run_command(["pwd"],"Fecthing Current Path\n")
         
         # Adding line break 

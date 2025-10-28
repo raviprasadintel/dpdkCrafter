@@ -12,6 +12,7 @@ import os
 from script_container.execution.setup_installation import AutomationScriptForSetupInstalltion
 from script_container.execution.bus_info_details import PairingManagerInfo
 from script_container.execution.dut_ports_config import DutPortConfig
+from script_container.execution.dut_crbs_config import DutCrbsConfig
 
 
 def main():
@@ -69,7 +70,7 @@ def main():
         print(f"📁 After folder creation, current working directory: {os.getcwd()}")
     
         dpdk_dts_path = os.getcwdb().decode()
-        print(dpdk_dts_path,type(dpdk_dts_path))
+        
         
         print("git_user => ",git_user,type(git_user))
         print("git_token => ",git_token,type(git_token))
@@ -82,12 +83,6 @@ def main():
         # Collect error logs
         error_logs += script.error_logs
         error_logs_cmd += script.error_logs_cmd
-
-        for log in error_logs:
-            print("ERROR LOG:",log)
-
-        for log in error_logs_cmd:
-            print("ERROR LOG CMD:",log)
 
         # STEP 2: Fetch interface pairing info
         print("🧩 Initializing PairingManagerInfo object...")
@@ -103,8 +98,8 @@ def main():
         interface_details = obj.mapInterfaceToBus()
 
         print("INTERFACE DETAILS :\n\n",interface_details)
-        # # STEP 3: Configure DUT ports
-       
+        
+        # STEP 3: Configure DUT ports [ports.cfg]
         ports_config_obj = DutPortConfig(dpdk_dts_path)
 
         print(
@@ -116,6 +111,23 @@ def main():
         )
 
         ports_config_obj.update_ports(interface_details)
+
+        # STEP 4: Configure Updating Password [crbs.cfg]
+        crfs_file_obj = DutCrbsConfig(dpdk_dts_path) 
+        crfs_file_obj.updating_crbs_file(
+        dut_ip = ports_config_obj.ip_address,
+        dut_user = ports_config_obj.username,
+        dut_passwd = ports_config_obj.password,
+        tester_ip = ports_config_obj.ip_address,
+        tester_passwd = ports_config_obj.password
+        )
+
+        #ERROR : Capturing Viewer
+        for log in error_logs:
+            print("ERROR LOG:",log)
+
+        for log in error_logs_cmd:
+            print("ERROR LOG CMD:",log)
 
     except Exception as e:
         print(f"\n❌ An error occurred during execution: {e}\n")
