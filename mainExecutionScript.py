@@ -66,15 +66,13 @@ def main():
         os.chdir(dpdk_dts_path)
         print("Current Path =>",os.getcwd())
         script.creating_folder_setup(dpdk_dts_folder_name)
+        print(f"📁 After folder creation, current working directory: {os.getcwd()}")
+    
+        dpdk_dts_path = os.getcwdb()
+        print(dpdk_dts_path,type(dpdk_dts_path))
         
-
-        pwd_path = script.run_command(["pwd"],"Fetching DPDK DTS Setup Path",check_output=True)
-        if pwd_path[0]:
-            dpdk_dts_path = pwd_path[1]
-        else:
-            dpdk_dts_path = f"{dpdk_dts_path}/{dpdk_dts_folder_name}"
-        
-
+        print("git_user => ",git_user,type(git_user))
+        print("git_token => ",git_token,type(git_token))
         # STEP 1.4: Clone DPDK and DTS repositories
         print("\n🚀 Starting DPDK and DTS setup process...\n")
         script.clone_dts_repo()
