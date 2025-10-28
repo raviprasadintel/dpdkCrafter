@@ -66,7 +66,7 @@ def main():
         os.chdir(dpdk_dts_path)
         print("Current Path =>",os.getcwd())
         script.creating_folder_setup(dpdk_dts_folder_name)
-        os.chdir(dpdk_dts_folder_name)
+        
 
         pwd_path = script.run_command(["pwd"],"Fetching DPDK DTS Setup Path",check_output=True)
         if pwd_path[0]:
