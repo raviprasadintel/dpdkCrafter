@@ -301,7 +301,6 @@ if __name__ == "__main__":
         # Step 3: Prepare environment for DPDK/DTS setup
         os.chdir("/root/testing")  # Change to root directory
         script.creating_folder_setup("dts_setup")
-        script.setup_proxy_environment()
 
         # Step 4: Clone DPDK and DTS repositories
         print("\n🚀 Starting DPDK and DTS setup process...\n")

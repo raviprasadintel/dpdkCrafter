@@ -227,9 +227,6 @@ class AutomationScriptForSetupInstalltion(CommonFuntion):
             ["apt", "install", "-y", "lldpad"]
         ]
 
-
-        self.setup_proxy_environment()
-
         pip_packages = [
             ["pip3", "install", "xlrd", "--break-system-packages"],
             ["pip3", "install", "xlwt", "--break-system-packages"],

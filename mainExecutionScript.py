@@ -26,19 +26,22 @@ def main():
 
     error_logs = []
     error_logs_cmd = []
-    dpdk_dts_path = os.environ['DPDK_INSTALLTION_PATH']
+    dpdk_dts_path = os.environ.get('DPDK_INSTALLTION_PATH',"")
     dpdk_dts_folder_name = "dts_setup"
 
     try:
         print("\n🚀 Starting Setup Scripts...\n")\
         # STEP 1: Define paths for firmware and driver packages
-        firmware_file_path = os.environ['FIRMWARE_PATH']
-        driver_path = os.environ['DRIVER_PATH']
+        firmware_file_path = os.environ.get('FIRMWARE_PATH',"****")
+        driver_path = os.environ.get('DRIVER_PATH',"****")
 
         # 🔐 Replace with environment variables for security
-        git_user = os.environ['GIT_USERNAME']
-        git_token = os.environ['GIT_TOKEN']
-
+        git_user = os.environ.get('GIT_USERNAME',None)
+        git_token = os.environ.get('GIT_TOKEN',None)
+        
+        if git_token == None or git_token == "" or git_user == None or git_user == "" or dpdk_dts_path =="":
+            print("Error: Missing GIT_USERNAME / GIT_TOKEN / DPDK_INSTALLTION_PATH . Please define  in your environment variables to proceed.")
+            return
         # Initialize automation script
         script = AutomationScriptForSetupInstalltion(
             firmware_file_path=firmware_file_path,
@@ -50,10 +53,12 @@ def main():
         script.setup_proxy_environment()
         
         # STEP 1.1: Update firmware and drivers
-        # script.updating_firmware_drivers()
+        if os.environ.get('DRIVER_UPDATE', 'FALSE').upper() == 'TRUE':
+            script.updating_firmware_drivers()
 
         # STEP 1.2: Install required system and Python packages
-        script.install_required_packages()
+        if os.environ.get("APT_PACKAGE_UPDATE_REQUIRED","FALSE").upper() == "TRUE":
+            script.install_required_packages()
 
         # STEP 1.3: Prepare environment for DPDK/DTS setup
         os.chdir(dpdk_dts_path)
@@ -75,6 +80,12 @@ def main():
         # Collect error logs
         error_logs += script.error_logs
         error_logs_cmd += script.error_logs_cmd
+
+        for log in error_logs:
+            print("ERROR LOG:",log)
+
+        for log in error_logs_cmd:
+            print("ERROR LOG CMD:",log)
 
         # # STEP 2: Fetch interface pairing info
         # print("🧩 Initializing PairingManagerInfo object...")
