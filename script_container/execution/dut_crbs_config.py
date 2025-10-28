@@ -13,9 +13,8 @@ class DutCrbsConfig(CommonFuntion):
         path = dts_path.strip() + "/networking.dataplane.dpdk.dts.local.upstream/conf"
         os.chdir(path)
         self.filter_crbs_data = self.read_file_data() # Filter crbs data to be updated 
-        self.file_name = "crbs.cfg"
 
-    def read_file_data(self):
+    def read_file_data(self,file_path="crbs.cfg"):
         """
         Reads and returns the contents of a file.
 
@@ -26,7 +25,7 @@ class DutCrbsConfig(CommonFuntion):
         str: Contents of the file as a string.
         """
         try:
-            with open(self.file_name, 'r', encoding='utf-8') as file:
+            with open(file_path, 'r', encoding='utf-8') as file:
                 data = file.read()
             self.crbs_data = data
         except FileNotFoundError:
@@ -81,9 +80,9 @@ class DutCrbsConfig(CommonFuntion):
         self.write_crbs_config(filter_crbs_data)
 
     
-    def write_crbs_config(self,pair_text):
+    def write_crbs_config(self,pair_text, file_name="crbs.cfg"):
         # 📁 Step 4: Navigate to the configuration directory
-        file_name=self.file_name
+        
         self.run_command(["pwd"],"Fecthing Current Path\n")
         
         # Adding line break 
@@ -91,6 +90,7 @@ class DutCrbsConfig(CommonFuntion):
 
         if os.path.exists(file_name):
             self.run_command(["chmod","777",file_name],"giving a file access for READ, WRITE and DELETE")
+            time.sleep(1)
             self.run_command(["rm","-rf",file_name],f"Deleting existing File name  :=> {file_name}")
         
 
@@ -105,18 +105,18 @@ class DutCrbsConfig(CommonFuntion):
 
 # --------------------------------------------------------------------------------------------------
 
-# if __name__ == "__main__":
+if __name__ == "__main__":
     
-#     crfs_file_obj = DutCrbsConfig("")
-#     dut_ip= "10.190.213.109"
-#     dut_user = "root"
-#     dut_passwd = "password"
-#     tester_ip = "10.190.213.109"
-#     tester_passwd = "password"
-#     crfs_file_obj.updating_crbs_file(
-#         dut_ip=dut_ip,
-#         dut_user=dut_user,
-#         dut_passwd=dut_passwd,
-#         tester_ip=tester_ip,
-#         tester_passwd=tester_passwd
-#     )
+    crfs_file_obj = DutCrbsConfig("")
+    dut_ip= "10.190.213.109"
+    dut_user = "root"
+    dut_passwd = "password"
+    tester_ip = "10.190.213.109"
+    tester_passwd = "password"
+    crfs_file_obj.updating_crbs_file(
+        dut_ip=dut_ip,
+        dut_user=dut_user,
+        dut_passwd=dut_passwd,
+        tester_ip=tester_ip,
+        tester_passwd=tester_passwd
+    )
