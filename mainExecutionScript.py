@@ -68,7 +68,7 @@ def main():
         script.creating_folder_setup(dpdk_dts_folder_name)
         print(f"📁 After folder creation, current working directory: {os.getcwd()}")
     
-        dpdk_dts_path = os.getcwdb()
+        dpdk_dts_path = os.getcwdb().decode()
         print(dpdk_dts_path,type(dpdk_dts_path))
         
         print("git_user => ",git_user,type(git_user))
