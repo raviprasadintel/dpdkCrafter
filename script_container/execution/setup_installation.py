@@ -1,15 +1,16 @@
 import os
-import subprocess
 import re
+import subprocess
+from script_container.execution.constant import CommonFuntion
 
-class AutomationScriptForSetupInstalltion:
+class AutomationScriptForSetupInstalltion(CommonFuntion):
 
     def __init__(self,firmware_file_path = None, driver_path = None, git_user = "",git_token = "" ):
         self.firmware_file_path = firmware_file_path
         self.driver_path =  driver_path
 
         # Github Credential integration username and token with url for verfication \ Authentication
-        self.dts_url = f"https://{git_user}:{git_token}@github.com/intel-sandbox/networking.dataplane.dpdk.dts.local.upstream.git"
+        self.dts_url = f"https://{git_user}:{git_token}@github.com/intel-sandbox/networking.dataplane.dpdk.dts.local.upstream.git".replace(" ","")
         self.dpdk_url = "https://github.com/DPDK/dpdk.git"
         self.error_logs = []
         self.error_logs_cmd = []
@@ -39,35 +40,7 @@ class AutomationScriptForSetupInstalltion:
         print("After Proxy Update : \n")
         self.check_proxy_setup()
 
-    def run_command(self,command, description, check_output=False):
 
-        """
-        Executes a shell command using subprocess.
-        
-        Parameters:
-        - command (list): The shell command to execute.
-        - description (str): A description of the command for logging.
-        - check_output (bool): If True, captures and returns the command output.
-        
-        Returns:
-        - (bool, str): Tuple indicating success and output or error message.
-        """
-        try:
-            print(f"\n🔧 {description}...")
-            if check_output:
-                output = subprocess.check_output(command).decode()
-                print(f"✅ {description} completed successfully.\n")
-                return True, output
-            else:
-                subprocess.run(command, check=True)
-                print(f"✅ {description} completed successfully.\n")
-        except subprocess.CalledProcessError as e:
-            print(f"❌ {description} failed.")
-            self.error_logs_cmd.append(["Cmd Error",f"❌ {description} failed.",e])
-            print("Error:", e)
-            if check_output:
-                return False, str(e)
-        
     
     def creating_folder_setup(self,setup_file_name= "setup_firmware_driver"):
 
@@ -254,9 +227,6 @@ class AutomationScriptForSetupInstalltion:
             ["apt", "install", "-y", "lldpad"]
         ]
 
-
-        self.setup_proxy_environment()
-
         pip_packages = [
             ["pip3", "install", "xlrd", "--break-system-packages"],
             ["pip3", "install", "xlwt", "--break-system-packages"],
@@ -275,46 +245,46 @@ class AutomationScriptForSetupInstalltion:
 
 # #######################################   Main Execution Block   ###########################################################
 
-if __name__ == "__main__":
-    try:
-        # Define paths for firmware and driver packages
-        firmware_file_path = "/root/E810_NVMUpdatePackage_v4_90_Linux.tar.gz"
-        driver_path = "/root/ice-2.3.10 (1).tar.gz"
+# if __name__ == "__main__":
+#     try:
+#         # Define paths for firmware and driver packages
+#         firmware_file_path = "/root/E810_NVMUpdatePackage_v4_90_Linux.tar.gz"
+#         driver_path = "/root/ice-2.3.10 (1).tar.gz"
 
-        git_user = "****"  # 🔐 Replace with your GitHub username
-        git_token = "*****"  # 🔐 Replace with your GitHub token
+#         git_user = "*******"  # 🔐 Replace with your GitHub username
+#         git_token = "**********"  # 🔐 Replace with your GitHub token
 
-        # Initialize the automation script with firmware and driver paths
-        script = AutomationScriptForSetupInstalltion(
-            firmware_file_path= firmware_file_path,
-            driver_path= driver_path,
-            git_token= git_token,
-            git_user= git_user
-        )
+#         # Initialize the automation script with firmware and driver paths
+#         script = AutomationScriptForSetupInstalltion(
+#             firmware_file_path= firmware_file_path,
+#             driver_path= driver_path,
+#             git_token= git_token,
+#             git_user= git_user
+#         )
 
-        # Step 1: Update firmware and drivers
-        # script.updating_firmware_drivers()
+#         # Step 1: Update firmware and drivers
+#         script.updating_firmware_drivers()
 
-        # Step 2: Install required system and Python packages
-        # script.install_required_packages()
+#         # Step 2: Install required system and Python packages
+#         script.install_required_packages()
 
-        # Step 3: Prepare environment for DPDK/DTS setup
-        os.chdir("/root/testing")  # Change to root directory
-        script.creating_folder_setup("dts_setup")
-        script.setup_proxy_environment()
+#         # Step 3: Prepare environment for DPDK/DTS setup
+#         os.chdir("/root")  # Change to root directory
+#         script.creating_folder_setup("dts_setup")
+#         script.setup_proxy_environment()
 
-        # Step 4: Clone DPDK and DTS repositories
-        print("\n🚀 Starting DPDK and DTS setup process...\n")
-        script.clone_dts_repo()
-        script.clone_dpdk_repo()
+#         # Step 4: Clone DPDK and DTS repositories
+#         print("\n🚀 Starting DPDK and DTS setup process...\n")
+#         script.clone_dts_repo()
+#         script.clone_dpdk_repo()
 
-        # Step 5: Display any error logs collected during execution
-        print("\n📋 Error Logs:\n")
-        for error in script.error_logs:
-            print(f"❌ {error}")
-        for error in script.error_logs_cmd:
-            print(f"❌ {error}")
+#         # Step 5: Display any error logs collected during execution
+#         print("\n📋 Error Logs:\n")
+#         for error in script.error_logs:
+#             print(f"❌ {error}")
+#         for error in script.error_logs_cmd:
+#             print(f"❌ {error}")
 
-    except Exception as e:
-        print("\n❌ An unexpected error occurred during setup.")
-        print(f"Error: {e}")
+#     except Exception as e:
+#         print("\n❌ An unexpected error occurred during setup.")
+#         print(f"Error: {e}")
