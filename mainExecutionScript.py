@@ -124,7 +124,7 @@ def main():
         )
         
         # STEP 5: Configure Execution.cfg
-        print("\n\n\n\n\n\n\n\n\n\nExecution part: \n\n\n\n\n")
+       
         executionObj = ExecutionCfgUpdate(dpdk_dts_path)
         executionObj.update_execution_content(ports_config_obj.ip_address)
         #ERROR : Capturing Viewer
