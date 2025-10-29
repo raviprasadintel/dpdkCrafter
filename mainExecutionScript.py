@@ -149,6 +149,17 @@ def main():
         for log in error_logs_cmd:
             print("ERROR LOG CMD:",log)
 
+
+        # STEP 6: Executing Process [DTS] setup
+        if os.environ.get("DPDK_SETUP_RUN","false").upper() == "TRUE":
+            # ADDING SEPARATOR
+            print_separator()
+            print_separator()
+            path = dpdk_dts_path.strip() + "/networking.dataplane.dpdk.dts.local.upstream"
+            os.chdir(path)
+            script.run_command(["./dts"],"\n\n---------------RUNNING DTS SERVICE-----------\n\n")
+
+
     except Exception as e:
         print(f"\n❌ An error occurred during execution: {e}\n")
 
