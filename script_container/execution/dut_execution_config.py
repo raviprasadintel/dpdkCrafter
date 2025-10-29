@@ -86,6 +86,9 @@ class ExecutionCfgUpdate(CommonFuntion):
         try:
             file_data = self.execution_data
 
+            for val in file_data.splitlines():
+                print(val)
+
             print("execution .cfg",file_data)
 
             if not file_data:
@@ -104,7 +107,7 @@ class ExecutionCfgUpdate(CommonFuntion):
             lines = block.strip().splitlines()
             filtered = [line for line in lines if "hello_world" in line]
 
-            cleaned_block = "test_suites=\n" + "\n".join(filtered)
+            cleaned_block = "test_suites=\n" + "\n".join(filtered)+"\n"
 
             # Replace the test_suites block
             updated_data = re.sub(pattern, cleaned_block, file_data)

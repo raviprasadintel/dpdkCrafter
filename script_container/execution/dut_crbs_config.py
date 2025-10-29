@@ -37,9 +37,13 @@ class DutCrbsConfig(CommonFuntion):
         All other DUT blocks are ignored. Updates username and password if provided.
         """
 
-        crbs_data =self.crbs_data  if self.crbs_data  else "Ravi Prasad"
+        crbs_data =self.crbs_data  if self.crbs_data  else ""
         filter_crbs_data = ""
         filter_status = 0
+
+        print("\n\n\n\n\nCRBS-CFG\n\n\n\n\n")
+        for line in crbs_data.splitlines():
+            print(line)
 
         # 🔍 Step 1: Iterate through lines to find the first DUT block
         for line in crbs_data.splitlines():
@@ -65,6 +69,7 @@ class DutCrbsConfig(CommonFuntion):
             filter_crbs_data = re.sub(r"tester_passwd=.*", f"tester_passwd={tester_passwd}", filter_crbs_data)
         if tester_ip:
             filter_crbs_data = re.sub(r"tester_ip=.*",f"tester_ip={tester_ip}", filter_crbs_data)
+        
         # 📄 Step 3: Display the updated block
         print("📝 Updated DUT Configuration Block:\n")
         for line in filter_crbs_data.splitlines():
