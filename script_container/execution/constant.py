@@ -120,3 +120,11 @@ class CommonFuntion:
             print(f"❌ Error during '{description}': {e}")
             return False, str(e)
         
+
+# # Decoretor for Handling Exception :
+# def exception(func):
+    
+#     def wrppper(*args,**kwargs):
+#         return func(*args,**kwargs)
+    
+#     return wrppper

@@ -1,8 +1,6 @@
 import re
 import os
 import time
-import subprocess
-import platform
 from script_container.execution.constant import CommonFuntion
 
 
@@ -106,18 +104,4 @@ class DutCrbsConfig(CommonFuntion):
 
 # --------------------------------------------------------------------------------------------------
 
-if __name__ == "__main__":
-    
-    crfs_file_obj = DutCrbsConfig("")
-    dut_ip= "10.190.213.109"
-    dut_user = "root"
-    dut_passwd = "password"
-    tester_ip = "10.190.213.109"
-    tester_passwd = "password"
-    crfs_file_obj.updating_crbs_file(
-        dut_ip=dut_ip,
-        dut_user=dut_user,
-        dut_passwd=dut_passwd,
-        tester_ip=tester_ip,
-        tester_passwd=tester_passwd
-    )
+
