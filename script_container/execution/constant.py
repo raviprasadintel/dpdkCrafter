@@ -140,3 +140,6 @@ def handle_exceptions(func):
             traceback.print_exc()
             return None
     return wrapper
+
+# For printing SEPARATOR
+print_separator = lambda: print("\n\n\n\n" + "-" * 100 + "\n\n\n\n")

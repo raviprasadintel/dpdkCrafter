@@ -14,7 +14,7 @@ from script_container.execution.bus_info_details import PairingManagerInfo
 from script_container.execution.dut_ports_config import DutPortConfig
 from script_container.execution.dut_crbs_config import DutCrbsConfig
 from script_container.execution.dut_execution_config import ExecutionCfgUpdate
-
+from script_container.execution.constant import print_separator
 
 def main():
     """
@@ -51,24 +51,29 @@ def main():
             git_token=git_token,
             git_user=git_user
         )
+        # ADDING SEPARATOR
+        print_separator()
         # STEP 0.0 :Updating Proxy First 
         script.setup_proxy_environment()
         
         # STEP 1.1: Update firmware and drivers
         if os.environ.get('DRIVER_UPDATE', 'FALSE').upper() == 'TRUE':
+            # ADDING SEPARATOR
+            print_separator()
             script.updating_firmware_drivers()
 
         # STEP 1.2: Install required system and Python packages
         if os.environ.get("APT_PACKAGE_UPDATE_REQUIRED","FALSE").upper() == "TRUE":
+            # ADDING SEPARATOR
+            print_separator()
             script.install_required_packages()
 
         # STEP 1.3: Prepare environment for DPDK/DTS setup
-        print("Current Path =>",os.getcwd())
-        print("dpdk_dts_path = >",dpdk_dts_path)
+       
         os.chdir(dpdk_dts_path)
-        print("Current Path =>",os.getcwd())
+        # ADDING SEPARATOR
+        print_separator()
         script.creating_folder_setup(dpdk_dts_folder_name)
-        print(f"📁 After folder creation, current working directory: {os.getcwd()}")
     
         dpdk_dts_path = os.getcwdb().decode()
         
@@ -77,8 +82,12 @@ def main():
         print("git_token => ",git_token,type(git_token))
 
         # STEP 1.4: Clone DPDK and DTS repositories
+        # ADDING SEPARATOR
+        print_separator()
         print("\n🚀 Starting DPDK and DTS setup process...\n")
         script.clone_dts_repo()
+        # ADDING SEPARATOR
+        print_separator()
         script.clone_dpdk_repo()
 
         # Collect error logs
@@ -86,6 +95,8 @@ def main():
         error_logs_cmd += script.error_logs_cmd
 
         # STEP 2: Fetch interface pairing info
+        # ADDING SEPARATOR
+        print_separator()
         print("🧩 Initializing PairingManagerInfo object...")
         obj = PairingManagerInfo()
 
@@ -114,6 +125,8 @@ def main():
         ports_config_obj.update_ports(interface_details)
 
         # STEP 4: Configure Updating Password [crbs.cfg]
+        # ADDING SEPARATOR
+        print_separator()
         crfs_file_obj = DutCrbsConfig(dpdk_dts_path) 
         crfs_file_obj.updating_crbs_file(
         dut_ip = ports_config_obj.ip_address,
@@ -124,6 +137,8 @@ def main():
         )
         
         # STEP 5: Configure Execution.cfg
+        # ADDING SEPARATOR
+        print_separator()
        
         executionObj = ExecutionCfgUpdate(dpdk_dts_path)
         executionObj.update_execution_content(ports_config_obj.ip_address)

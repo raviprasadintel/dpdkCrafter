@@ -68,7 +68,6 @@ class ExecutionCfgUpdate(CommonFuntion):
             with open(self.file_name, "w", encoding='utf-8') as f:
                 f.write(pair_text)
 
-            print(f"✅ File '{self.file_name}' has been created with the provided port configuration.")
         except Exception as e:
             print(f"❌ Error writing CRB config: {e}")
             traceback.print_exc()
