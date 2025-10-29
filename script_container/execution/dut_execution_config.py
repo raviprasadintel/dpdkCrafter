@@ -84,6 +84,7 @@ class ExecutionCfgUpdate(CommonFuntion):
             ip_address (str): IP address to insert into the configuration.
         """
         try:
+            print("Execution.cfg Process start")
             file_data = self.execution_data
 
             for val in file_data.splitlines():
@@ -113,7 +114,10 @@ class ExecutionCfgUpdate(CommonFuntion):
             updated_data = re.sub(pattern, cleaned_block, file_data)
 
             # Replace CRB IP placeholder
-            updated_data = re.sub(r"crbs=&lt;CRB IP Address&gt;.*", f"crbs={ip_address}", updated_data)
+            updated_data = re.sub(r"crbs=<CRB IP Address>.*", f"crbs={ip_address}", updated_data)
+
+            # Replace Execution1
+            updated_data = re.sub(r"\[Execution1\].*", f"[{ip_address}]", updated_data)
 
             self.write_crbs_config(updated_data)
         except Exception as e:
