@@ -214,7 +214,7 @@ class AutomationScriptForSetupInstalltion(CommonFuntion):
             ["sudo", "timedatectl", "set-ntp", "false"],
             ["sudo", "timedatectl", "set-time", current_time],
             ["sudo", "timedatectl", "set-ntp", "true"],
-            ["sudo", "apt-get", "update"]
+            ["sudo", "apt-get", "update"],
             ["apt", "update"],
             ["apt", "install", "-y", "gcc"],
             ["apt", "install", "-y", "build-essential"],
