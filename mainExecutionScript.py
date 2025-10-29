@@ -12,7 +12,9 @@ import os
 from script_container.execution.setup_installation import AutomationScriptForSetupInstalltion
 from script_container.execution.bus_info_details import PairingManagerInfo
 from script_container.execution.dut_ports_config import DutPortConfig
-
+from script_container.execution.dut_crbs_config import DutCrbsConfig
+from script_container.execution.dut_execution_config import ExecutionCfgUpdate
+from script_container.execution.constant import print_separator
 
 def main():
     """
@@ -39,7 +41,7 @@ def main():
         git_user = os.environ.get('GIT_USERNAME',"").strip()
         git_token = os.environ.get('GIT_TOKEN',"").strip()
         
-        if git_token == None or git_token == "" or git_user == None or git_user == "" or dpdk_dts_path =="":
+        if (os.environ.get("DPDK_SETUP_INSTALLATION","false").upper() == "TRUE") and (git_token == None or git_token == "" or git_user == None or git_user == "" or dpdk_dts_path ==""):
             print("Error: Missing GIT_USERNAME / GIT_TOKEN / DPDK_INSTALLTION_PATH . Please define  in your environment variables to proceed.")
             return
         # Initialize automation script
@@ -49,71 +51,115 @@ def main():
             git_token=git_token,
             git_user=git_user
         )
-        # STEP 0.0 :Updating Proxy First 
+        # ADDING SEPARATOR
+        print_separator()
+        # STEP  :Updating Proxy First 
         script.setup_proxy_environment()
         
-        # STEP 1.1: Update firmware and drivers
+        # STEP : Update firmware and drivers
         if os.environ.get('DRIVER_UPDATE', 'FALSE').upper() == 'TRUE':
+            # ADDING SEPARATOR
+            print_separator()
             script.updating_firmware_drivers()
 
-        # STEP 1.2: Install required system and Python packages
+        # STEP : Install required system and Python packages
         if os.environ.get("APT_PACKAGE_UPDATE_REQUIRED","FALSE").upper() == "TRUE":
+            # ADDING SEPARATOR
+            print_separator()
             script.install_required_packages()
 
-        # STEP 1.3: Prepare environment for DPDK/DTS setup
-        print("Current Path =>",os.getcwd())
-        print("dpdk_dts_path = >",dpdk_dts_path)
-        os.chdir(dpdk_dts_path)
-        print("Current Path =>",os.getcwd())
-        script.creating_folder_setup(dpdk_dts_folder_name)
-        print(f"📁 After folder creation, current working directory: {os.getcwd()}")
-    
-        dpdk_dts_path = os.getcwdb()
-        print(dpdk_dts_path,type(dpdk_dts_path))
+        # STEP : Prepare environment for DPDK/DTS setup
+        if os.environ.get("DPDK_SETUP_INSTALLATION","false").upper() == "TRUE":
+            os.chdir(dpdk_dts_path)
+            # ADDING SEPARATOR
+            print_separator()
+            script.creating_folder_setup(dpdk_dts_folder_name)
         
-        print("git_user => ",git_user,type(git_user))
-        print("git_token => ",git_token,type(git_token))
-        # STEP 1.4: Clone DPDK and DTS repositories
-        print("\n🚀 Starting DPDK and DTS setup process...\n")
-        script.clone_dts_repo()
-        script.clone_dpdk_repo()
+            dpdk_dts_path = os.getcwdb().decode()
+            
+            
+            print("git_user => ",git_user,type(git_user))
+            print("git_token => ",git_token,type(git_token))
 
-        # Collect error logs
-        error_logs += script.error_logs
-        error_logs_cmd += script.error_logs_cmd
+            # STEP : Clone DPDK and DTS repositories
+            # ADDING SEPARATOR
+            print_separator()
+            print("\n🚀 Starting DPDK and DTS setup process...\n")
+            script.clone_dts_repo()
+            # ADDING SEPARATOR
+            print_separator()
+            script.clone_dpdk_repo()
 
-        for log in error_logs:
-            print("ERROR LOG:",log)
+            # Collect error logs
+            error_logs += script.error_logs
+            error_logs_cmd += script.error_logs_cmd
 
-        for log in error_logs_cmd:
-            print("ERROR LOG CMD:",log)
+            # STEP : Fetch interface pairing info
+            # ADDING SEPARATOR
+            print_separator()
+            print("🧩 Initializing PairingManagerInfo object...")
+            obj = PairingManagerInfo()
 
-        # # STEP 2: Fetch interface pairing info
-        # print("🧩 Initializing PairingManagerInfo object...")
-        # obj = PairingManagerInfo()
+            print("\n🔍 Fetching Interface and Bus Pairing Information...\n")
+            obj.fetchingInterFacePairingInfo()
 
-        # print("\n🔍 Fetching Interface and Bus Pairing Information...\n")
-        # obj.fetchingInterFacePairingInfo()
+            print("\n🔗 Fetching Interface Connection Details...\n")
+            obj.fetchingPairDetailsFromInterface()
 
-        # print("\n🔗 Fetching Interface Connection Details...\n")
-        # obj.fetchingPairDetailsFromInterface()
+            print("\nMapping Interface With Bus Info")
+            interface_details = obj.mapInterfaceToBus()
 
-        # print("\nMapping Interface With Bus Info")
-        # interface_details = obj.mapInterfaceToBus()
+            print("INTERFACE DETAILS :\n\n",interface_details)
+            
+            # STEP : Configure DUT ports [ports.cfg]
+            ports_config_obj = DutPortConfig(dpdk_dts_path)
 
-        # # STEP 3: Configure DUT ports
-       
-        # ports_config_obj = DutPortConfig(dpdk_dts_path)
+            print(
+                "\n🔧 Loaded Configuration:\n"
+                "-----------------------------\n"
+                f"🌐 IP Address : {ports_config_obj.ip_address}\n"
+                f"👤 Username   : {ports_config_obj.username}\n"
+                f"🔑 Password   : {'*' * len(ports_config_obj.password) if ports_config_obj.password else 'Not Set'}\n"
+            )
 
-        # print(
-        #     "\n🔧 Loaded Configuration:\n"
-        #     "-----------------------------\n"
-        #     f"🌐 IP Address : {ports_config_obj.ip_address}\n"
-        #     f"👤 Username   : {ports_config_obj.username}\n"
-        #     f"🔑 Password   : {'*' * len(ports_config_obj.password) if ports_config_obj.password else 'Not Set'}\n"
-        # )
+            ports_config_obj.update_ports(interface_details)
 
-        # ports_config_obj.update_ports(interface_details)
+            # STEP : Configure Updating Password [crbs.cfg]
+            # ADDING SEPARATOR
+            print_separator()
+            crfs_file_obj = DutCrbsConfig(dpdk_dts_path) 
+            crfs_file_obj.updating_crbs_file(
+            dut_ip = ports_config_obj.ip_address,
+            dut_user = ports_config_obj.username,
+            dut_passwd = ports_config_obj.password,
+            tester_ip = ports_config_obj.ip_address,
+            tester_passwd = ports_config_obj.password
+            )
+            
+            # STEP : Configure Execution.cfg
+            # ADDING SEPARATOR
+            print_separator()
+        
+            executionObj = ExecutionCfgUpdate(dpdk_dts_path)
+            executionObj.update_execution_content(ports_config_obj.ip_address)
+            #ERROR : Capturing Viewer
+            for log in error_logs:
+                print("ERROR LOG:",log)
+
+            for log in error_logs_cmd:
+                print("ERROR LOG CMD:",log)
+
+
+            # STEP : Executing Process [DTS] setup
+            if os.environ.get("DPDK_SETUP_RUN","false").upper() == "TRUE":
+                # ADDING SEPARATOR
+                print_separator()
+                print_separator()
+                path = dpdk_dts_path.strip() + "/networking.dataplane.dpdk.dts.local.upstream"
+                os.chdir(path)
+                script.run_command(["./dts"],"\n\n---------------RUNNING DTS SERVICE-----------\n\n")
+                print_separator()
+                print_separator()
 
     except Exception as e:
         print(f"\n❌ An error occurred during execution: {e}\n")

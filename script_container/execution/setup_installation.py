@@ -1,6 +1,6 @@
 import os
 import re
-import subprocess
+from datetime import datetime
 from script_container.execution.constant import CommonFuntion
 
 class AutomationScriptForSetupInstalltion(CommonFuntion):
@@ -207,7 +207,14 @@ class AutomationScriptForSetupInstalltion(CommonFuntion):
         """
         Installs required system and Python packages for DPDK and DTS setup.
         """
+        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+
         apt_packages = [
+            ["sudo", "timedatectl", "set-ntp", "false"],
+            ["sudo", "timedatectl", "set-time", current_time],
+            ["sudo", "timedatectl", "set-ntp", "true"],
+            ["sudo", "apt-get", "update"],
             ["apt", "update"],
             ["apt", "install", "-y", "gcc"],
             ["apt", "install", "-y", "build-essential"],

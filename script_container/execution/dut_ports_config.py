@@ -1,9 +1,8 @@
 import os
-import re
 import time
 import socket
-import platform
-import subprocess
+import traceback
+
 
 from script_container.execution.constant import (port_config_prompt_update, 
                       port_config_auth_prompt, port_config_auth_confirm,
@@ -146,50 +145,54 @@ class DutPortConfig(CommonFuntion):
             interfaceDetails (dict): Dictionary containing mapped_pair data.
         """
         # 🧩 Step 1: Validate input
-        if 'mapped_pair' not in interfaceDetails:
-            print("⚠️ Ports info not found in the provided interface details.\n")
-            return
+        try:
+            if 'mapped_pair' not in interfaceDetails:
+                print("⚠️ Ports info not found in the provided interface details.\n")
+                return
 
-        mapped_pair = interfaceDetails['mapped_pair']
+            mapped_pair = interfaceDetails['mapped_pair']
 
-        # 🛠️ Step 2: Generate port configuration lines
-        pair_text = "\n".join([
-            f"    pci={info['bus_info'][0]},peer={info['bus_info'][1]};"
-            for info in mapped_pair
-        ])
+            # 🛠️ Step 2: Generate port configuration lines
+            pair_text = "\n".join([
+                f"    pci={info['bus_info'][0]},peer={info['bus_info'][1]};"
+                for info in mapped_pair
+            ])
 
-        # 🧾 Step 3: Format the full configuration text
-        updated_text = port_config_prompt_update.format(self.ip_address, pair_text)
+            # 🧾 Step 3: Format the full configuration text
+            updated_text = port_config_prompt_update.format(self.ip_address, pair_text)
 
-        # 📁 Step 4: Navigate to the configuration directory
-        path = self.dts_setup_path.strip() + "networking.dataplane.dpdk.dts.local.upstream/conf"
-        os.chdir(path)
-       
-        # 📍 Step 5: Confirm current working directory
-        current_path = self.run_command(["pwd"], description="📂 Fetching current working directory", check_output=True)
-        print(f"📍 Current Path: {current_path}\n")
+            # 📁 Step 4: Navigate to the configuration directory
+            path = self.dts_setup_path.strip() + "/networking.dataplane.dpdk.dts.local.upstream/conf"
+            os.chdir(path)
+        
+            # 📍 Step 5: Confirm current working directory
+            current_path = self.run_command(["pwd"], description="📂 Fetching current working directory", check_output=True)
+            print(f"📍 Current Path: {current_path}\n")
 
-        # 📝 Step 6: Write the configuration to file
-        file_name = self.write_ports_config(updated_text)
+            # 📝 Step 6: Write the configuration to file
+            file_name = self.write_ports_config(updated_text)
 
-        # 📦 Step 7: Set file permissions
-        self.run_command(["chmod", "777", file_name], f"🔧 Setting full permissions on ➡️ {file_name}")
+            # 📦 Step 7: Set file permissions
+            self.run_command(["chmod", "777", file_name], f"🔧 Setting full permissions on ➡️ {file_name}")
 
-        # 🌐 Step 8: Get network interface details
-        self.run_command(["ip", "-br", "a"], "📡 Retrieving network interface details")
+            # 🌐 Step 8: Get network interface details
+            self.run_command(["ip", "-br", "a"], "📡 Retrieving network interface details")
 
-        # 🧠 Step 9: Fetch bus information
-        self.run_command(["lshw", "-c", "network", "-businfo"], "🔍 Fetching bus information for network interfaces")
+            # 🧠 Step 9: Fetch bus information
+            self.run_command(["lshw", "-c", "network", "-businfo"], "🔍 Fetching bus information for network interfaces")
 
-        # 📄 Step 10: Display the updated configuration file
-        self.run_command(["cat", file_name], "📑 Displaying updated configuration file for verification")
+            # 📄 Step 10: Display the updated configuration file
+            self.run_command(["cat", file_name], "📑 Displaying updated configuration file for verification")
 
-        # 😴 Step 11: Pause for verification
-        print("😴 Sleeping for 3 seconds to allow verification...\n")
-        time.sleep(3)
+            # 😴 Step 11: Pause for verification
+            print("😴 Sleeping for 3 seconds to allow verification...\n")
+            time.sleep(3)
 
-        # ✅ Step 12: Resume process
-        print("✅ Awake and starting interface pairing check!\n")
+            # ✅ Step 12: Resume process
+            print("✅ Awake and starting interface pairing check!\n")
+        except Exception as x:
+            print("\n\nException as x => ", x)
+            traceback.print_exc()
 # --------------------------------------------------------------------------------------------------
 
 # if __name__ == "__main__":

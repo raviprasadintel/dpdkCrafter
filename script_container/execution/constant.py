@@ -1,6 +1,8 @@
 import os
 import platform
 import subprocess
+import traceback
+from functools import wraps
 # --------------------------------------------------------------------------------------------------
 #                               Constant : dut_ports_config.py   (START)
 # --------------------------------------------------------------------------------------------------
@@ -120,3 +122,24 @@ class CommonFuntion:
             print(f"❌ Error during '{description}': {e}")
             return False, str(e)
         
+
+
+
+
+
+def handle_exceptions(func):
+    """
+    Decorator to handle exceptions and print traceback for debugging.
+    """
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            print(f"❌ Exception in '{func.__name__}': {e}")
+            traceback.print_exc()
+            return None
+    return wrapper
+
+# For printing SEPARATOR
+print_separator = lambda: print("\n\n\n\n" + "-" * 100 + "\n\n\n\n")
