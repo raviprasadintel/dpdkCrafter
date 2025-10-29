@@ -112,9 +112,7 @@ class ExecutionCfgUpdate(CommonFuntion):
             # Replace CRB IP placeholder
             updated_data = re.sub(r"crbs=&lt;CRB IP Address&gt;.*", f"crbs={ip_address}", updated_data)
 
-            print("✅ Updated execution.cfg content:\n")
-            for line in updated_data.splitlines():
-                print(line)
+            self.write_crbs_config(updated_data)
         except Exception as e:
             print(f"❌ Error while updating execution content: {e}")
             traceback.print_exc()
