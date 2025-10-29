@@ -13,6 +13,7 @@ from script_container.execution.setup_installation import AutomationScriptForSet
 from script_container.execution.bus_info_details import PairingManagerInfo
 from script_container.execution.dut_ports_config import DutPortConfig
 from script_container.execution.dut_crbs_config import DutCrbsConfig
+from script_container.execution.dut_execution_config import ExecutionCfgUpdate
 
 
 def main():
@@ -121,7 +122,11 @@ def main():
         tester_ip = ports_config_obj.ip_address,
         tester_passwd = ports_config_obj.password
         )
-
+        
+        # STEP 5: Configure Execution.cfg
+        print("\n\n\n\n\n\n\n\n\n\nExecution part: \n\n\n\n\n")
+        executionObj = ExecutionCfgUpdate(dpdk_dts_path)
+        executionObj.update_execution_content(ports_config_obj.ip_address)
         #ERROR : Capturing Viewer
         for log in error_logs:
             print("ERROR LOG:",log)
