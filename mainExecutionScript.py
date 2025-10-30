@@ -14,7 +14,7 @@ from script_container.execution.bus_info_details import PairingManagerInfo
 from script_container.execution.dut_ports_config import DutPortConfig
 from script_container.execution.dut_crbs_config import DutCrbsConfig
 from script_container.execution.dut_execution_config import ExecutionCfgUpdate
-from script_container.execution.constant import print_separator
+from script_container.execution.common_function import print_separator, check_os
 
 def main():
     """
@@ -44,6 +44,9 @@ def main():
         if (os.environ.get("DPDK_SETUP_INSTALLATION","false").upper() == "TRUE") and (git_token == None or git_token == "" or git_user == None or git_user == "" or dpdk_dts_path ==""):
             print("Error: Missing GIT_USERNAME / GIT_TOKEN / DPDK_INSTALLTION_PATH . Please define  in your environment variables to proceed.")
             return
+        # Fetching cureent Operation Sytem
+        fetching_os_details = check_os()
+
         # Initialize automation script
         script = AutomationScriptForSetupInstalltion(
             firmware_file_path=firmware_file_path,

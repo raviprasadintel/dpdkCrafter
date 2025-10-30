@@ -1,7 +1,7 @@
 import os
 import re
 from datetime import datetime
-from script_container.execution.constant import CommonFuntion
+from script_container.execution.common_function import CommonFuntion
 
 class AutomationScriptForSetupInstalltion(CommonFuntion):
 

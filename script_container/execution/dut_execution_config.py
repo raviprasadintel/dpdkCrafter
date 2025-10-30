@@ -2,7 +2,7 @@ import re
 import os
 import time
 import traceback
-from script_container.execution.constant import CommonFuntion, handle_exceptions
+from script_container.execution.common_function import CommonFuntion, handle_exceptions
 
 
 class ExecutionCfgUpdate(CommonFuntion):
