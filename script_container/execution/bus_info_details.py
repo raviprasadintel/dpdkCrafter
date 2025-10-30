@@ -1,11 +1,11 @@
 import re
 import time
-from script_container.execution.common_function import CommonFuntion
+from script_container.execution.common_function import CommonClassExecution
 
 
 # --------------------------------------------------------------------------------------------------
 
-class InterfaceManager(CommonFuntion):
+class InterfaceManager(CommonClassExecution):
     """
     A class to manage network interfaces using Linux 'ip' commands.
     Provides functionality to check interface status and bring DOWN interfaces UP.

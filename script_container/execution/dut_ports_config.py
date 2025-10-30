@@ -10,10 +10,10 @@ from script_container.execution.constant import (port_config_prompt_update,
                       port_config_mismatch)
 
 # Importing Common Method :
-from script_container.execution.common_function import CommonFuntion
+from script_container.execution.common_function import CommonClassExecution
 
 
-class DutPortConfig(CommonFuntion):
+class DutPortConfig(CommonClassExecution):
     def __init__(self,dts_path):
         self.dts_setup_path = dts_path 
         # Initialize configuration

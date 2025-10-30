@@ -2,10 +2,10 @@ import re
 import os
 import time
 import traceback
-from script_container.execution.common_function import CommonFuntion, handle_exceptions
+from script_container.execution.common_function import CommonClassExecution, handle_exceptions
 
 
-class ExecutionCfgUpdate(CommonFuntion):
+class ExecutionCfgUpdate(CommonClassExecution):
     """
     Handles reading, updating, and writing to the DTS execution configuration file.
     """

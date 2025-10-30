@@ -9,7 +9,7 @@ from functools import wraps
 
 
 
-class CommonFuntion:
+class CommonClassExecution:
 
 
     def run_command(self, command, description="", check_output=False):

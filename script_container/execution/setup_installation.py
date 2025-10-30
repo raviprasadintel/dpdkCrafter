@@ -1,9 +1,9 @@
 import os
 import re
 from datetime import datetime
-from script_container.execution.common_function import CommonFuntion
+from script_container.execution.common_function import CommonClassExecution
 
-class AutomationScriptForSetupInstalltion(CommonFuntion):
+class AutomationScriptForSetupInstalltion(CommonClassExecution):
 
     def __init__(self,firmware_file_path = None, driver_path = None, git_user = "",git_token = "" ):
         self.firmware_file_path = firmware_file_path
