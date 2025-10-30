@@ -44,6 +44,9 @@ port_config_fail = "🚫 Maximum attempts reached. Authentication failed.\n"
 # --------------------------------------------------------------------------------------------------
 OS_DETAILS= [
     {
-        "OS":""
+        "OS":"Linux"
+    },
+    {
+        "OS":"RHEL"
     }
 ]
