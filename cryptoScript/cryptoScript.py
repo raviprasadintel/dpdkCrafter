@@ -181,7 +181,7 @@ class CryptoSetupManager:
             
             self.run_command(["tar","-cvzf","dpdk.tar.gz","dpdk"])
             
-            self.run_command(["rm","rf",dpdk_file_name], "Removing Extra file after Taring")
+            self.run_command(["rm","-rf",dpdk_file_name], "Removing Extra file after Taring")
             
 
 
