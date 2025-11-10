@@ -200,7 +200,7 @@ def main():
         dpdk_file_path=os.environ.get("DPDK_FILE_PATH"),
         automation_folder_path= "/root/automation/",
         git_user= os.environ.get("GIT_USERNAME"),
-        git_token= os.environ.gett("GIT_TOKEN")
+        git_token= os.environ.get("GIT_TOKEN")
         )
 
     except FileNotFoundError as e:
