@@ -17,7 +17,7 @@ from script_container.execution.bus_info_details import PairingManagerInfo
 # from script_container.execution.dut_crbs_config import DutCrbsConfig
 # from script_container.execution.dut_execution_config import ExecutionCfgUpdate
 # from script_container.execution.constant import print_separator
-from cryptoScript.cryptoScript import CryptoSetupManager
+from crypto_container.cryptoScript import CryptoSetupManager
 
 
 
