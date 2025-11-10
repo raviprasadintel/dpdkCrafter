@@ -121,7 +121,10 @@ class CommonFuntion:
         except subprocess.CalledProcessError as e:
             print(f"❌ Error during '{description}': {e}")
             return False, str(e)
+    
+    def print_separator(self,val=""):
         
+        print("\n\n" + "-" * 50 +str(val)+ "-"*50 + "\n\n")
 
 
 

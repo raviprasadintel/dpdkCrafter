@@ -12,7 +12,7 @@ import os
 import subprocess
 import traceback
 # from script_container.execution.setup_installation import AutomationScriptForSetupInstalltion
-# from script_container.execution.bus_info_details import PairingManagerInfo
+from script_container.execution.bus_info_details import PairingManagerInfo
 # from script_container.execution.dut_ports_config import DutPortConfig
 # from script_container.execution.dut_crbs_config import DutCrbsConfig
 # from script_container.execution.dut_execution_config import ExecutionCfgUpdate
@@ -203,6 +203,22 @@ def main():
         )
 
         cryptObj.crypto_execution_script()
+
+
+        # Fetching Current Bus Info DETAILS..
+        print("🧩 Initializing PairingManagerInfo object...")
+        managerInfo = PairingManagerInfo()
+
+        print("\n🔍 Fetching Interface and Bus Pairing Information...\n")
+        managerInfo.fetchingInterFacePairingInfo()
+
+        print("\n🔗 Fetching Interface Connection Details...\n")
+        managerInfo.fetchingPairDetailsFromInterface()
+
+        print("\nMapping Interface With Bus Info")
+        interface_details = managerInfo.mapInterfaceToBus()
+
+        print("INTERFACE DETAILS :\n\n",interface_details)
 
     except FileNotFoundError as e:
         error_msg = f"❌ File not found: {str(e)}"

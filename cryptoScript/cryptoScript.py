@@ -2,10 +2,11 @@ import os
 import subprocess
 import time
 import traceback
+from script_container.execution.constant import CommonFuntion
 
 
 # Script Class
-class CryptoSetupManager:
+class CryptoSetupManager(CommonFuntion):
     """
     A utility class to manage cryptographic setup tasks in a DPDK test environment.
     This includes validating paths, executing shell commands, and preparing the system
@@ -20,46 +21,12 @@ class CryptoSetupManager:
         self.dts_setup_path = dts_setup_path  # Path where DTS is cloned
         self.dpdk_file_path = dpdk_file_path  # Path to the DPDK release tarball (e.g., dpdk-25.11-rc1.tar.xz)
         self.automation_folder_path = automation_folder_path # Path containing config_files, crypto_dep, qat_driver, etc.
-        self.print_separator = lambda x: print("\n\n" + "-" * 50 +str(x)+ "-"*50 + "\n\n")
 
         self.git_user = git_user
         self.git_token = git_token
         self.dts_url = f"https://{git_user}:{git_token}@github.com/intel-sandbox/networking.dataplane.dpdk.dts.local.upstream.git".replace(" ","")  #For cloning DTS after CREDENTIAL.
 
         self.configFileName = "config_files"
-
-    def run_command(self, command, description="", check_output=False):
-        """
-        Executes a shell command and optionally captures its output.
-
-        Args:
-            command (list): The command to execute as a list of strings.
-            description (str): Optional description for logging purposes.
-            check_output (bool): If True, captures and returns the command output.
-
-        Returns:
-            tuple: (success: bool, output_or_error: str)
-        """
-        print(f"\n🚀 Running: {description or 'Command'} ➜ {' '.join(command)}")
-        try:
-            if check_output:
-                result = subprocess.check_output(command, stderr=subprocess.STDOUT, text=True)
-                return True, result.strip()
-            else:
-                subprocess.run(command, check=True)
-                return True, ""
-        except FileNotFoundError:
-            error_msg = f"❌ Command not found: {command[0]}"
-            print(error_msg)
-            return False, error_msg
-        except subprocess.CalledProcessError as e:
-            error_msg = f"❌ Error during '{description}': {e.output if e.output else str(e)}"
-            self.logs_captured.append({
-                "errors": error_msg,
-                "traceback": traceback.format_exc()
-            })
-            print(error_msg)
-            return False, error_msg
 
     def clone_dts_repo(self):
 
@@ -183,10 +150,6 @@ class CryptoSetupManager:
             
             self.run_command(["rm","-rf",dpdk_file_name], "Removing Extra file after Taring")
             
-
-
-
-
             # Now We are Copying File Which We will Process , Further.
             print(os.getcwdb())
             return True
