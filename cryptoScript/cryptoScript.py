@@ -13,7 +13,7 @@ class CryptoSetupManager(CommonFuntion):
     for crypto-related test execution.
     """
 
-    def __init__(self,dts_setup_path, dpdk_file_path, automation_folder_path= "",git_user= "",git_token= ""):
+    def __init__(self,dts_setup_path, dpdk_file_path, automation_folder_path= "",git_user= "",git_token= "",qat_driver_path= ""):
         """
         Initializes the CryptSetupManager with default paths and log storage.
         """
@@ -21,12 +21,13 @@ class CryptoSetupManager(CommonFuntion):
         self.dts_setup_path = dts_setup_path  # Path where DTS is cloned
         self.dpdk_file_path = dpdk_file_path  # Path to the DPDK release tarball (e.g., dpdk-25.11-rc1.tar.xz)
         self.automation_folder_path = automation_folder_path # Path containing config_files, crypto_dep, qat_driver, etc.
-
+        self.qat_driver_path = qat_driver_path #Path of QAT Driver
         self.git_user = git_user
         self.git_token = git_token
         self.dts_url = f"https://{git_user}:{git_token}@github.com/intel-sandbox/networking.dataplane.dpdk.dts.local.upstream.git".replace(" ","")  #For cloning DTS after CREDENTIAL.
 
         self.configFileName = "config_files"
+        self.qatDriverFolderName = "qat_driver"
 
     def clone_dts_repo(self):
 
@@ -76,6 +77,8 @@ class CryptoSetupManager(CommonFuntion):
 
             if self.logs_captured:
                 raise ValueError("One or more required paths are invalid.")
+            
+            # ######################################################START STEP 1 PROCESS FOR CRYPTO########################################################################
 
             # Starting the process :  EXECUTION FOR CRYPTO AFTER Verfication all requied details are here with us.
             self.print_separator("Starting prcoess")
@@ -146,9 +149,21 @@ class CryptoSetupManager(CommonFuntion):
                     self.run_command(["mv",file_name,"dpdk"],f"Renaming file {file_name} :=: 'dpdk' ")
                     break
             
-            self.run_command(["tar","-cvzf","dpdk.tar.gz","dpdk"])
-            
+            self.run_command(["tar","-cvzf","dpdk.tar.gz","dpdk"])   
             self.run_command(["rm","-rf",dpdk_file_name], "Removing Extra file after Taring")
+
+
+            ###########################################################STEP 2 PROCESS START #############################################################
+            cp_qat_driver_path = os.path.join(self.automation_folder_path,self.qatDriverFolderName)
+
+            qat_driver_file_name = os.path.basename(self.qat_driver_path)
+            
+            # Chanding Directory to QAT Driver Directory Have to Copy QAT File
+            os.chdir(cp_qat_driver_path)
+            if os.path.exists(os.path.join(cp_qat_driver_path, qat_driver_file_name)):
+                self.run_command(["rm","-rf",qat_driver_file_name],"Removing If same file was there is QAT driver Folder")
+            
+            self.run_command(["cp",self.qat_driver_path,cp_qat_driver_path],f"Copying file QAT file := {qat_driver_file_name}")
             
             # Now We are Copying File Which We will Process , Further.
             print(os.getcwdb())

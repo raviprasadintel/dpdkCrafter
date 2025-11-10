@@ -43,7 +43,9 @@ all_required_variable = [
     ["GIT_USERNAME", True, "Git username is required for repository access."],
     ["GIT_TOKEN", True, "Git token is required for authentication."],
     ["DPDK_FILE_PATH", False, "Optional: Path to the DPDK configuration file."],
-    ["DTS_INSTALLTION_PATH", True, "DTS installation path is mandatory."]
+    ["DTS_INSTALLTION_PATH", True, "DTS installation path is mandatory."],
+    ["QAT_DRIVER_PATH",True,"QAT Driver path required for Updating QAT Example file Shoulde look Like (QAT20.L.1.2.30-00109.tar.gz)"],
+
 ]
 
 EnvValidator.validate_env_vars(all_required_variable)
@@ -199,7 +201,8 @@ def main():
         dpdk_file_path=os.environ.get("DPDK_FILE_PATH"),
         automation_folder_path= "/root/automation/",
         git_user= os.environ.get("GIT_USERNAME"),
-        git_token= os.environ.get("GIT_TOKEN")
+        git_token= os.environ.get("GIT_TOKEN"),
+        qat_driver_path = os.environ.get("QAT_DRIVER_PATH")
         )
 
         cryptObj.crypto_execution_script()
