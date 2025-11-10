@@ -194,7 +194,6 @@ def main():
         #         print_separator()
 
         # Worked on Later Dpdk Setup And all
-
         cryptObj = CryptoSetupManager(
         dts_setup_path=os.environ.get("DTS_INSTALLTION_PATH",""), 
         dpdk_file_path=os.environ.get("DPDK_FILE_PATH"),
@@ -202,6 +201,8 @@ def main():
         git_user= os.environ.get("GIT_USERNAME"),
         git_token= os.environ.get("GIT_TOKEN")
         )
+
+        cryptObj.crypto_execution_script()
 
     except FileNotFoundError as e:
         error_msg = f"❌ File not found: {str(e)}"
