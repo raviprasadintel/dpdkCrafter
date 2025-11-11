@@ -137,7 +137,7 @@ class DutPortConfig(CommonFuntion):
         return file_name
 
 
-    def update_ports(self, interfaceDetails):
+    def update_ports(self, interfaceDetails,input_path="",update_path =""):
         """
         Update the DUT port configuration file based on provided interface details.
 
@@ -162,7 +162,10 @@ class DutPortConfig(CommonFuntion):
             updated_text = port_config_prompt_update.format(self.ip_address, pair_text)
 
             # 📁 Step 4: Navigate to the configuration directory
-            path = self.dts_setup_path.strip() + "/networking.dataplane.dpdk.dts.local.upstream/conf"
+            if "networking.dataplane.dpdk.dts.local.upstream" in self.dts_setup_path:
+                path = os.path.join(self.dts_setup_path,"conf")
+            else:
+                path = self.dts_setup_path.strip() + "/networking.dataplane.dpdk.dts.local.upstream/conf"
             os.chdir(path)
         
             # 📍 Step 5: Confirm current working directory
@@ -190,7 +193,9 @@ class DutPortConfig(CommonFuntion):
 
             # ✅ Step 12: Resume process
             print("✅ Awake and starting interface pairing check!\n")
+            return True, os.path.join(path,file_name)
         except Exception as x:
             print("\n\nException as x => ", x)
             traceback.print_exc()
+            return False , str(x)
 # --------------------------------------------------------------------------------------------------

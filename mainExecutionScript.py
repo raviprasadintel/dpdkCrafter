@@ -13,7 +13,7 @@ import subprocess
 import traceback
 # from script_container.execution.setup_installation import AutomationScriptForSetupInstalltion
 from script_container.execution.bus_info_details import PairingManagerInfo
-# from script_container.execution.dut_ports_config import DutPortConfig
+from script_container.execution.dut_ports_config import DutPortConfig
 # from script_container.execution.dut_crbs_config import DutCrbsConfig
 # from script_container.execution.dut_execution_config import ExecutionCfgUpdate
 # from script_container.execution.constant import print_separator
@@ -208,23 +208,45 @@ def main():
         calgery_tar_file_path= os.environ.get("CALGARY_TAR_FILE_PATH")
         )
 
-        cryptObj.crypto_execution_script()
+        status_execution = cryptObj.crypto_execution_script()
+
+        if status_execution['status']:
+            # Fetching Current Bus Info DETAILS..
+            print("🧩 Initializing PairingManagerInfo object...")
+            managerInfo = PairingManagerInfo()
+
+            print("\n🔍 Fetching Interface and Bus Pairing Information...\n")
+            managerInfo.fetchingInterFacePairingInfo()
+
+            print("\n🔗 Fetching Interface Connection Details...\n")
+            managerInfo.fetchingPairDetailsFromInterface()
+
+            print("\nMapping Interface With Bus Info")
+            interface_details = managerInfo.mapInterfaceToBus()
+
+            print("INTERFACE DETAILS :\n\n",interface_details)
+
+            # GETTING FILE PATH WHILE RUNNING ABAOVE CMD WE WILL GET
+            dts_driver_path = status_execution['dts_driver_path']
+            config_file_folder_path = status_execution['config_file_folder_path']
+
+            # STEP : Configure DUT ports [ports.cfg]
+            output_file_path = os.path.join(dts_driver_path,"conf","ports.cfg")
+            ports_config_obj = DutPortConfig(dts_driver_path)
+
+            print(
+                "\n🔧 Loaded Configuration:\n"
+                "-----------------------------\n"
+                f"🌐 IP Address : {ports_config_obj.ip_address}\n"
+                f"👤 Username   : {ports_config_obj.username}\n"
+                f"🔑 Password   : {'*' * len(ports_config_obj.password) if ports_config_obj.password else 'Not Set'}\n"
+            )
+
+            ports_config_obj.update_ports(interface_details)
+
+            
 
 
-        # # Fetching Current Bus Info DETAILS..
-        # print("🧩 Initializing PairingManagerInfo object...")
-        # managerInfo = PairingManagerInfo()
-
-        # print("\n🔍 Fetching Interface and Bus Pairing Information...\n")
-        # managerInfo.fetchingInterFacePairingInfo()
-
-        # print("\n🔗 Fetching Interface Connection Details...\n")
-        # managerInfo.fetchingPairDetailsFromInterface()
-
-        # print("\nMapping Interface With Bus Info")
-        # interface_details = managerInfo.mapInterfaceToBus()
-
-        # print("INTERFACE DETAILS :\n\n",interface_details)
 
     except FileNotFoundError as e:
         error_msg = f"❌ File not found: {str(e)}"
