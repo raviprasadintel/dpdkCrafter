@@ -191,34 +191,15 @@ class CryptoSetupManager(CommonFuntion):
 
             # Extract filenames from full tar file paths
             # These are the names of the FIPS and Calgary tarballs to be copied
-            fips_file_name = os.path.basename(self.fips_tar_file_path)
-            calgery_file_name = os.path.basename(self.calgery_tar_file_path)
+            # fips_file_name = os.path.basename(self.fips_tar_file_path)
+            # calgery_file_name = os.path.basename(self.calgery_tar_file_path)
 
-            # Construct full destination paths for the tar files
-            cp_fipe_file_path = os.path.join(cp_crypto_dep_path, fips_file_name)
-            cp_calgery_file_path = os.path.join(cp_crypto_dep_path, calgery_file_name)
-
-            # If the FIPS tar file already exists, delete it before copying
-            self.run_command(["rm", "-rf", cp_fipe_file_path], 
-                            f"Removing existing FIPS file: {fips_file_name} if present")
-
-            # If the Calgary tar file already exists, delete it before copying
-            self.run_command(["rm", "-rf", cp_calgery_file_path], 
-                            f"Removing existing Calgary file: {calgery_file_name} if present")
-
-            # Copy the FIPS tar file to the crypto dependency folder
-            self.run_command(["cp", self.fips_tar_file_path, cp_crypto_dep_path], 
-                            f"Copying FIPS file to crypto_dep folder: {fips_file_name}")
-
-            # Step 9: Copy the Calgary tar file to the crypto dependency folder
-            self.run_command(["cp", self.calgery_tar_file_path, cp_crypto_dep_path], 
-                            f"Copying Calgary file to crypto_dep folder: {calgery_file_name}")
             
-            self.run_command(["tar", "-cvzf", fips_file_name, "FIPS"],"FIPS UNTARING")
+            self.run_command(["tar", "-cvzf", self.fips_tar_file_path, "FIPS"],"FIPS UNTARING")
 
             #if Calgery Folder was not there It will create in root directory
             os.makedirs("/root/calgary/",exist_ok=True)
-            self.run_command(["tar", "-cvzf", calgery_file_name, "/root/calgary/"],"FIPS UNTARING")
+            self.run_command(["tar", "-cvzf", self.calgery_tar_file_path, "/root/calgary/"],"FIPS UNTARING")
 
 
             self.run_command(["rm", "-rf", "FIPS"],"Removing Unwanted Folder FIPS")
