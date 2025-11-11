@@ -26,7 +26,7 @@ class CryptoSetupManager(CommonFuntion):
         self.git_token = git_token
         self.dts_url = f"https://{git_user}:{git_token}@github.com/intel-sandbox/networking.dataplane.dpdk.dts.local.upstream.git".replace(" ","")  #For cloning DTS after CREDENTIAL.
 
-        self.git_url_intel_ipsec = "git clone https://github.com/intel/intel-ipsec-mb.git"
+        self.git_url_intel_ipsec = "https://github.com/intel/intel-ipsec-mb.git"
         self.intel_ipsec_path = ""
         self.config_file_name = "config_files"
         self.qat_driver_folder_name = "qat_driver"
@@ -57,6 +57,8 @@ class CryptoSetupManager(CommonFuntion):
        
         path = os.getcwd()
         directory = os.listdir()
+        if "intel-ipsec-mb" in directory:
+            self.run_command(["rm","-rf","intel-ipsec-mb"],"Removing Existing Cloning")
         print("\n📍current path : "+str(path))
         
         self.run_command(["git", "clone", self.git_url_intel_ipsec], "Cloning Intel IPSEC")
@@ -174,6 +176,7 @@ class CryptoSetupManager(CommonFuntion):
 
             ###########################################################STEP 2 PROCESS START #############################################################
             
+            # WORKING FOR QAT DRIVERS
             cp_qat_driver_path = os.path.join(self.automation_folder_path,self.qat_driver_folder_name)
             qat_driver_file_name = os.path.basename(self.qat_driver_path)
 
@@ -187,12 +190,69 @@ class CryptoSetupManager(CommonFuntion):
             self.run_command(["tar","-xvf",qat_driver_file_name],f"Taring QAT driver flename : {qat_driver_file_name}")
             # self.run_command(["make","uninstall"],"CMD : 'Make' doing Uninstall")
             for file in os.listdir():
-                print(file)
+                self.print_separator(file)
 
+            # Run the configure script to enable SR-IOV in host mode
+            # This prepares the build system with specific features enabled
             self.run_command(["./configure" ,"--enable-icp-sriov=host"],"Run configure script with SR-IOV host mode; no extra env/context")
+
+            # Compile the source code using 'make'
+            # This builds the project based on the configuration set abov
             self.run_command(["make"],"Running Make CMD")
+
+            # Install the compiled binaries
+            # This installs the built software into the system (usually /usr/local or specified prefix
             self.run_command(["make", "install"],"Running Make CMD")
-            
+
+            #########################################################STEP 3 PROCESS START##################################################################
+            crypto_driver_folder_path = os.path.join(self.automation_folder_path,self.sw_crypto_driver_folder_name)
+            # Chanding Directory to CRYPTO Driver folder Directory Have to Copy QAT File
+            os.chdir(crypto_driver_folder_path)
+            print("crypto_driver_folder_path",os.getcwdb())
+
+            # Cloning INTEL IPSE 
+            self.clone_intel_ipsc_repo()
+            self.print_separator(f"Within Folder {str(os.getcwdb())}")
+            self.run_command(["git", "branch"],"Showing Current Branch")
+
+            self.run_command(["make","SAFE_LOOKUP=n","SAFE_DATA=n","SAFE_PARAM=n","-j","30"],"Installing Intel IPSE")
+            self.run_command(["make", "install"],"Run cmd Make install")
+
+            # Clone the Intel IPSE repository
+            # This pulls the source code from the remote Git repository
+            self.clone_intel_ipsc_repo()
+
+            # Print the current working directory for context
+            # Useful for confirming where the repo was cloned
+            self.print_separator(f"Within Folder {str(os.getcwdb())}")
+
+            # Show the current Git branch
+            # Helps verify that you're on the correct branch before building
+            self.run_command(["git", "branch"], "Displaying current Git branch")
+
+            # Build Intel IPSE with specific safety flags disabled
+            # SAFE_LOOKUP, SAFE_DATA, and SAFE_PARAM are likely build-time safety checks
+            # -j 30 enables parallel compilation using 30 threads for faster build
+            self.run_command(
+                ["make", "SAFE_LOOKUP=n", "SAFE_DATA=n", "SAFE_PARAM=n", "-j", "30"],
+                "Building Intel IPSE with safety checks disabled and parallel jobs"
+            )
+
+            # Install the compiled Intel IPSE binaries
+            # This installs the built components into the system (e.g., libraries, executables)
+            self.run_command(["make", "install"], "Installing Intel IPSE binaries using 'make install'")
+
+            # List contents of the 'lib' directory
+            # This checks whether the expected library files were generated and placed correctly
+            self.run_command(["ls", "lib"], "Verifying presence of compiled libraries in 'lib' directory")
+
+            # Display all running processes
+            # Useful for debugging or verifying if any related services or background processes are active
+            self.run_command(["ps", "-ef"], "Listing all running processes for system inspection")
+
+
+
+
             return True
 
         except FileNotFoundError as e:
