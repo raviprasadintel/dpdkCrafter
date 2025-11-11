@@ -174,23 +174,24 @@ class CryptoSetupManager(CommonFuntion):
 
             ###########################################################STEP 2 PROCESS START #############################################################
             
-            print("STEP PRCOESS 2 1")
             cp_qat_driver_path = os.path.join(self.automation_folder_path,self.qat_driver_folder_name)
-            print("STEP PRCOESS 2 2",cp_qat_driver_path)
             qat_driver_file_name = os.path.basename(self.qat_driver_path)
-            print("STEP PRCOESS 2 3",qat_driver_file_name)
+
             # Chanding Directory to QAT Driver Directory Have to Copy QAT File
             os.chdir(cp_qat_driver_path)
             print(os.getcwdb())
             if os.path.exists(os.path.join(cp_qat_driver_path, qat_driver_file_name)):
                 self.run_command(["rm","-rf",qat_driver_file_name],"Removing If same file was there is QAT driver Folder")
-            
             self.run_command(["cp",self.qat_driver_path,cp_qat_driver_path],f"Copying file QAT file := {qat_driver_file_name}")
             print(os.getcwdb())
             self.run_command(["tar","-xvf",qat_driver_file_name],f"Taring QAT driver flename : {qat_driver_file_name}")
             # self.run_command(["make","uninstall"],"CMD : 'Make' doing Uninstall")
             for file in os.listdir():
                 print(file)
+
+            self.run_command(["./configure" ,"--enable-icp-sriov=host"],"Run configure script with SR-IOV host mode; no extra env/context")
+            self.run_command(["make"],"Running Make CMD")
+            self.run_command(["make", "install"],"Running Make CMD")
             
             return True
 
