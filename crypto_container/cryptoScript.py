@@ -13,7 +13,7 @@ class CryptoSetupManager(CommonFuntion):
     for crypto-related test execution.
     """
 
-    def __init__(self,dts_setup_path, dpdk_file_path, automation_folder_path= "",git_user= "",git_token= "",qat_driver_path= ""):
+    def __init__(self,dts_setup_path, dpdk_file_path, automation_folder_path= "",git_user= "",git_token= "",qat_driver_path= "",fips_tar_file_path="",calgery_tar_file_path=""):
         """
         Initializes the CryptSetupManager with default paths and log storage.
         """
@@ -22,6 +22,8 @@ class CryptoSetupManager(CommonFuntion):
         self.dpdk_file_path = dpdk_file_path  # Path to the DPDK release tarball (e.g., dpdk-25.11-rc1.tar.xz)
         self.automation_folder_path = automation_folder_path # Path containing config_files, crypto_dep, qat_driver, etc.
         self.qat_driver_path = qat_driver_path #Path of QAT Driver
+        self.calgery_tar_file_path = calgery_tar_file_path
+        self.fips_tar_file_path = fips_tar_file_path
         self.git_user = git_user
         self.git_token = git_token
         self.dts_url = f"https://{git_user}:{git_token}@github.com/intel-sandbox/networking.dataplane.dpdk.dts.local.upstream.git".replace(" ","")  #For cloning DTS after CREDENTIAL.
@@ -31,6 +33,9 @@ class CryptoSetupManager(CommonFuntion):
         self.config_file_name = "config_files"
         self.qat_driver_folder_name = "qat_driver"
         self.sw_crypto_driver_folder_name = "sw_crypto_driver"
+        self.crypto_dep_folder_name = "crypto_dep"
+
+
 
     def clone_dts_repo(self):
 
@@ -99,82 +104,9 @@ class CryptoSetupManager(CommonFuntion):
             if self.logs_captured:
                 raise ValueError("One or more required paths are invalid.")
             
-            # ######################################################START STEP 1 PROCESS FOR CRYPTO########################################################################
 
-            # Starting the process :  EXECUTION FOR CRYPTO AFTER Verfication all requied details are here with us.
-            self.print_separator("Starting prcoess")
-            
-            # While Running this CMD : We can go to path where we have to Clone DTS 
-            os.chdir(self.dts_setup_path)
 
-            # Clone : Cloning DTS
-            self.clone_dts_repo()
-
-            self.print_separator("Fetching Current List of Directory")
-
-            print(os.listdir())
-
-            # This Variable having DTS :CONF Folder Location
-            dts_conf_path = os.path.join(self.dts_setup_path,"conf")
-            if os.path.exists(dts_conf_path):
-                # Checking That file if already folder if Yes then deleting removing again creating bec Id ont requiredy what previously
-                # Ex/root/automation/config_files
-
-                # COPYING FILE :
-                cp_config_folder_path = os.path.join(self.automation_folder_path,self.config_file_name)
-
-                # It wil ensure If folder was not there then it will create folder 
-                # Going Within folder 
-                # If folder was alread there then Removing all the file withing Folder
-                os.makedirs(cp_config_folder_path,exist_ok=True)
-                os.chdir(cp_config_folder_path)
-                self.print_separator(f"Current Path {str( os.getcwdb().decode() )}")
-                if len(os.listdir()):
-                    self.run_command(["rm","-rf","./*"])
-
-                # NOW Going back to DTS CONF folder Location ( dts_conf_path )
-                os.chdir(dts_conf_path)
-                self.print_separator(f"Back to DTS CONF FOLDER {str( os.getcwdb().decode() )}")
-
-                # START COPING ALL THE FILE RELATED  TO DTS
-                for fileName in os.listdir():   
-                    if ("crbs" in fileName[:4])or ("ports" in fileName[:5])or ("crypto" in fileName[:6]) :
-                        self.run_command(["cp",fileName, cp_config_folder_path],f"Coping a file {fileName}")
-                
-                # Going Back from conf file one step back 
-                os.chdir("..")
-                self.run_command(["cp","execution.cfg", cp_config_folder_path],f"Coping a file {fileName}")
-
-                self.run_command(["ls",cp_config_folder_path],f"Showing file which is Copied : directory {cp_config_folder_path}")
-                self.print_separator("File Are Copied")
-                # Now We are Copying File Which We will Process , Further.
-
-            # GOING Within dep Folder for Taring DPDK EXECUTION SETUP 
-            os.chdir(os.path.join(self.dts_setup_path,"dep"))
-            self.print_separator(f"Current Path {str( os.getcwdb().decode() )}")
-            # Coping DPDK FILE DEP folder
-            self.run_command(["cp",self.dpdk_file_path,"."])
-            dpdk_file_name = os.path.basename(self.dpdk_file_path)
-            self.print_separator(f"Copied DPDK_FILE : {dpdk_file_name}")
-
-            # Running for taring DPDK file
-            self.run_command(["tar","-xvf",dpdk_file_name],f"Taring Dpdk_FILE : => {dpdk_file_name}")
-
-            # While doing this it will remove dpdk-25.11-rc1.tar.xz => dpdk-25.11-rc1 
-            if os.path.exists("dpdk"):
-                self.run_command(["rm","-rf","dpdk"],"If Dpdk is previously available then delet it")
-            
-            # Renaming EX(DPDK-25.11-rc1 to dpdk) File into 
-            
-            for file_name in os.listdir():
-                if ( file_name in dpdk_file_name) and (len(file_name)< len(dpdk_file_name)):
-                    self.run_command(["mv",file_name,"dpdk"],f"Renaming file {file_name} :=: 'dpdk' ")
-                    break
-            
-            self.run_command(["tar","-cvzf","dpdk.tar.gz","dpdk"])   
-            self.run_command(["rm","-rf",dpdk_file_name], "Removing Extra file after Taring")
-
-            ###########################################################STEP 2 PROCESS START #############################################################
+            ###########################################################STEP 1 PROCESS START #############################################################
             
             # WORKING FOR QAT DRIVERS
             cp_qat_driver_path = os.path.join(self.automation_folder_path,self.qat_driver_folder_name)
@@ -204,7 +136,7 @@ class CryptoSetupManager(CommonFuntion):
             # This installs the built software into the system (usually /usr/local or specified prefix
             self.run_command(["make", "install"],"Running Make CMD")
 
-            #########################################################STEP 3 PROCESS START##################################################################
+            #########################################################STEP 2 PROCESS START##################################################################
             crypto_driver_folder_path = os.path.join(self.automation_folder_path,self.sw_crypto_driver_folder_name)
             # Chanding Directory to CRYPTO Driver folder Directory Have to Copy QAT File
             os.chdir(crypto_driver_folder_path)
@@ -242,8 +174,134 @@ class CryptoSetupManager(CommonFuntion):
             # Useful for debugging or verifying if any related services or background processes are active
             self.run_command(["ps", "-ef"], "Listing all running processes for system inspection")
 
+            #########################################################STEP 3 PROCESS START##################################################################            
+
+            # WORKING ON CRYPTO_DEP FOLDER
+
+            # Construct the path to the crypto dependency folder
+            cp_crypto_dep_path = os.path.join(self.automation_folder_path, self.crypto_dep_folder_name)
+
+            # Create the folder if it doesn't exist
+            # This ensures the destination directory is available for file operations
+            os.makedirs(cp_crypto_dep_path, exist_ok=True)
+
+            # Change working directory to the crypto dependency folder
+            os.chdir(cp_crypto_dep_path)
+            self.print_separator(f"Current Path: {str(os.getcwdb())}")
+
+            # Extract filenames from full tar file paths
+            # These are the names of the FIPS and Calgary tarballs to be copied
+            fips_file_name = os.path.basename(self.fips_tar_file_path)
+            calgery_file_name = os.path.basename(self.calgery_tar_file_path)
+
+            # Construct full destination paths for the tar files
+            cp_fipe_file_path = os.path.join(cp_crypto_dep_path, fips_file_name)
+            cp_calgery_file_path = os.path.join(cp_crypto_dep_path, calgery_file_name)
+
+            # If the FIPS tar file already exists, delete it before copying
+            self.run_command(["rm", "-rf", cp_fipe_file_path], 
+                            f"Removing existing FIPS file: {fips_file_name} if present")
+
+            # If the Calgary tar file already exists, delete it before copying
+            self.run_command(["rm", "-rf", cp_calgery_file_path], 
+                            f"Removing existing Calgary file: {calgery_file_name} if present")
+
+            # Copy the FIPS tar file to the crypto dependency folder
+            self.run_command(["cp", self.fips_tar_file_path, cp_crypto_dep_path], 
+                            f"Copying FIPS file to crypto_dep folder: {fips_file_name}")
+
+            # Step 9: Copy the Calgary tar file to the crypto dependency folder
+            self.run_command(["cp", self.calgery_tar_file_path, cp_crypto_dep_path], 
+                            f"Copying Calgary file to crypto_dep folder: {calgery_file_name}")
+            
+            self.run_command(["tar", "-cvzf", fips_file_name, "FIPS"],"FIPS UNTARING")
+
+            #if Calgery Folder was not there It will create in root directory
+            os.makedirs("/root/calgary/",exist_ok=True)
+            self.run_command(["tar", "-cvzf", calgery_file_name, "/root/calgary/"],"FIPS UNTARING")
 
 
+            self.run_command(["rm", "-rf", "FIPS"],"Removing Unwanted Folder FIPS")
+
+
+            # ######################################################START STEP 4 PROCESS FOR CRYPTO########################################################################
+
+            # Starting the process :  EXECUTION FOR CRYPTO AFTER Verfication all requied details are here with us.
+            self.print_separator("Starting prcoess")
+            
+            # While Running this CMD : We can go to path where we have to Clone DTS 
+            os.chdir(self.dts_setup_path)
+
+            # Clone : Cloning DTS
+            self.clone_dts_repo()
+
+            self.print_separator("Fetching Current List of Directory")
+
+            print(os.listdir())
+
+            # This Variable having DTS :CONF Folder Location
+            dts_conf_path = os.path.join(self.dts_setup_path,"conf")
+            if os.path.exists(dts_conf_path):
+                # Checking That file if already folder if Yes then deleting removing again creating bec Id ont requiredy what previously
+                # Ex/root/automation/config_files
+
+                # COPYING FILE :
+                cp_config_folder_path = os.path.join(self.automation_folder_path,self.config_file_name)
+
+                # It wil ensure If folder was not there then it will create folder 
+                # Going Within folder 
+                # If folder was alread there then Removing all the file withing Folder
+                os.makedirs(cp_config_folder_path,exist_ok=True)
+                os.chdir(cp_config_folder_path)
+                self.print_separator(f"Current Path {str( os.getcwdb().decode() )}")
+                
+                    
+
+                # NOW Going back to DTS CONF folder Location ( dts_conf_path )
+                os.chdir(dts_conf_path)
+                self.print_separator(f"Back to DTS CONF FOLDER {str( os.getcwdb().decode() )}")
+
+                # START COPING ALL THE FILE RELATED  TO DTS
+                for fileName in os.listdir():   
+                    if ("crbs" in fileName[:4])or ("ports" in fileName[:5])or ("crypto" in fileName[:6]) :
+                        if os.path.exists(fileName):
+                            self.run_command(["rm","-rf",fileName],f"Removing File is already avaialable : {fileName}")
+                        self.run_command(["cp",fileName, cp_config_folder_path],f"Coping a file {fileName}")
+                
+                # Going Back from conf file one step back 
+                os.chdir("..")
+                self.run_command(["cp","execution.cfg", cp_config_folder_path],f"Coping a file execution.cfg")
+                self.run_command(["cp","perf.sh", cp_config_folder_path],f"Coping a file perf.sh")
+                
+
+                self.run_command(["ls",cp_config_folder_path],f"Showing file which is Copied : directory {cp_config_folder_path}")
+                self.print_separator("File Are Copied")
+                # Now We are Copying File Which We will Process , Further.
+
+            # GOING Within dep Folder for Taring DPDK EXECUTION SETUP 
+            os.chdir(os.path.join(self.dts_setup_path,"dep"))
+            self.print_separator(f"Current Path {str( os.getcwdb().decode() )}")
+            # Coping DPDK FILE DEP folder
+            self.run_command(["cp",self.dpdk_file_path,"."])
+            dpdk_file_name = os.path.basename(self.dpdk_file_path)
+            self.print_separator(f"Copied DPDK_FILE : {dpdk_file_name}")
+
+            # Running for taring DPDK file
+            self.run_command(["tar","-xvf",dpdk_file_name],f"Taring Dpdk_FILE : => {dpdk_file_name}")
+
+            # While doing this it will remove dpdk-25.11-rc1.tar.xz => dpdk-25.11-rc1 
+            if os.path.exists("dpdk"):
+                self.run_command(["rm","-rf","dpdk"],"If Dpdk is previously available then delet it")
+            
+            # Renaming EX(DPDK-25.11-rc1 to dpdk) File into 
+            
+            for file_name in os.listdir():
+                if ( file_name in dpdk_file_name) and (len(file_name)< len(dpdk_file_name)):
+                    self.run_command(["mv",file_name,"dpdk"],f"Renaming file {file_name} :=: 'dpdk' ")
+                    break
+            
+            self.run_command(["tar","-cvzf","dpdk.tar.gz","dpdk"])   
+            self.run_command(["rm","-rf",dpdk_file_name], "Removing Extra file after Taring")
 
             return True
 
