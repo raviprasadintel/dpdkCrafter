@@ -208,20 +208,20 @@ def main():
         cryptObj.crypto_execution_script()
 
 
-        # Fetching Current Bus Info DETAILS..
-        print("🧩 Initializing PairingManagerInfo object...")
-        managerInfo = PairingManagerInfo()
+        # # Fetching Current Bus Info DETAILS..
+        # print("🧩 Initializing PairingManagerInfo object...")
+        # managerInfo = PairingManagerInfo()
 
-        print("\n🔍 Fetching Interface and Bus Pairing Information...\n")
-        managerInfo.fetchingInterFacePairingInfo()
+        # print("\n🔍 Fetching Interface and Bus Pairing Information...\n")
+        # managerInfo.fetchingInterFacePairingInfo()
 
-        print("\n🔗 Fetching Interface Connection Details...\n")
-        managerInfo.fetchingPairDetailsFromInterface()
+        # print("\n🔗 Fetching Interface Connection Details...\n")
+        # managerInfo.fetchingPairDetailsFromInterface()
 
-        print("\nMapping Interface With Bus Info")
-        interface_details = managerInfo.mapInterfaceToBus()
+        # print("\nMapping Interface With Bus Info")
+        # interface_details = managerInfo.mapInterfaceToBus()
 
-        print("INTERFACE DETAILS :\n\n",interface_details)
+        # print("INTERFACE DETAILS :\n\n",interface_details)
 
     except FileNotFoundError as e:
         error_msg = f"❌ File not found: {str(e)}"

@@ -174,13 +174,14 @@ class CryptoSetupManager(CommonFuntion):
 
             ###########################################################STEP 2 PROCESS START #############################################################
             
-            
+            print("STEP PRCOESS 2 1")
             cp_qat_driver_path = os.path.join(self.automation_folder_path,self.qat_driver_folder_name)
-
+            print("STEP PRCOESS 2 2",cp_qat_driver_path)
             qat_driver_file_name = os.path.basename(self.qat_driver_path)
-            
+            print("STEP PRCOESS 2 3",qat_driver_file_name)
             # Chanding Directory to QAT Driver Directory Have to Copy QAT File
             os.chdir(cp_qat_driver_path)
+            print(os.getcwdb())
             if os.path.exists(os.path.join(cp_qat_driver_path, qat_driver_file_name)):
                 self.run_command(["rm","-rf",qat_driver_file_name],"Removing If same file was there is QAT driver Folder")
             
