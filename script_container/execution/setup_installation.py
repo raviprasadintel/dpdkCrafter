@@ -5,7 +5,7 @@ from script_container.execution.constant import CommonFuntion
 
 class AutomationScriptForSetupInstalltion(CommonFuntion):
 
-    def __init__(self,firmware_file_path = None, driver_path = None, git_user = "",git_token = "" ):
+    def __init__(self,firmware_file_path = None, driver_path = None, git_user = "",git_token = "", operating_system_deatils={} ):
         self.firmware_file_path = firmware_file_path
         self.driver_path =  driver_path
 
@@ -14,6 +14,8 @@ class AutomationScriptForSetupInstalltion(CommonFuntion):
         self.dpdk_url = "https://github.com/DPDK/dpdk.git"
         self.error_logs = []
         self.error_logs_cmd = []
+
+        self.operating_system_deatils = operating_system_deatils
 
 
     def check_proxy_setup(self):
@@ -209,29 +211,32 @@ class AutomationScriptForSetupInstalltion(CommonFuntion):
         """
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         
+        os_name = self.operating_system_deatils.get("os_name","LINUX").strip().lower()
+        installer_name = "apt"
 
+        if os_name == "openeuler":
+            installer_name = "yum"
         apt_packages = [
             ["sudo", "timedatectl", "set-ntp", "false"],
             ["sudo", "timedatectl", "set-time", current_time],
             ["sudo", "timedatectl", "set-ntp", "true"],
-            ["sudo", "apt-get", "update"],
-            ["apt", "update"],
-            ["apt", "install", "-y", "gcc"],
-            ["apt", "install", "-y", "build-essential"],
-            ["apt", "install", "-y", "meson"],
-            ["apt", "install", "-y", "ninja-build"],
-            ["apt", "install", "-y", "libnuma-dev"],
-            ["apt", "install", "-y", "python3-pip"],
-            ["apt", "install", "-y", "libpcap-dev"],
-            ["apt", "install", "-y", "libboost-all-dev"],
-            ["apt", "install", "-y", "libudev-dev"],
-            ["apt", "install", "-y", "libnl-3-dev"],
-            ["apt", "install", "-y", "libnl-genl-3-dev"],
-            ["apt", "install", "-y", "nasm"],
-            ["apt", "install", "-y", "yasm"],
-            ["apt", "install", "-y", "python3-scapy"],
-            ["apt", "install", "-y", "pkg-config"],
-            ["apt", "install", "-y", "lldpad"]
+            [installer_name, "update"],
+            [installer_name, "install", "-y", "gcc"],
+            [installer_name, "install", "-y", "build-essential"],
+            [installer_name, "install", "-y", "meson"],
+            [installer_name, "install", "-y", "ninja-build"],
+            [installer_name, "install", "-y", "libnuma-dev"],
+            [installer_name, "install", "-y", "python3-pip"],
+            [installer_name, "install", "-y", "libpcap-dev"],
+            [installer_name, "install", "-y", "libboost-all-dev"],
+            [installer_name, "install", "-y", "libudev-dev"],
+            [installer_name, "install", "-y", "libnl-3-dev"],
+            [installer_name, "install", "-y", "libnl-genl-3-dev"],
+            [installer_name, "install", "-y", "nasm"],
+            [installer_name, "install", "-y", "yasm"],
+            [installer_name, "install", "-y", "python3-scapy"],
+            [installer_name, "install", "-y", "pkg-config"],
+            [installer_name, "install", "-y", "lldpad"]
         ]
 
         pip_packages = [

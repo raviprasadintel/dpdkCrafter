@@ -14,7 +14,7 @@ from script_container.execution.bus_info_details import PairingManagerInfo
 from script_container.execution.dut_ports_config import DutPortConfig
 from script_container.execution.dut_crbs_config import DutCrbsConfig
 from script_container.execution.dut_execution_config import ExecutionCfgUpdate
-from script_container.execution.constant import print_separator
+from script_container.execution.constant import print_separator,CommonFuntion
 
 def main():
     """
@@ -40,6 +40,11 @@ def main():
         # 🔐 Replace with environment variables for security
         git_user = os.environ.get('GIT_USERNAME',"").strip()
         git_token = os.environ.get('GIT_TOKEN',"").strip()
+
+        
+        # Fetching Current OS details
+        operatingSystemDetails = CommonFuntion.check_os()
+        
         
         if (os.environ.get("DPDK_SETUP_INSTALLATION","false").upper() == "TRUE") and (git_token == None or git_token == "" or git_user == None or git_user == "" or dpdk_dts_path ==""):
             print("Error: Missing GIT_USERNAME / GIT_TOKEN / DPDK_INSTALLTION_PATH . Please define  in your environment variables to proceed.")
@@ -49,7 +54,8 @@ def main():
             firmware_file_path=firmware_file_path,
             driver_path=driver_path,
             git_token=git_token,
-            git_user=git_user
+            git_user=git_user,
+            operating_system_deatils = operatingSystemDetails
         )
         # ADDING SEPARATOR
         print_separator()
