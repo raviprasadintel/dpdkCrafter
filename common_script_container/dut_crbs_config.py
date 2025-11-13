@@ -1,11 +1,11 @@
 import re
 import os
 import time
-from script_container.execution.constant import CommonFuntion
+from common_script_container.constant import CommonMethodExecution
 
 
 
-class DutCrbsConfig(CommonFuntion):
+class DutCrbsConfig(CommonMethodExecution):
 
     def __init__(self,dts_path):
         path = dts_path.strip() + "/networking.dataplane.dpdk.dts.local.upstream/conf"

@@ -56,9 +56,7 @@ port_config_fail = "🚫 Maximum attempts reached. Authentication failed.\n"
 
 
 
-class CommonFuntion:
-
-
+class CommonMethodExecution:
     @staticmethod
     def check_os(self):
         """
@@ -141,25 +139,101 @@ class CommonFuntion:
         except subprocess.CalledProcessError as e:
             print(f"❌ Error during '{description}': {e}")
             return False, str(e)
+    
+
+
+
+
+
+
+
+
+
+# Common Setup Check 
+
+class CommonSetupCheck:
+
+    @staticmethod
+    def handle_exceptions(func):
+        """
+        Decorator to handle exceptions and print traceback for debugging.
+        """
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            try:
+                return func(*args, **kwargs)
+            except Exception as e:
+                print(f"❌ Exception in '{func.__name__}': {e}")
+                traceback.print_exc()
+                return None
+        return wrapper
+    
+    @staticmethod
+    def check_os(self):
+        """
+        Retrieve operating system details and return them in a structured format.
+        Returns:
+            dict: A dictionary containing:
+                - os_name (str): Linux distro name (e.g., Ubuntu, RHEL, openEuler) or generic OS name
+                - version (str): OS version string
+                - release (str): OS release information
+                - detailed_info (str): Additional details from os.uname() if available
+        """
+        import os
+        import platform
+        try:
+            print("\n🔍 Checking Operating System Info...\n")
+            # Default values using platform
+            os_name = platform.system()       # e.g., 'Linux', 'Windows'
+            os_version = platform.version()   # Detailed version info
+            os_release = platform.release()   # Release number
+            detailed_info = None
+            # Method 2: Using os.uname() (Linux/Unix only)
+            if hasattr(os, "uname"):
+                detailed_info = str(os.uname())
+            # Method 3: Check /etc/os-release for Linux distro details
+            distro_name = None
+            distro_version = None
+            if os_name.lower() == "linux" and os.path.exists("/etc/os-release"):
+                with open("/etc/os-release") as f:
+                    data = f.read()
+                    for line in data.splitlines():
+                        if line.startswith("NAME="):
+                            distro_name = line.split("=")[1].strip('"')
+                        if line.startswith("VERSION_ID="):
+                            distro_version = line.split("=")[1].strip('"')
+                # Override os_name with distro name if found
+                if distro_name:
+                    os_name = distro_name
+                if distro_version:
+                    os_version = distro_version
+            # Print details for user visibility
+            print(f"🖥️ OS Name: {os_name}")
+            print(f"📦 Version: {os_version}")
+            print(f"📤 Release: {os_release}")
+            if detailed_info:
+                print(f"🧾 Detailed Info: {detailed_info}")
+            return {
+                "os_name": os_name,
+                "version": os_version,
+                "release": os_release,
+                "detailed_info": detailed_info
+            }
+
+        except Exception as x:
+            print("UNABLE TO FETCH OS VERSION AND ALL THINGS")
+            return {
+                "os_name": "LINUX",
+                "version": None,
+                "release": None,
+                "detailed_info": None
+            }
+
+    # For Adding Separator
+    @staticmethod   
+    def print_separator(self,val=""):
+        print("\n\n" + "-" * 50 +str(val)+ "-"*50 + "\n\n")
         
 
 
 
-
-
-def handle_exceptions(func):
-    """
-    Decorator to handle exceptions and print traceback for debugging.
-    """
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        try:
-            return func(*args, **kwargs)
-        except Exception as e:
-            print(f"❌ Exception in '{func.__name__}': {e}")
-            traceback.print_exc()
-            return None
-    return wrapper
-
-# For printing SEPARATOR
-print_separator = lambda: print("\n\n\n\n" + "-" * 100 + "\n\n\n\n")

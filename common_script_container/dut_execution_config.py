@@ -2,10 +2,10 @@ import re
 import os
 import time
 import traceback
-from script_container.execution.constant import CommonFuntion, handle_exceptions
+from common_script_container.constant import CommonMethodExecution, CommonSetupCheck
 
 
-class ExecutionCfgUpdate(CommonFuntion):
+class ExecutionCfgUpdate(CommonMethodExecution):
     """
     Handles reading, updating, and writing to the DTS execution configuration file.
     """
@@ -27,7 +27,7 @@ class ExecutionCfgUpdate(CommonFuntion):
             print(f"❌ Initialization failed: {e}")
             traceback.print_exc()
     
-    @handle_exceptions
+    @CommonSetupCheck.handle_exceptions
     def read_file_data(self):
         """
         Reads and returns the contents of the execution.cfg file.
@@ -48,7 +48,7 @@ class ExecutionCfgUpdate(CommonFuntion):
             traceback.print_exc()
             return ""
         
-    @handle_exceptions
+    @CommonSetupCheck.handle_exceptions
     def write_crbs_config(self, pair_text):
         """
         Deletes the existing execution.cfg file and writes a new one with the provided CRB configuration.
@@ -72,7 +72,7 @@ class ExecutionCfgUpdate(CommonFuntion):
             print(f"❌ Error writing CRB config: {e}")
             traceback.print_exc()
 
-    @handle_exceptions
+    @CommonSetupCheck.handle_exceptions
     def update_execution_content(self, ip_address):
         """
         Updates the execution.cfg content by:

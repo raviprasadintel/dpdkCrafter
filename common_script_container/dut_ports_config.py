@@ -4,16 +4,16 @@ import socket
 import traceback
 
 
-from script_container.execution.constant import (port_config_prompt_update, 
+from common_script_container.constant import (port_config_prompt_update, 
                       port_config_auth_prompt, port_config_auth_confirm,
                       port_config_success, port_config_fail, 
                       port_config_mismatch)
 
 # Importing Common Method :
-from script_container.execution.constant import CommonFuntion
+from common_script_container.constant import CommonMethodExecution
 
 
-class DutPortConfig(CommonFuntion):
+class DutPortConfig(CommonMethodExecution):
     def __init__(self,dts_path):
         self.dts_setup_path = dts_path 
         # Initialize configuration
