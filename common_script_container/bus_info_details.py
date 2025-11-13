@@ -294,35 +294,3 @@ class PairingManagerInfo(InterfaceManager):
         }
 
 # --------------------------------------------------------------------------------------------------
-
-# #######################################   Main Execution Block   ###########################################################
-
-# if __name__ == "__main__":
-#     print("\n🚀 Starting Interface Pairing Manager...\n")
-
-#     try:
-#         # Initialize and run pairing manager
-#         print("🧩 Initializing PairingManagerInfo object...")
-#         obj = PairingManagerInfo()
-
-#         print("\n🔍 Fetching Interface and Bus Pairing Information...\n")
-#         obj.fetchingInterFacePairingInfo()
-
-#         print("\n🔗 Fetching Interface Connection Details...\n")
-#         obj.fetchingPairDetailsFromInterface()
-
-#         print("\nMapping Interface With Bus Info")
-#         interfaceDetails = obj.mapInterfaceToBus()
-
-#         print(interfaceDetails)
-
-       
-#         # Display the loaded configuration details
-
-     
-#     except Exception as e:
-#         print(f"\n❌ An error occurred during execution: {e}\n")
-
-#     print("\n✅ Script Execution Completed Successfully.\n")
-
-

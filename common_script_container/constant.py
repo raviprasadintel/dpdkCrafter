@@ -51,7 +51,7 @@ port_config_fail = "🚫 Maximum attempts reached. Authentication failed.\n"
 
 
 # --------------------------------------------------------------------------------------------------
-#                              Constant : COMMON FUNCTION ( START ) 
+#                              Constant : COMMON METHOD ( START ) 
 # --------------------------------------------------------------------------------------------------
 
 
