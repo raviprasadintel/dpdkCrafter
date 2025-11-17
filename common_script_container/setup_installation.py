@@ -1,7 +1,75 @@
 import os
 import re
+import subprocess
+import traceback
 from datetime import datetime
-from common_script_container.constant import CommonMethodExecution
+from common_script_container.constant import CommonMethodExecution,CommonSetupCheck
+
+
+class FirmwareDriverInstallation(CommonMethodExecution):
+    
+    @staticmethod
+    def firmware_update(firmware_file_path):
+        error_logs = []
+        # Setup File-Location container
+        try:
+            if os.path.exists(firmware_file_path) == False:
+                error_logs.append("❗ Invalid firmware path.")
+                return False, error_logs
+            os.chdir("/root")
+            CommonSetupCheck.print_separator(str(os.getcwd()))
+            os.makedirs("setup_firmware_driver",exist_ok=True)
+            os.chdir("setup_firmware_driver")
+
+            current_path = os.getcwdb().decode()
+            firmware_file_name_before_taring = os.path.basename(firmware_file_path)
+            # Extract firmware 
+            FirmwareDriverInstallation.run_command(['tar', '-xvf',firmware_file_path, '-C', current_path],f"Extracting firmware file: {firmware_file_path}")
+
+            # List files in current directory
+            FirmwareDriverInstallation.run_command(['ls','-l'], "Listing files in current directory")
+
+            # Fecthning Firmware Name :
+            
+            firmware_name = (firmware_file_name_before_taring).split(".")[0]
+            # Updating FileName
+            for file in os.listdir():
+                if (firmware_name in file) and (firmware_file_name_before_taring != file):
+                    firmware_name = file
+            
+            os.chdir(firmware_name)
+            CommonSetupCheck.print_separator(str(os.getcwd()))
+            
+
+
+
+
+        except FileNotFoundError as e:
+            error_msg = f"❌ File not found: {str(e)}"
+            print(error_msg)
+            return False, error_msg
+        except subprocess.CalledProcessError as e:
+            error_msg = f"❌ Subprocess error: {e.output if e.output else str(e)}"
+            error_logs({
+                "errors": error_msg,
+                "traceback": traceback.format_exc()
+            })
+            print(error_msg)
+            return False, error_msg
+        except Exception as e:
+            error_msg = f"❌ Unexpected error: {str(e)}"
+            error_logs({
+                "errors": error_msg,
+                "traceback": traceback.format_exc()
+            })
+            print(error_msg)
+            return False, error_msg
+
+
+
+
+
+
 
 class AutomationScriptForSetupInstalltion(CommonMethodExecution):
 
