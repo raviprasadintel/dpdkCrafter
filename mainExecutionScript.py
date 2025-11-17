@@ -25,29 +25,72 @@ class EnvValidator:
     @staticmethod
     def validate_env_vars(var_list):
         missing_vars = []
+        optional_missing = []
+
+        # First pass: check required variables
         for var_name, is_required, message in var_list:
             value = os.environ.get(var_name)
             if is_required and not value:
                 missing_vars.append(f"{var_name}: {message}")
-        
+            elif not is_required and not value:
+                optional_missing.append(var_name)
+
+        # Conditional checks
+        dpdk_file_status = os.environ.get("DPDK_FILE_STATUS", "").upper()
+        if dpdk_file_status == "TRUE" and not os.environ.get("DPDK_FILE_PATH"):
+            missing_vars.append("DPDK_FILE_PATH: Required because DPDK_FILE_STATUS is TRUE.")
+
+        if os.environ.get("FIRMWARE_UPDATE_REQUIRED", "").upper() == "TRUE" and not os.environ.get("FIRMWARE_PATH"):
+            missing_vars.append("FIRMWARE_PATH: Required because FIRMWARE_UPDATE_REQUIRED is TRUE.")
+
+        if os.environ.get("DRIVER_INSTALL_REQUIRED", "").upper() == "TRUE" and not os.environ.get("DRIVER_PATH"):
+            missing_vars.append("DRIVER_PATH: Required because DRIVER_INSTALL_REQUIRED is TRUE.")
+
+        # Final validation
         if missing_vars:
             error_message = "\n".join(missing_vars)
             raise EnvironmentError(f"[ENV VALIDATION FAILED]\n{error_message}")
         else:
             print("[INFO] All required environment variables are set.")
+            if optional_missing:
+                print(f"[INFO] Optional variables not set: {', '.join(optional_missing)}")
 
 
 all_required_variable = [
-    ["GIT_USERNAME", True, "Git username is required to access private repositories."],
-    ["GIT_TOKEN", True, "GitHub token is mandatory for authentication and secure access to repositories."],
-    ["DPDK_FILE_PATH", False, "Optional: Path to the DPDK configuration file used during setup."],
-    ["DTS_INSTALLTION_PATH", True, "Required: Path where DTS (DPDK Test Suite) is installed."],
-    ["QAT_DRIVER_PATH", True, "Required: Path to the QAT driver archive (e.g., QAT20.L.1.2.30-00109.tar.gz) for updating QAT examples."],
-    ["FIPS_TAR_FILE_PATH", True, "Required: Path to the FIPS tarball (e.g., fips.tar.gz) used for cryptographic validation."],
-    ["CALGARY_TAR_FILE_PATH", True, "Required: Path to the Calgary tarball (e.g., calgery.tar.gz) used for performance or compliance testing."]
+    ["GIT_USERNAME", True, "Git username required to access private repositories."],
+    ["GIT_TOKEN", True, "GitHub token required for authentication and secure repository access."],
+
+    ["DPDK_FILE_STATUS", True,
+     "If TRUE, use the DPDK file for installation; otherwise clone from the repository. "
+     "If TRUE, DPDK_FILE_PATH must be provided."],
+
+    ["DPDK_FILE_PATH", False, "Path to the DPDK tarball used for installation (required if DPDK_FILE_STATUS is TRUE)."],
+
+    ["DTS_INSTALLATION_PATH", True, "Path where the DTS (DPDK Test Suite) is installed."],
+
+    ["DTS_RUN", False, "Determines whether DTS should be executed (default is FALSE)."],
+
+    ["QAT_DRIVER_PATH", True,
+     "Path to the QAT driver archive (e.g., QAT20.L.1.2.30-00109.tar.gz) used for updating QAT examples."],
+
+    ["FIPS_TAR_FILE_PATH", True, "Path to the FIPS tarball (e.g., fips.tar.gz) for cryptographic validation."],
+
+    ["CALGARY_TAR_FILE_PATH", True,
+     "Path to the Calgary tarball (e.g., calgary.tar.gz) used for performance or compliance testing."],
+
+    ["FIRMWARE_UPDATE_REQUIRED", False, "Set to TRUE when a firmware update is required."],
+
+    ["DRIVER_INSTALL_REQUIRED", False, "Set to TRUE when driver installation is required."],
+
+    ["FIRMWARE_PATH", False, "Path to firmware file (required if FIRMWARE_UPDATE_REQUIRED is TRUE)."],
+
+    ["DRIVER_PATH", False, "Path to driver file (required if DRIVER_INSTALL_REQUIRED is TRUE)."],
+
+    ["APT_PACKAGES_INSTALL_REQUIRED",True, "Set this to TRUE if system packages need to be installed; otherwise set to FALSE."]
 ]
 
-EnvValidator.validate_env_vars(all_required_variable)
+
+
 
 def main():
     """
@@ -60,148 +103,13 @@ def main():
     """
 
     error_logs = []
-    error_logs_cmd = []
-    dpdk_dts_path = os.environ.get('DPDK_INSTALLTION_PATH',"")
-    dpdk_dts_folder_name = "dts_setup"
-
     try:
-        print("\n🚀 Starting Setup Scripts...\n")\
-        # STEP 1: Define paths for firmware and driver packages
-        firmware_file_path = os.environ.get('FIRMWARE_PATH',"****")
-        driver_path = os.environ.get('DRIVER_PATH',"****")
+        print("\n🚀 Starting Setup Scripts...\n")
 
-        # 🔐 Replace with environment variables for security
-        git_user = os.environ.get('GIT_USERNAME',"").strip()
-        git_token = os.environ.get('GIT_TOKEN',"").strip()
-
-        
-        # Fetching Current OS details
-        operatingSystemDetails = CommonMethodExecution.check_os()
-        
-        
-        if (os.environ.get("DPDK_SETUP_INSTALLATION","false").upper() == "TRUE") and (git_token == None or git_token == "" or git_user == None or git_user == "" or dpdk_dts_path ==""):
-            print("Error: Missing GIT_USERNAME / GIT_TOKEN / DPDK_INSTALLTION_PATH . Please define  in your environment variables to proceed.")
-            return
-        # Initialize automation script
-        script = AutomationScriptForSetupInstalltion(
-            firmware_file_path=firmware_file_path,
-            driver_path=driver_path,
-            git_token=git_token,
-            git_user=git_user,
-            operating_system_deatils = operatingSystemDetails
-        )
-        # ADDING SEPARATOR
-        CommonSetupCheck.print_separator()
-        # STEP  :Updating Proxy First 
-        script.setup_proxy_environment()
-        
-        # STEP : Update firmware and drivers
-        if os.environ.get('DRIVER_UPDATE', 'FALSE').upper() == 'TRUE':
-            # ADDING SEPARATOR
-            CommonSetupCheck.print_separator()
-            script.updating_firmware_drivers()
-
-        # STEP : Install required system and Python packages
-        if os.environ.get("APT_PACKAGE_UPDATE_REQUIRED","FALSE").upper() == "TRUE":
-            # ADDING SEPARATOR
-            CommonSetupCheck.print_separator()
-            script.install_required_packages()
-
-        # STEP : Prepare environment for DPDK/DTS setup
-        if os.environ.get("DPDK_SETUP_INSTALLATION","false").upper() == "TRUE":
-            os.chdir(dpdk_dts_path)
-            # ADDING SEPARATOR
-            CommonSetupCheck.print_separator()
-            script.creating_folder_setup(dpdk_dts_folder_name)
-        
-            dpdk_dts_path = os.getcwdb().decode()
-            
-            
-            print("git_user => ",git_user,type(git_user))
-            print("git_token => ",git_token,type(git_token))
-
-            # STEP : Clone DPDK and DTS repositories
-            # ADDING SEPARATOR
-            CommonSetupCheck.print_separator()
-            print("\n🚀 Starting DPDK and DTS setup process...\n")
-            script.clone_dts_repo()
-            # ADDING SEPARATOR
-            CommonSetupCheck.print_separator()
-            script.clone_dpdk_repo()
-
-            # Collect error logs
-            error_logs += script.error_logs
-            error_logs_cmd += script.error_logs_cmd
-
-            # STEP : Fetch interface pairing info
-            # ADDING SEPARATOR
-            CommonSetupCheck.print_separator()
-            print("🧩 Initializing PairingManagerInfo object...")
-            obj = PairingManagerInfo()
-
-            print("\n🔍 Fetching Interface and Bus Pairing Information...\n")
-            obj.fetchingInterFacePairingInfo()
-
-            print("\n🔗 Fetching Interface Connection Details...\n")
-            obj.fetchingPairDetailsFromInterface()
-
-            print("\nMapping Interface With Bus Info")
-            interface_details = obj.mapInterfaceToBus()
-
-            print("INTERFACE DETAILS :\n\n",interface_details)
-            
-            # STEP : Configure DUT ports [ports.cfg]
-            ports_config_obj = DutPortConfig(dpdk_dts_path)
-
-            print(
-                "\n🔧 Loaded Configuration:\n"
-                "-----------------------------\n"
-                f"🌐 IP Address : {ports_config_obj.ip_address}\n"
-                f"👤 Username   : {ports_config_obj.username}\n"
-                f"🔑 Password   : {'*' * len(ports_config_obj.password) if ports_config_obj.password else 'Not Set'}\n"
-            )
-
-            ports_config_obj.update_ports(interface_details)
-
-            # STEP : Configure Updating Password [crbs.cfg]
-            # ADDING SEPARATOR
-            CommonSetupCheck.print_separator()
-            crfs_file_obj = DutCrbsConfig(dpdk_dts_path) 
-            crfs_file_obj.updating_crbs_file(
-            dut_ip = ports_config_obj.ip_address,
-            dut_user = ports_config_obj.username,
-            dut_passwd = ports_config_obj.password,
-            tester_ip = ports_config_obj.ip_address,
-            tester_passwd = ports_config_obj.password
-            )
-            
-            # STEP : Configure Execution.cfg
-            # ADDING SEPARATOR
-            CommonSetupCheck.print_separator()
-        
-            executionObj = ExecutionCfgUpdate(dpdk_dts_path)
-            executionObj.update_execution_content(ports_config_obj.ip_address)
-            #ERROR : Capturing Viewer
-            for log in error_logs:
-                print("ERROR LOG:",log)
-
-            for log in error_logs_cmd:
-                print("ERROR LOG CMD:",log)
+        # APT PACKAGES INSTALL
 
 
-            # STEP : Executing Process [DTS] setup
-            if os.environ.get("DPDK_SETUP_RUN","false").upper() == "TRUE":
-                # ADDING SEPARATOR
-                CommonSetupCheck.print_separator()
-                CommonSetupCheck.print_separator()
-                path = dpdk_dts_path.strip() + "/networking.dataplane.dpdk.dts.local.upstream"
-                os.chdir(path)
-                script.run_command(["./dts"],"\n\n---------------RUNNING DTS SERVICE-----------\n\n")
-                CommonSetupCheck.print_separator()
-                CommonSetupCheck.print_separator()
-
-
-        # Worked on Later Dpdk Setup And all
+        # CRYPTO SETTING : Execution
         cryptObj = CryptoSetupManager(
         dts_setup_path=os.environ.get("DTS_INSTALLTION_PATH",""), 
         dpdk_file_path=os.environ.get("DPDK_FILE_PATH"),
@@ -210,7 +118,8 @@ def main():
         git_token= os.environ.get("GIT_TOKEN"),
         qat_driver_path = os.environ.get("QAT_DRIVER_PATH"),
         fips_tar_file_path = os.environ.get("FIPS_TAR_FILE_PATH"),
-        calgery_tar_file_path= os.environ.get("CALGARY_TAR_FILE_PATH")
+        calgery_tar_file_path= os.environ.get("CALGARY_TAR_FILE_PATH"),
+        logs_captured=error_logs
         )
 
         status_execution = cryptObj.crypto_execution_script()
@@ -218,7 +127,7 @@ def main():
         if status_execution['status']:
             # Fetching Current Bus Info DETAILS..
             print("🧩 Initializing PairingManagerInfo object...")
-            managerInfo = PairingManagerInfo()
+            managerInfo = PairingManagerInfo(error_logs)
 
             print("\n🔍 Fetching Interface and Bus Pairing Information...\n")
             managerInfo.fetchingInterFacePairingInfo()
@@ -281,4 +190,8 @@ def main():
 
 
 if __name__ == "__main__":
+    # CHECKING ALL VARIABLE ASSIGN PROPERLY
+    EnvValidator.validate_env_vars(all_required_variable)
+
+    # EXECUTING STARTED
     main()

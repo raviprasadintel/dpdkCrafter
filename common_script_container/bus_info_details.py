@@ -90,17 +90,18 @@ class PairingManagerInfo(InterfaceManager):
     Also includes logic to extract NIC link events and pair interfaces based on activity.
     """
 
-    def __init__(self):
+    def __init__(self,logs_captured):
         super().__init__()
         self.bus_info = []
         self.pairingInterface = []
         self.mapped_bus_pairs = []
+        self.logs_captured = logs_captured
 
         # Fetch bus info on initialization
         try:
             self.busInfo()
         except Exception as e:
-            print(f"❌ Error initializing bus info: {e}")
+            self.interFaceDetails.append(f"❌ Error initializing bus info: {e}")
 
     def busInfo(self):
         """
@@ -132,7 +133,7 @@ class PairingManagerInfo(InterfaceManager):
             self.bus_info = parsed_info
             print(f"🧾 Bus Info Parsed:\n{self.bus_info}\n")
         except Exception as e:
-            print(f"❌ Error parsing bus info: {e}")
+            self.interFaceDetails.append(f"❌ Error parsing bus info: {e}")
 
     def fetchingInterFacePairingInfo(self):
         """
@@ -146,7 +147,7 @@ class PairingManagerInfo(InterfaceManager):
             print(f"📡 Interface Details:\n{interfaceDetails}\n")
             print(f"🧬 Bus Info Details:\n{self.bus_info}\n")
         except Exception as e:
-            print(f"❌ Error fetching interface pairing info: {e}")
+            self.interFaceDetails.append(f"❌ Error fetching interface pairing info: {e}")
 
     def extract_interface_names(self, log_data):
         """
@@ -162,7 +163,7 @@ class PairingManagerInfo(InterfaceManager):
             pattern = r'\b(\w+): NIC Link is (?:Down|up)\b'
             return re.findall(pattern, log_data, re.MULTILINE)
         except Exception as e:
-            print(f"❌ Error extracting interface names: {e}")
+            self.interFaceDetails.append(f"❌ Error extracting interface names: {e}")
             return []
 
     def update_interface_pairs(self, interface_list, existing_pairs):
@@ -186,7 +187,7 @@ class PairingManagerInfo(InterfaceManager):
                     updated_pairs.append(pair)
             return updated_pairs
         except Exception as e:
-            print(f"❌ Error updating interface pairs: {e}")
+            self.interFaceDetails.append(f"❌ Error updating interface pairs: {e}")
             return existing_pairs
 
     def fetchingPairDetailsFromInterface(self):
@@ -226,7 +227,7 @@ class PairingManagerInfo(InterfaceManager):
                     print("✅ Continuing to next interface...\n")
                     print("🧹 Clearing dmesg buffer...\n")
                 except Exception as e:
-                    print(f"❌ Error processing interface {details.get('name', 'unknown')}: {e}")
+                    self.interFaceDetails.append(f"❌ Error processing interface {details.get('name', 'unknown')}: {e}")
 
             # Final cleanup
             self.run_command(["dmesg", "-c"], "Clearing dmesg buffer after")
@@ -241,7 +242,8 @@ class PairingManagerInfo(InterfaceManager):
             for pair in pairingInterface:
                 print(f"  ✅ {pair[0]} ↔ {pair[1]}")
         except Exception as e:
-            print(f"❌ Error in fetchingPairDetailsFromInterface: {e}")
+            self.interFaceDetails.append(f"❌ Error in fetchingPairDetailsFromInterface: {e}")
+            print()
 
 
     def mapInterfaceToBus(self):
@@ -284,6 +286,7 @@ class PairingManagerInfo(InterfaceManager):
                 print(f"   🧭 Bus Info   : {bus_pair}\n")
 
             except Exception as e:
+                self.interFaceDetails.append()
                 print(f"❌ Error mapping pair {pair}: {e}")
 
         print("🎯 Completed interface-to-bus mapping.\n\n")

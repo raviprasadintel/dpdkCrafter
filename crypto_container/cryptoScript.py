@@ -13,11 +13,11 @@ class CryptoSetupManager(CommonMethodExecution):
     for crypto-related test execution.
     """
 
-    def __init__(self,dts_setup_path, dpdk_file_path, automation_folder_path= "",git_user= "",git_token= "",qat_driver_path= "",fips_tar_file_path="",calgery_tar_file_path=""):
+    def __init__(self,dts_setup_path, dpdk_file_path,logs_captured,automation_folder_path= "",git_user= "",git_token= "",qat_driver_path= "",fips_tar_file_path="",calgery_tar_file_path=""):
         """
         Initializes the CryptSetupManager with default paths and log storage.
         """
-        self.logs_captured = []
+        self.logs_captured = logs_captured    # this Should be in in List
         self.dts_setup_path = dts_setup_path  # Path where DTS is cloned
         self.dpdk_file_path = dpdk_file_path  # Path to the DPDK release tarball (e.g., dpdk-25.11-rc1.tar.xz)
         self.automation_folder_path = automation_folder_path # Path containing config_files, crypto_dep, qat_driver, etc.
