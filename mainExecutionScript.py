@@ -59,33 +59,21 @@ class EnvValidator:
 all_required_variable = [
     ["GIT_USERNAME", True, "Git username required to access private repositories."],
     ["GIT_TOKEN", True, "GitHub token required for authentication and secure repository access."],
-
     ["DPDK_FILE_STATUS", True,
      "If TRUE, use the DPDK file for installation; otherwise clone from the repository. "
      "If TRUE, DPDK_FILE_PATH must be provided."],
-
     ["DPDK_FILE_PATH", False, "Path to the DPDK tarball used for installation (required if DPDK_FILE_STATUS is TRUE)."],
-
     ["DTS_INSTALLATION_PATH", True, "Path where the DTS (DPDK Test Suite) is installed."],
-
     ["DTS_RUN", False, "Determines whether DTS should be executed (default is FALSE)."],
-
     ["QAT_DRIVER_PATH", True,
      "Path to the QAT driver archive (e.g., QAT20.L.1.2.30-00109.tar.gz) used for updating QAT examples."],
-
     ["FIPS_TAR_FILE_PATH", True, "Path to the FIPS tarball (e.g., fips.tar.gz) for cryptographic validation."],
-
     ["CALGARY_TAR_FILE_PATH", True,
      "Path to the Calgary tarball (e.g., calgary.tar.gz) used for performance or compliance testing."],
-
     ["FIRMWARE_UPDATE_REQUIRED", False, "Set to TRUE when a firmware update is required."],
-
     ["DRIVER_INSTALL_REQUIRED", False, "Set to TRUE when driver installation is required."],
-
     ["FIRMWARE_PATH", False, "Path to firmware file (required if FIRMWARE_UPDATE_REQUIRED is TRUE)."],
-
     ["DRIVER_PATH", False, "Path to driver file (required if DRIVER_INSTALL_REQUIRED is TRUE)."],
-
     ["APT_PACKAGES_INSTALL_REQUIRED",True, "Set this to TRUE if system packages need to be installed; otherwise set to FALSE."]
 ]
 
@@ -105,6 +93,9 @@ def main():
     error_logs = []
     try:
         print("\n🚀 Starting Setup Scripts...\n")
+
+        # DRIVER INSTALLED 
+
 
         # APT PACKAGES INSTALL
 

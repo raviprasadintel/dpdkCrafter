@@ -18,31 +18,6 @@ class AutomationScriptForSetupInstalltion(CommonMethodExecution):
         self.operating_system_deatils = operating_system_deatils
 
 
-    def check_proxy_setup(self):
-        proxies = ["http_proxy", "https_proxy", "ftp_proxy", "no_proxy"]
-        for proxy in proxies:
-            value = os.environ.get(proxy)
-            if value:
-                print(f"{proxy} is set to: {value}")
-            else:
-                print(f"{proxy} is NOT set")
-
-
-    def setup_proxy_environment(self):
-        """
-        Sets proxy environment variables required for network access behind a corporate proxy on Ubuntu systems.
-        """
-        print("Before Proxy Update : \n")
-        self.check_proxy_setup()
-        os.environ["PATH"] = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin"
-        os.environ["ftp_proxy"] = "http://proxy-iind.intel.com:911"
-        os.environ["http_proxy"] = "http://proxy-iind.intel.com:911"
-        os.environ["https_proxy"] = "http://proxy-iind.intel.com:912"
-        os.environ["no_proxy"] = "localhost,127.0.0.1,intel.com,ger.corp.intel.com"
-        print("After Proxy Update : \n")
-        self.check_proxy_setup()
-
-
     
     def creating_folder_setup(self,setup_file_name= "setup_firmware_driver"):
 
