@@ -11,7 +11,7 @@ Modules Used:
 import os
 import subprocess
 import traceback
-from common_script_container.setup_installation import AutomationScriptForSetupInstalltion
+from common_script_container.setup_installation import AutomationScriptForSetupInstalltion,FirmwareDriverInstallation
 from common_script_container.bus_info_details import PairingManagerInfo
 from common_script_container.dut_ports_config import DutPortConfig
 from common_script_container.dut_crbs_config import DutCrbsConfig
@@ -96,7 +96,7 @@ def main():
 
         # FIRMWARE INSTALLATION :
         if os.environ.get("FIRMWARE_UPDATE_REQUIRED").upper() == "TRUE":
-            pass
+            FirmwareDriverInstallation.firmware_update(os.environ.get("FIRMWARE_PATH"))
 
         # DRIVER UPDATE :
         if os.environ.get("DRIVER_INSTALL_REQUIRED").upper() == "TRUE":
@@ -106,54 +106,54 @@ def main():
         # APT PACKAGES INSTALL
 
 
-        # CRYPTO SETTING : Execution
-        cryptObj = CryptoSetupManager(
-        dts_setup_path=os.environ.get("DTS_INSTALLTION_PATH",""), 
-        dpdk_file_path=os.environ.get("DPDK_FILE_PATH"),
-        automation_folder_path= "/root/automation/",
-        git_user= os.environ.get("GIT_USERNAME"),
-        git_token= os.environ.get("GIT_TOKEN"),
-        qat_driver_path = os.environ.get("QAT_DRIVER_PATH"),
-        fips_tar_file_path = os.environ.get("FIPS_TAR_FILE_PATH"),
-        calgery_tar_file_path= os.environ.get("CALGARY_TAR_FILE_PATH"),
-        logs_captured=error_logs
-        )
+        # # CRYPTO SETTING : Execution
+        # cryptObj = CryptoSetupManager(
+        # dts_setup_path=os.environ.get("DTS_INSTALLTION_PATH",""), 
+        # dpdk_file_path=os.environ.get("DPDK_FILE_PATH"),
+        # automation_folder_path= "/root/automation/",
+        # git_user= os.environ.get("GIT_USERNAME"),
+        # git_token= os.environ.get("GIT_TOKEN"),
+        # qat_driver_path = os.environ.get("QAT_DRIVER_PATH"),
+        # fips_tar_file_path = os.environ.get("FIPS_TAR_FILE_PATH"),
+        # calgery_tar_file_path= os.environ.get("CALGARY_TAR_FILE_PATH"),
+        # logs_captured=error_logs
+        # )
 
-        status_execution = cryptObj.crypto_execution_script()
+        # status_execution = cryptObj.crypto_execution_script()
 
-        if status_execution['status']:
-            # Fetching Current Bus Info DETAILS..
-            print("🧩 Initializing PairingManagerInfo object...")
-            managerInfo = PairingManagerInfo(error_logs)
+        # if status_execution['status']:
+        #     # Fetching Current Bus Info DETAILS..
+        #     print("🧩 Initializing PairingManagerInfo object...")
+        #     managerInfo = PairingManagerInfo(error_logs)
 
-            print("\n🔍 Fetching Interface and Bus Pairing Information...\n")
-            managerInfo.fetchingInterFacePairingInfo()
+        #     print("\n🔍 Fetching Interface and Bus Pairing Information...\n")
+        #     managerInfo.fetchingInterFacePairingInfo()
 
-            print("\n🔗 Fetching Interface Connection Details...\n")
-            managerInfo.fetchingPairDetailsFromInterface()
+        #     print("\n🔗 Fetching Interface Connection Details...\n")
+        #     managerInfo.fetchingPairDetailsFromInterface()
 
-            print("\nMapping Interface With Bus Info")
-            interface_details = managerInfo.mapInterfaceToBus()
+        #     print("\nMapping Interface With Bus Info")
+        #     interface_details = managerInfo.mapInterfaceToBus()
 
-            print("INTERFACE DETAILS :\n\n",interface_details)
+        #     print("INTERFACE DETAILS :\n\n",interface_details)
 
-            # GETTING FILE PATH WHILE RUNNING ABAOVE CMD WE WILL GET
-            dts_driver_path = status_execution['dts_driver_path']
-            config_file_folder_path = status_execution['config_file_folder_path']
+        #     # GETTING FILE PATH WHILE RUNNING ABAOVE CMD WE WILL GET
+        #     dts_driver_path = status_execution['dts_driver_path']
+        #     config_file_folder_path = status_execution['config_file_folder_path']
 
-            # STEP : Configure DUT ports [ports.cfg]
-            output_file_path = os.path.join(dts_driver_path,"conf","ports.cfg")
-            ports_config_obj = DutPortConfig(dts_driver_path)
+        #     # STEP : Configure DUT ports [ports.cfg]
+        #     output_file_path = os.path.join(dts_driver_path,"conf","ports.cfg")
+        #     ports_config_obj = DutPortConfig(dts_driver_path)
 
-            print(
-                "\n🔧 Loaded Configuration:\n"
-                "-----------------------------\n"
-                f"🌐 IP Address : {ports_config_obj.ip_address}\n"
-                f"👤 Username   : {ports_config_obj.username}\n"
-                f"🔑 Password   : {'*' * len(ports_config_obj.password) if ports_config_obj.password else 'Not Set'}\n"
-            )
+        #     print(
+        #         "\n🔧 Loaded Configuration:\n"
+        #         "-----------------------------\n"
+        #         f"🌐 IP Address : {ports_config_obj.ip_address}\n"
+        #         f"👤 Username   : {ports_config_obj.username}\n"
+        #         f"🔑 Password   : {'*' * len(ports_config_obj.password) if ports_config_obj.password else 'Not Set'}\n"
+        #     )
 
-            ports_config_obj.update_ports(interface_details)
+        #     ports_config_obj.update_ports(interface_details)
 
 
 
