@@ -96,7 +96,7 @@ def main():
 
         # FIRMWARE INSTALLATION :
         if os.environ.get("FIRMWARE_UPDATE_REQUIRED","").upper() == "TRUE":
-            FirmwareDriverInstallation.firmware_update(os.environ.get("FIRMWARE_PATH"))
+            FirmwareDriverInstallation.firmware_update(firmware_file_path = os.environ.get("FIRMWARE_PATH") )
 
         # DRIVER UPDATE :
         if os.environ.get("DRIVER_INSTALL_REQUIRED","").upper() == "TRUE":
@@ -181,9 +181,9 @@ def main():
         print(error_msg)
         return False, error_msg
 
-    print("\n✅ Script Execution Completed Successfully.\nDisplaying - Errors Logs\n")
+    # print("\n✅ Script Execution Completed Successfully.\nDisplaying - Errors Logs\n")
 
-    print("\n✅ Script Execution Completed Successfully.\n")
+    # print("\n✅ Script Execution Completed Successfully.\n")
 
 
 if __name__ == "__main__":

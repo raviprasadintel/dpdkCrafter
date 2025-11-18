@@ -13,6 +13,7 @@ class FirmwareDriverInstallation(CommonMethodExecution):
         error_logs = []
         # Setup File-Location container
         try:
+            CommonSetupCheck.print_separator("CHECKING EXECUTINN STAARTED")
             if os.path.exists(firmware_file_path) == False:
                 error_logs.append("❗ Invalid firmware path.")
                 return False, error_logs
