@@ -37,7 +37,7 @@ class FirmwareDriverInstallation:
             firmware_name = (firmware_file_name_before_taring).split(".")[0]
             # Updating FileName
             for file in os.listdir():
-                if (firmware_name in file) and (firmware_file_name_before_taring != file):
+                if (file in firmware_name ) and (firmware_file_name_before_taring != file):
                     firmware_name = file
             
             os.chdir(firmware_name)
