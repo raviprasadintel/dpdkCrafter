@@ -15,7 +15,7 @@ class FirmwareDriverInstallation(CommonMethodExecution):
         
         try:
             print("checked")
-            # CommonSetupCheck.print_separator("CHECKING EXECUTINN STAARTED")
+            CommonSetupCheck.print_separator("CHECKING EXECUTINN STAARTED")
             print("checked")
             if os.path.exists(firmware_file_path) == False:
                 error_logs.append("❗ Invalid firmware path.")
