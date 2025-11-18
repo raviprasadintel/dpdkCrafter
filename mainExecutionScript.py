@@ -11,7 +11,7 @@ Modules Used:
 import os
 import subprocess
 import traceback
-from common_script_container.setup_installation import AutomationScriptForSetupInstalltion,FirmwareDriverInstallation
+from common_script_container.setup_installation import FirmwareDriverInstallation
 from common_script_container.bus_info_details import PairingManagerInfo
 from common_script_container.dut_ports_config import DutPortConfig
 from common_script_container.dut_crbs_config import DutCrbsConfig
@@ -91,13 +91,25 @@ def main():
     """
 
     error_logs = []
+    conclusion = []
     try:
         print("\n🚀 Starting Setup Scripts...\n")
 
         # FIRMWARE INSTALLATION :
         if os.environ.get("FIRMWARE_UPDATE_REQUIRED","").upper() == "TRUE":
-            print("FIRMWARE_UPDATE_REQUIRED",os.environ.get("FIRMWARE_UPDATE_REQUIRED",""),os.environ.get("FIRMWARE_PATH"))
-            FirmwareDriverInstallation.firmware_update(firmware_file_path = os.environ.get("FIRMWARE_PATH") )
+            statement = FirmwareDriverInstallation.firmware_update(firmware_file_path = os.environ.get("FIRMWARE_PATH"),error_logs= error_logs)
+            
+            # Add emoji indicators for status
+            status_emoji = "✅" if statement[1].upper() == "SUCCESS" else "❌"
+            conclusion.append(
+                {
+                    "FIRMWARE_UPDATE": {
+                        "UPDATED": f"{'✔️' if statement[0] else '❌'}",
+                        "STATUS": f"{status_emoji} {statement[1]}",
+                        "ERRORS": statement[2] if statement[2] else "None"
+                    }
+                }
+            )
 
         # DRIVER UPDATE :
         if os.environ.get("DRIVER_INSTALL_REQUIRED","").upper() == "TRUE":
@@ -155,6 +167,11 @@ def main():
         #     )
 
         #     ports_config_obj.update_ports(interface_details)
+
+
+        CommonSetupCheck.print_separator("PRINTING CONCLUSION")
+        for con in conclusion:
+            print(con)
 
 
 

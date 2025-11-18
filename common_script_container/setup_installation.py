@@ -9,10 +9,11 @@ from common_script_container.constant import CommonMethodExecution,CommonSetupCh
 class FirmwareDriverInstallation:
     
     @staticmethod
-    def firmware_update(firmware_file_path):
-        error_logs = []
+    def firmware_update(firmware_file_path,error_logs=[]):
         # Setup File-Location container
-        
+        installation_firmware = False
+        error_msg = ""
+        status  = "FAILED"
         try:
             CommonSetupCheck.print_separator("CHECKING EXECUTINN STAARTED")
             if os.path.exists(firmware_file_path) == False:
@@ -46,30 +47,50 @@ class FirmwareDriverInstallation:
             CommonSetupCheck.print_separator(str(os.getcwd()))
             print(os.listdir())
 
-
-
-
+            installation_firmware = True
+            status = "SUCCESSFUL"
+            CommonMethodExecution.run_command(['./nvmupdate64e'], "Running firmware installation")
 
         except FileNotFoundError as e:
             error_msg = f"❌ File not found: {str(e)}"
-            print(error_msg)
-            return False, error_msg
+           
         except subprocess.CalledProcessError as e:
             error_msg = f"❌ Subprocess error: {e.output if e.output else str(e)}"
             error_logs({
                 "errors": error_msg,
                 "traceback": traceback.format_exc()
             })
-            print(error_msg)
-            return False, error_msg
+           
         except Exception as e:
             error_msg = f"❌ Unexpected error: {str(e)}"
             error_logs({
                 "errors": error_msg,
                 "traceback": traceback.format_exc()
             })
-            print(error_msg)
-            return False, error_msg
+    
+        return installation_firmware,status ,error_msg
+            
+    def driver_update(driver_path):
+        try:
+            pass
+        except FileNotFoundError as e:
+            error_msg = f"❌ File not found: {str(e)}"
+           
+        except subprocess.CalledProcessError as e:
+            error_msg = f"❌ Subprocess error: {e.output if e.output else str(e)}"
+            error_logs({
+                "errors": error_msg,
+                "traceback": traceback.format_exc()
+            })
+           
+        except Exception as e:
+            error_msg = f"❌ Unexpected error: {str(e)}"
+            error_logs({
+                "errors": error_msg,
+                "traceback": traceback.format_exc()
+            })
+    
+        return installation_firmware,status ,error_msg
 
 
 
