@@ -97,8 +97,14 @@ def main():
     try:
         print("\n🚀 Starting Setup Scripts...\n")
 
-        # OS SYSTEM -: INSTALLATION
+        # OS SYSTEM -: CHECK
+        CommonSetupCheck.print_separator("CURRENT SYSTEM OS CHECK")
+        os_check = CommonSetupCheck.check_os()
         
+
+
+
+
         # FIRMWARE INSTALLATION :
         if os.environ.get("FIRMWARE_UPDATE_REQUIRED","").upper() == "TRUE":
             statement = FirmwareDriverInstallation.firmware_update(firmware_file_path = os.environ.get("FIRMWARE_PATH"),error_logs= error_logs)
