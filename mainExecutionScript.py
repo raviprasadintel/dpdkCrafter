@@ -96,11 +96,12 @@ def main():
     conclusion = []
     try:
         print("\n🚀 Starting Setup Scripts...\n")
-
+        # STEP 0 :
         # OS SYSTEM -: CHECK
         CommonSetupCheck.print_separator("CURRENT SYSTEM OS CHECK")
         os_check = CommonSetupCheck.check_os()
 
+        # STEP 1 :
         # FIRMWARE INSTALLATION :
         if os.environ.get("FIRMWARE_UPDATE_REQUIRED","").upper() == "TRUE":
             statement = FirmwareDriverInstallation.firmware_update(firmware_file_path = os.environ.get("FIRMWARE_PATH"),error_logs= error_logs)
@@ -117,6 +118,7 @@ def main():
                 }
             )
 
+        # STEP 1 :
         # DRIVER UPDATE :
         if os.environ.get("DRIVER_INSTALL_REQUIRED","").upper() == "TRUE":
             statement = FirmwareDriverInstallation.driver_update(driver_path = os.environ.get("DRIVER_PATH"),error_logs= error_logs)
@@ -132,7 +134,7 @@ def main():
                 }
             )
 
-
+        # STEP 2 :
         # APT PACKAGES INSTALL
         if os.environ.get("APT_PACKAGES_INSTALL_REQUIRED","").upper() == "TRUE":
             statement = PackageInstalltion.install_required_packages(os_check)
@@ -146,6 +148,7 @@ def main():
                 }
             )
         
+        # STEP 3 : 
         # FETCHING BUS INFO DETAILS
         print("🧩 Initializing PairingManagerInfo object...")
         managerInfo = PairingManagerInfo(error_logs)
