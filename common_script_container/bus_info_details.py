@@ -79,6 +79,7 @@ class InterfaceManager:
         for interface_det in self.interface_details():
             print(interface_det)
             self.bring_interface_up(interface_det)
+            print("self.interface_details() :",self.interface_details(search=interface_det['name']) )
 
         self.interFaceDetails = [val for val in self.interface_details() if val['status'].upper() == "UP"]
         print(f"\n📋 Final UP Interfaces: {self.interFaceDetails}")
