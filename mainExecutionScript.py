@@ -95,8 +95,8 @@ def main():
         print("\n🚀 Starting Setup Scripts...\n")
 
         # FIRMWARE INSTALLATION :
-        print("FIRMWARE_UPDATE_REQUIRED",os.environ.get("FIRMWARE_UPDATE_REQUIRED",""))
         if os.environ.get("FIRMWARE_UPDATE_REQUIRED","").upper() == "TRUE":
+            print("FIRMWARE_UPDATE_REQUIRED",os.environ.get("FIRMWARE_UPDATE_REQUIRED",""),os.environ.get("FIRMWARE_PATH"))
             FirmwareDriverInstallation.firmware_update(firmware_file_path = os.environ.get("FIRMWARE_PATH") )
 
         # DRIVER UPDATE :
