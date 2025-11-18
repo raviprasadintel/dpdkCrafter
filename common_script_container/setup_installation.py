@@ -261,6 +261,8 @@ class PackageInstalltion:
             installer_name = "apt"
             if os_name == "openeuler":
                 installer_name = "yum"
+            elif os_name == "ubuntu":
+                installer_name = "apt"
             apt_packages = [
                 ["sudo", "timedatectl", "set-ntp", "false"],
                 ["sudo", "timedatectl", "set-time", current_time],

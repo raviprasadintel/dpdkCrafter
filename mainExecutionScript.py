@@ -145,8 +145,15 @@ def main():
                     }
                 }
             )
+        
+        # FETCHING BUS INFO DETAILS
+        print("🧩 Initializing PairingManagerInfo object...")
+        managerInfo = PairingManagerInfo(error_logs)
+        managerInfo.fetchingInterFacePairingInfo()
+        
+        # 
 
-
+        # CHECK FOR CRYPTO DRIVER :
         # # CRYPTO SETTING : Execution
         # cryptObj = CryptoSetupManager(
         # dts_setup_path=os.environ.get("DTS_INSTALLTION_PATH",""), 
@@ -164,8 +171,7 @@ def main():
 
         # if status_execution['status']:
         #     # Fetching Current Bus Info DETAILS..
-        #     print("🧩 Initializing PairingManagerInfo object...")
-        #     managerInfo = PairingManagerInfo(error_logs)
+     
 
         #     print("\n🔍 Fetching Interface and Bus Pairing Information...\n")
         #     managerInfo.fetchingInterFacePairingInfo()
