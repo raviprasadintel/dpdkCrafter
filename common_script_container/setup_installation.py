@@ -12,6 +12,7 @@ class FirmwareDriverInstallation(CommonMethodExecution):
     def firmware_update(firmware_file_path):
         error_logs = []
         # Setup File-Location container
+        print("checked")
         try:
             CommonSetupCheck.print_separator("CHECKING EXECUTINN STAARTED")
             if os.path.exists(firmware_file_path) == False:
