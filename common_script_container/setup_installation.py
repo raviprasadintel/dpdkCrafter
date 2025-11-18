@@ -240,7 +240,8 @@ class FirmwareDriverInstallation:
         except Exception as e:
             error_msg = f"❌ Unexpected error: {str(e)}"
             error_logs.append({"errors": error_msg, "traceback": traceback.format_exc()})
-
+        
+        CommonSetupCheck.print_separator("🚀 DRIVER EXECUTION COMPLETED")
         return installation_driver, status, error_logs
 
 
