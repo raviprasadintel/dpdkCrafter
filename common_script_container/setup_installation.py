@@ -6,6 +6,39 @@ from datetime import datetime
 from common_script_container.constant import CommonMethodExecution,CommonSetupCheck
 
 
+def find_relevant_folder(tar_filename: str, folder_list: list) -> str:
+    """
+    Find the folder from folder_list that matches the tar file name based on version and base name.
+    
+    Args:
+        tar_filename (str): The tar file name (e.g., 'ice2.3.10.tar.gz').
+        folder_list (list): List of folder names (e.g., from os.listdir()).
+    
+    Returns:
+        str: Matching folder name or None if no match found.
+    """
+    # Remove extensions from tar file
+    base_tar = re.sub(r'\.tar\.gz$|\.tgz$|\.zip$', '', tar_filename)
+    
+    # Normalize tar name
+    normalized_tar = re.sub(r'[^a-zA-Z0-9]+', '-', base_tar).lower()
+    version_tar = re.search(r'\d+(\.\d+)+', normalized_tar)
+    
+    if not version_tar:
+        return None
+    
+    version = version_tar.group()
+    
+    # Search for folder with same version and base name
+    for folder in folder_list:
+        normalized_folder = re.sub(r'[^a-zA-Z0-9]+', '-', folder).lower()
+        if version in normalized_folder and normalized_folder.startswith('ice'):
+            return folder
+    
+    return None
+
+
+
 class FirmwareDriverInstallation:
     
     @staticmethod
@@ -89,12 +122,8 @@ class FirmwareDriverInstallation:
             # Extract firmware 
             CommonMethodExecution.run_command(['tar', '-xvf',driver_path, '-C', current_path],f"Extracting firmware file: {driver_path}")
 
-            driver_name = (driver_file_name_before_tarting).split(".")[0]
             # Updating FileName
-            for file in os.listdir():
-                print(file,file in driver_file_name_before_tarting)
-                if (file in driver_file_name_before_tarting ) :
-                    driver_name = file
+            driver_name = find_relevant_folder(driver_file_name_before_tarting, os.listdir())
             print(os.listdir(),driver_name,driver_file_name_before_tarting)
             os.chdir(driver_name)
             CommonSetupCheck.print_separator(str(os.getcwd()))
