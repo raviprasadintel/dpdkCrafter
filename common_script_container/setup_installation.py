@@ -24,7 +24,6 @@ class FirmwareDriverInstallation(CommonMethodExecution):
             os.chdir("setup_firmware_driver")
 
             current_path = os.getcwdb().decode()
-            print("firmware_file_path:",firmware_file_path)
             firmware_file_name_before_taring = os.path.basename(firmware_file_path)
             print(firmware_file_name_before_taring,os.path.exists(firmware_file_path))
             # Extract firmware 
