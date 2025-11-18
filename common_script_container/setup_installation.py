@@ -15,10 +15,10 @@ class FirmwareDriverInstallation:
         error_msg = ""
         status  = "FAILED"
         try:
-            CommonSetupCheck.print_separator("CHECKING EXECUTINN STAARTED")
+            CommonSetupCheck.print_separator("FIRMWARE UPDATED STARTED")
             if os.path.exists(firmware_file_path) == False:
                 error_logs.append("❗ Invalid firmware path.")
-                return False, error_logs
+                return False,status, error_logs
             os.chdir("/root")
             CommonSetupCheck.print_separator(str(os.getcwd()))
             os.makedirs("setup_firmware_driver",exist_ok=True)
@@ -26,7 +26,6 @@ class FirmwareDriverInstallation:
 
             current_path = os.getcwdb().decode()
             firmware_file_name_before_taring = os.path.basename(firmware_file_path)
-            print(firmware_file_name_before_taring,os.path.exists(firmware_file_path))
             # Extract firmware 
             CommonMethodExecution.run_command(['tar', '-xvf',firmware_file_path, '-C', current_path],f"Extracting firmware file: {firmware_file_path}")
 
@@ -38,7 +37,7 @@ class FirmwareDriverInstallation:
             firmware_name = (firmware_file_name_before_taring).split(".")[0]
             # Updating FileName
             for file in os.listdir():
-                if (file in firmware_name ) and (firmware_file_name_before_taring != file):
+                if (file in firmware_file_name_before_taring ) and (firmware_file_name_before_taring != file):
                     firmware_name = file
             
             os.chdir(firmware_name)
@@ -56,41 +55,80 @@ class FirmwareDriverInstallation:
            
         except subprocess.CalledProcessError as e:
             error_msg = f"❌ Subprocess error: {e.output if e.output else str(e)}"
-            error_logs({
+            error_logs.append({
                 "errors": error_msg,
                 "traceback": traceback.format_exc()
             })
            
         except Exception as e:
             error_msg = f"❌ Unexpected error: {str(e)}"
-            error_logs({
+            error_logs.append({
                 "errors": error_msg,
                 "traceback": traceback.format_exc()
             })
-    
+        CommonSetupCheck.print_separator("FIRMWARE UPDATION COMPLETED")
         return installation_firmware,status ,error_msg
             
-    def driver_update(driver_path):
+    @staticmethod
+    def driver_update(driver_path, error_logs=[]):
+        installation_driver = False
+        status = "FAILURE"
         try:
-            pass
+            CommonSetupCheck.print_separator("DRIVER EXECUTION COMPLETED")
+            if os.path.exists(driver_path) == False:
+                error_logs.append("❗ Invalid firmware path.")
+                return False,status, error_logs
+            os.chdir("/root")
+            CommonSetupCheck.print_separator(str(os.getcwd()))
+            os.makedirs("setup_firmware_driver",exist_ok=True)
+            os.chdir("setup_firmware_driver")
+
+            current_path = os.getcwdb().decode()
+            driver_file_name_before_tarting = os.path.basename(driver_path)
+            # Extract firmware 
+            CommonMethodExecution.run_command(['tar', '-xvf',driver_path, '-C', current_path],f"Extracting firmware file: {driver_path}")
+
+            driver_name = (driver_file_name_before_tarting).split(".")[0]
+            # Updating FileName
+            for file in os.listdir():
+                if (file in driver_file_name_before_tarting ) and (driver_file_name_before_tarting != file):
+                    driver_name = file
+            
+            os.chdir(driver_name)
+            CommonSetupCheck.print_separator(str(os.getcwd()))
+
+            # Installing Make cmd 
+            CommonMethodExecution.run_command(["apt", "update"], "updating Sudo Update :\n")
+            CommonMethodExecution.run_command(['apt','install','-y','make'], "Instalation Of Make cmd")
+            os.chdir("src")
+            # Run make commands  
+            CommonMethodExecution.run_command(['make'], "Running make")
+            CommonMethodExecution.run_command(['dmesg', '-c'], "Clearing dmesg")
+            CommonMethodExecution.run_command(['make', 'install'], "Running make install")
+            CommonMethodExecution.run_command(['rmmod', 'irdma'], "Removing irdma module")
+            CommonMethodExecution.run_command(['rmmod', 'ice'], "Removing ice module")
+            CommonMethodExecution.run_command(['modprobe', 'ice'], "Loading ice module")
+
+            installation_driver= True
+  
         except FileNotFoundError as e:
             error_msg = f"❌ File not found: {str(e)}"
-           
+
         except subprocess.CalledProcessError as e:
             error_msg = f"❌ Subprocess error: {e.output if e.output else str(e)}"
-            error_logs({
+            error_logs.append({
                 "errors": error_msg,
                 "traceback": traceback.format_exc()
             })
            
         except Exception as e:
             error_msg = f"❌ Unexpected error: {str(e)}"
-            error_logs({
+            error_logs.append({
                 "errors": error_msg,
                 "traceback": traceback.format_exc()
             })
     
-        return installation_firmware,status ,error_msg
+        return installation_driver,status ,error_msg
 
 
 

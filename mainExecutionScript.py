@@ -73,7 +73,7 @@ all_required_variable = [
     ["FIRMWARE_UPDATE_REQUIRED", False, "Set to TRUE when a firmware update is required."],
     # ["DRIVER_INSTALL_REQUIRED", False, "Set to TRUE when driver installation is required."],
     ["FIRMWARE_PATH", False, "Path to firmware file (required if FIRMWARE_UPDATE_REQUIRED is TRUE)."],
-    # ["DRIVER_PATH", False, "Path to driver file (required if DRIVER_INSTALL_REQUIRED is TRUE)."],
+    ["DRIVER_PATH", False, "Path to driver file (required if DRIVER_INSTALL_REQUIRED is TRUE)."],
     # ["APT_PACKAGES_INSTALL_REQUIRED",True, "Set this to TRUE if system packages need to be installed; otherwise set to FALSE."]
 ]
 
@@ -96,24 +96,35 @@ def main():
         print("\n🚀 Starting Setup Scripts...\n")
 
         # FIRMWARE INSTALLATION :
-        if os.environ.get("FIRMWARE_UPDATE_REQUIRED","").upper() == "TRUE":
-            statement = FirmwareDriverInstallation.firmware_update(firmware_file_path = os.environ.get("FIRMWARE_PATH"),error_logs= error_logs)
+        # if os.environ.get("FIRMWARE_UPDATE_REQUIRED","").upper() == "TRUE":
+        #     statement = FirmwareDriverInstallation.firmware_update(firmware_file_path = os.environ.get("FIRMWARE_PATH"),error_logs= error_logs)
             
+        #     # Add emoji indicators for status
+        #     status_emoji = "✅" if statement[1].upper() == "SUCCESS" else "❌"
+        #     conclusion.append(
+        #         {
+        #             "FIRMWARE_UPDATE": {
+        #                 "UPDATED": f"{'✔️' if statement[0] else '❌'}",
+        #                 "STATUS": f"{status_emoji} {statement[1]}",
+        #                 "ERRORS": statement[2] if statement[2] else "None"
+        #             }
+        #         }
+        #     )
+
+        # DRIVER UPDATE :
+        if os.environ.get("DRIVER_INSTALL_REQUIRED","").upper() == "TRUE":
+            statement = FirmwareDriverInstallation.driver_update(driver_path = os.environ.get("DRIVER_PATH"),error_logs= error_logs)
             # Add emoji indicators for status
             status_emoji = "✅" if statement[1].upper() == "SUCCESS" else "❌"
             conclusion.append(
                 {
-                    "FIRMWARE_UPDATE": {
+                    "DRIVER_UPDATE": {
                         "UPDATED": f"{'✔️' if statement[0] else '❌'}",
                         "STATUS": f"{status_emoji} {statement[1]}",
                         "ERRORS": statement[2] if statement[2] else "None"
                     }
                 }
             )
-
-        # DRIVER UPDATE :
-        if os.environ.get("DRIVER_INSTALL_REQUIRED","").upper() == "TRUE":
-            pass
 
 
         # APT PACKAGES INSTALL
