@@ -144,7 +144,7 @@ class CommonSetupCheck:
         return wrapper
     
     @staticmethod
-    def check_os(self):
+    def check_os():
         """
         Retrieve operating system details and return them in a structured format.
         Returns:
