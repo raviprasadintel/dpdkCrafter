@@ -6,36 +6,37 @@ from datetime import datetime
 from common_script_container.constant import CommonMethodExecution,CommonSetupCheck
 
 
-def find_relevant_folder(tar_filename: str, folder_list: list) -> str:
+from difflib import SequenceMatcher
+
+def find_best_match(tar_filename: str, folder_list: list) -> dict:
     """
-    Find the folder from folder_list that matches the tar file name based on version and base name.
+    Find the folder with the highest similarity to the tar file name.
     
     Args:
-        tar_filename (str): The tar file name (e.g., 'ice2.3.10.tar.gz').
-        folder_list (list): List of folder names (e.g., from os.listdir()).
+        tar_filename (str): Tar file name (e.g., 'ice2.3.10.tar.gz').
+        folder_list (list): List of folder names.
     
     Returns:
-        str: Matching folder name or None if no match found.
+        dict: {'folder': best_match_folder, 'score': percentage}
     """
-    # Remove extensions from tar file
+    # Remove extensions
     base_tar = re.sub(r'\.tar\.gz$|\.tgz$|\.zip$', '', tar_filename)
+    normalized_tar = base_tar.lower()
     
-    # Normalize tar name
-    normalized_tar = re.sub(r'[^a-zA-Z0-9]+', '-', base_tar).lower()
-    version_tar = re.search(r'\d+(\.\d+)+', normalized_tar)
+    best_match = None
+    best_score = 0.0
     
-    if not version_tar:
-        return None
-    
-    version = version_tar.group()
-    
-    # Search for folder with same version and base name
     for folder in folder_list:
-        normalized_folder = re.sub(r'[^a-zA-Z0-9]+', '-', folder).lower()
-        if version in normalized_folder and normalized_folder.startswith('ice'):
-            return folder
+        normalized_folder = folder.lower()
+        
+        # Compute similarity ratio
+        score = SequenceMatcher(None, normalized_tar, normalized_folder).ratio() * 100
+        
+        if score > best_score:
+            best_score = score
+            best_match = folder
     
-    return None
+    return {'folder': best_match, 'score': round(best_score, 2)}
 
 
 
@@ -123,7 +124,8 @@ class FirmwareDriverInstallation:
             CommonMethodExecution.run_command(['tar', '-xvf',driver_path, '-C', current_path],f"Extracting firmware file: {driver_path}")
 
             # Updating FileName
-            driver_name = find_relevant_folder(driver_file_name_before_tarting, os.listdir())
+            finding_file = find_best_match(driver_file_name_before_tarting, os.listdir())
+            driver_name = finding_file.get("folder")
             print(os.listdir(),driver_name,driver_file_name_before_tarting)
             os.chdir(driver_name)
             CommonSetupCheck.print_separator(str(os.getcwd()))
