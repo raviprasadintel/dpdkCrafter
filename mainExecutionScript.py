@@ -95,11 +95,11 @@ def main():
         print("\n🚀 Starting Setup Scripts...\n")
 
         # FIRMWARE INSTALLATION :
-        if os.environ.get("FIRMWARE_UPDATE_REQUIRED").upper() == "TRUE":
+        if os.environ.get("FIRMWARE_UPDATE_REQUIRED","").upper() == "TRUE":
             FirmwareDriverInstallation.firmware_update(os.environ.get("FIRMWARE_PATH"))
 
         # DRIVER UPDATE :
-        if os.environ.get("DRIVER_INSTALL_REQUIRED").upper() == "TRUE":
+        if os.environ.get("DRIVER_INSTALL_REQUIRED","").upper() == "TRUE":
             pass
 
 
