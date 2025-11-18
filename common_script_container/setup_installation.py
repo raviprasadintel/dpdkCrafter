@@ -205,16 +205,23 @@ class FirmwareDriverInstallation:
             CommonMethodExecution.run_command(['apt', 'install', '-y', 'make'], "Installing 'make'")
 
             os.chdir("src")
-            print("⚙️ Running build commands...")
-            CommonMethodExecution.run_command(['make'], "Running make")
-            CommonMethodExecution.run_command(['dmesg', '-c'], "Clearing dmesg logs")
-            CommonMethodExecution.run_command(['make', 'install'], "Running make install")
 
-            # ✅ Reload kernel modules
-            print("🔁 Reloading kernel modules...")
-            CommonMethodExecution.run_command(['rmmod', 'irdma'], "Removing irdma module")
-            CommonMethodExecution.run_command(['rmmod', 'ice'], "Removing ice module")
-            CommonMethodExecution.run_command(['modprobe', 'ice'], "Loading ice module")
+            finding_file = CommonMethodExecution.find_best_match(driver_file_name_before_tarting, os.listdir())
+            CommonSetupCheck.print_separator("🔍 Driver Folder With Highest Match Score")
+            print(f"✅ Best Match: {finding_file.get('folder')} ({finding_file.get('score')}%)")
+
+            driver_name = finding_file.get("folder")
+            print(f"📂 Extracted Folders: {os.listdir()}")
+            print(f"➡️ Selected Driver Folder: {driver_name}")
+            # CommonMethodExecution.run_command(['make'], "Running make")
+            # CommonMethodExecution.run_command(['dmesg', '-c'], "Clearing dmesg logs")
+            # CommonMethodExecution.run_command(['make', 'install'], "Running make install")
+
+            # # ✅ Reload kernel modules
+            # print("🔁 Reloading kernel modules...")
+            # CommonMethodExecution.run_command(['rmmod', 'irdma'], "Removing irdma module")
+            # CommonMethodExecution.run_command(['rmmod', 'ice'], "Removing ice module")
+            # CommonMethodExecution.run_command(['modprobe', 'ice'], "Loading ice module")
 
             installation_driver = True
             status = "SUCCESS"

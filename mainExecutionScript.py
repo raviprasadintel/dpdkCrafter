@@ -83,11 +83,13 @@ all_required_variable = [
 def main():
     """
     Executes the full setup process:
-    1. Update firmware and drivers
-    2. Install required packages
-    3. Prepare environment and clone repositories
-    4. Fetch interface pairing info and map bus details
-    5. Configure DUT ports
+    0. Checking Current OS system
+    1. Update firmware.
+    2. Update driver
+    3. Install required packages
+    4. Prepare environment and clone repositories
+    5. Fetch interface pairing info and map bus details
+    6. Configure DUT ports
     """
 
     error_logs = []
@@ -95,6 +97,8 @@ def main():
     try:
         print("\n🚀 Starting Setup Scripts...\n")
 
+        # OS SYSTEM -: INSTALLATION
+        
         # FIRMWARE INSTALLATION :
         if os.environ.get("FIRMWARE_UPDATE_REQUIRED","").upper() == "TRUE":
             statement = FirmwareDriverInstallation.firmware_update(firmware_file_path = os.environ.get("FIRMWARE_PATH"),error_logs= error_logs)
