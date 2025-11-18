@@ -152,7 +152,9 @@ def main():
         # # FETCHING BUS INFO DETAILS
         interface_man_obj  = InterfaceManager(error_logs= error_logs)
 
-        interface_man_obj.process_all_interfaces()
+        statement = interface_man_obj.process_all_interfaces()
+        if statement[0]:
+            print(statement)
 
         # print("🧩 Initializing PairingManagerInfo object...")
         # pariting_obj = PairingManagerInfo(error_logs)

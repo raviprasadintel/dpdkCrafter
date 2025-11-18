@@ -1,5 +1,6 @@
 import re
 import time
+from common_script_container.constant import CommonSetupCheck
 from common_script_container.constant import CommonMethodExecution
 
 
@@ -69,21 +70,81 @@ class InterfaceManager:
             else:
                 print(f"❌ Failed to bring up interface {interface}")
 
+    # def process_all_interfaces(self):
+    #     """
+    #     Checks all interfaces and brings any DOWN interfaces UP.
+    #     Stores only UP interfaces in self.interFaceDetails.
+    #     """
+
+    #     print("\n🔄 Processing all interfaces...")
+    #     for interface_det in self.interface_details():
+    #         print(interface_det)
+    #         self.bring_interface_up(interface_det)
+    #         print("self.interface_details() :",self.interface_details(search=interface_det['name']) )
+
+    #     self.interFaceDetails = [val for val in self.interface_details() if val['status'].upper() == "UP"]
+    #     print(f"\n📋 Final UP Interfaces: {self.interFaceDetails}")
+
     def process_all_interfaces(self):
         """
         Checks all interfaces and brings any DOWN interfaces UP.
-        Stores only UP interfaces in self.interFaceDetails.
+        Maintains two lists:
+        - UP interfaces in self.interFaceDetails
+        - DOWN interfaces in a separate list for reporting
         """
+        print("\n🔄 Processing all interfaces...\n")
+        down_interfaces = []  # Track interfaces that remain DOWN
+        up_interfaces = []    # Track interfaces that are UP after processing
+        try:
+            all_interfaces = self.interface_details()
+            if not all_interfaces:
+                print("❌ No interfaces found!")
+                return
 
-        print("\n🔄 Processing all interfaces...")
-        for interface_det in self.interface_details():
-            print(interface_det)
-            self.bring_interface_up(interface_det)
-            print("self.interface_details() :",self.interface_details(search=interface_det['name']) )
+            for interface_det in all_interfaces:
+                try:
+                    name = interface_det['name']
+                    status = interface_det['status']
 
-        self.interFaceDetails = [val for val in self.interface_details() if val['status'].upper() == "UP"]
-        print(f"\n📋 Final UP Interfaces: {self.interFaceDetails}")
+                    print(f"➡️ Checking Interface: {name} | Current Status: {status}")
 
+                    # Attempt to bring interface UP if it's DOWN
+                    if status.upper() == "DOWN":
+                        print(f"🔌 Attempting to bring UP: {name}")
+                        self.bring_interface_up(interface_det)
+
+                        # Check updated status
+                        updated_status = self.interface_details(search=name)
+                        if updated_status and updated_status[0]['status'].upper() == "UP":
+                            print(f"✅ SUCCESS: {name} is now UP")
+                            up_interfaces.append(name)
+                        else:
+                            print(f"❌ FAILED: {name} is still DOWN")
+                            down_interfaces.append(name)
+                    else:
+                        print(f"✅ Already UP: {name}")
+                        up_interfaces.append(name)
+                except Exception as e:
+                    self.error_logs.append(f"❌ Unexpected error: {str(e)}")
+
+            # Update class attribute with UP interfaces
+            self.interFaceDetails = [{'name': iface, 'status': 'UP'} for iface in up_interfaces]
+
+            # Print summary
+            print("\n📋 Interface Summary:")
+            print(f"✅ UP Interfaces ({len(up_interfaces)}): {up_interfaces}")
+            print(f"❌ DOWN Interfaces ({len(down_interfaces)}): {down_interfaces}")
+            CommonSetupCheck.print_separator()
+        except Exception as e:
+            self.error_logs.append(f"❌ Unexpected error: {str(e)}")
+            
+        return {
+            "updated": True if len(up_interfaces)>1 else False,
+            "status":"SUCCESSFUL" if len(up_interfaces)>1 else"FAILURE",
+            "up_interface": up_interfaces,
+            "down_interface": down_interfaces,
+            "error_logs": self.error_logs
+        }
 
 
 # class PairingManagerInfo:
