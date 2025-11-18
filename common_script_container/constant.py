@@ -58,7 +58,8 @@ port_config_fail = "🚫 Maximum attempts reached. Authentication failed.\n"
 
 class CommonMethodExecution:
 
-    def run_command(self, command, description="", check_output=False):
+    @staticmethod
+    def run_command( command, description="", check_output=False,error_log = []):
         """
         Executes a shell command.
 

@@ -6,7 +6,7 @@ from datetime import datetime
 from common_script_container.constant import CommonMethodExecution,CommonSetupCheck
 
 
-class FirmwareDriverInstallation(CommonMethodExecution):
+class FirmwareDriverInstallation:
     
     @staticmethod
     def firmware_update(firmware_file_path):
@@ -27,10 +27,10 @@ class FirmwareDriverInstallation(CommonMethodExecution):
             firmware_file_name_before_taring = os.path.basename(firmware_file_path)
             print(firmware_file_name_before_taring,os.path.exists(firmware_file_path))
             # Extract firmware 
-            FirmwareDriverInstallation.run_command(command =['tar', '-xvf',firmware_file_path, '-C', current_path],description =f"Extracting firmware file: {firmware_file_path}")
+            CommonMethodExecution.run_command(['tar', '-xvf',firmware_file_path, '-C', current_path],f"Extracting firmware file: {firmware_file_path}")
 
             # List files in current directory
-            FirmwareDriverInstallation.run_command(command =['ls','-l'], description= "Listing files in current directory")
+            CommonMethodExecution.run_command(command =['ls','-l'], description= "Listing files in current directory")
 
             # Fecthning Firmware Name :
             
@@ -74,7 +74,7 @@ class FirmwareDriverInstallation(CommonMethodExecution):
 
 
 
-class AutomationScriptForSetupInstalltion(CommonMethodExecution):
+class AutomationScriptForSetupInstalltion:
 
     def __init__(self,firmware_file_path = None, driver_path = None, git_user = "",git_token = "", operating_system_deatils={} ):
         self.firmware_file_path = firmware_file_path
