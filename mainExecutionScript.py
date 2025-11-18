@@ -12,7 +12,7 @@ import os
 import subprocess
 import traceback
 from common_script_container.setup_installation import FirmwareDriverInstallation, PackageInstalltion
-from common_script_container.bus_info_details import InterfaceManager
+from common_script_container.bus_info_details import InterfaceManager,PairingManagerInfo
 from common_script_container.dut_ports_config import DutPortConfig
 from common_script_container.dut_crbs_config import DutCrbsConfig
 from common_script_container.dut_execution_config import ExecutionCfgUpdate
@@ -153,22 +153,27 @@ def main():
         interface_man_obj  = InterfaceManager(error_logs= error_logs)
 
         statement = interface_man_obj.process_all_interfaces()
-        if statement[0]:
-            print(statement)
+        up_interface = []
+        down_inteface = []
+        up_interface += statement["up_interface"]
+        down_inteface += statement['down_interface']
 
-        # print("🧩 Initializing PairingManagerInfo object...")
-        # pariting_obj = PairingManagerInfo(error_logs)
+        if len(up_interface) <=0:
+            CommonSetupCheck.print_separator("⚠️ Attempted to enable the interface, but it could not be brought UP.")
+        
+        print("🧩 Initializing PairingManagerInfo object...")
+        pariting_obj = PairingManagerInfo(up_interface,logs_captured= error_logs)
 
-        # print("\n🔍 Fetching Interface and Bus Pairing Information...\n")
-        # pariting_obj.fetchingInterFacePairingInfo()
+        print("\n🔍 Fetching Interface and Bus Pairing Information...\n")
+        pariting_obj.fetchingInterFacePairingInfo()
 
-        # print("\n🔗 Fetching Interface Connection Details...\n")
-        # pariting_obj.fetchingPairDetailsFromInterface()
+        print("\n🔗 Fetching Interface Connection Details...\n")
+        pariting_obj.fetchingPairDetailsFromInterface()
 
-        # print("\nMapping Interface With Bus Info")
-        # interface_details = pariting_obj.mapInterfaceToBus()
+        print("\nMapping Interface With Bus Info")
+        interface_details = pariting_obj.mapInterfaceToBus()
 
-        # print(interface_details)
+        print(interface_details)
     
 
         # 
