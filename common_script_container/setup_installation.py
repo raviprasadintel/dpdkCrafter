@@ -6,103 +6,138 @@ from datetime import datetime
 from common_script_container.constant import CommonMethodExecution,CommonSetupCheck
 
 
-from difflib import SequenceMatcher
-
-def find_best_match(tar_filename: str, folder_list: list) -> dict:
-    """
-    Find the folder with the highest similarity to the tar file name.
-    
-    Args:
-        tar_filename (str): Tar file name (e.g., 'ice2.3.10.tar.gz').
-        folder_list (list): List of folder names.
-    
-    Returns:
-        dict: {'folder': best_match_folder, 'score': percentage}
-    """
-    # Remove extensions
-    base_tar = re.sub(r'\.tar\.gz$|\.tgz$|\.zip$', '', tar_filename)
-    normalized_tar = base_tar.lower()
-    
-    best_match = None
-    best_score = 0.0
-    
-    for folder in folder_list:
-        normalized_folder = folder.lower()
-        
-        # Compute similarity ratio
-        score = SequenceMatcher(None, normalized_tar, normalized_folder).ratio() * 100
-        
-        if score > best_score:
-            best_score = score
-            best_match = folder
-    
-    return {'folder': best_match, 'score': round(best_score, 2)}
-
 
 
 class FirmwareDriverInstallation:
     
+    """
+    FirmwareDriverInstallation
+
+    This class provides methods to automate the installation and update process 
+    for network drivers and firmware on Linux systems. It is designed to handle 
+    tasks such as:
+
+    - Extracting driver and firmware tar files.
+    - Identifying the correct folder after extraction using best-match logic.
+    - Running system commands to build and install drivers.
+    - Executing firmware update utilities.
+
+    Key Features:
+    -------------
+    - Uses `CommonMethodExecution.run_command()` for executing shell commands 
+      with descriptive logging.
+    - Provides detailed status updates with emojis for better terminal UX.
+    - Handles errors gracefully and logs them for troubleshooting.
+
+    Methods:
+    --------
+    - driver_update(driver_path, error_logs=[]):
+        Installs the network driver from a tar file by extracting, building, 
+        and loading kernel modules.
+
+    - firmware_update(firmware_file_path, error_logs=[]):
+        Updates firmware by extracting the tar file, navigating to the correct 
+        directory, and running the firmware update tool.
+
+    Usage:
+    ------
+    Example:
+        installation_status, status, errors = FirmwareDriverInstallation.driver_update("/path/to/driver.tar.gz")
+        firmware_status, status, errors = FirmwareDriverInstallation.firmware_update("/path/to/firmware.tar.gz")
+    """
+
     @staticmethod
-    def firmware_update(firmware_file_path,error_logs=[]):
-        # Setup File-Location container
+    def firmware_update(firmware_file_path, error_logs=[]):
+        """
+        Update firmware from a given tar file.
+
+        Steps:
+        1. Validate firmware path.
+        2. Extract tar file into a working directory.
+        3. Find the best matching folder after extraction.
+        4. Navigate into firmware directory and run update command.
+        
+        Args:
+            firmware_file_path (str): Path to the firmware tar file.
+            error_logs (list): List to collect error messages.
+        
+        Returns:
+            tuple: (installation_firmware: bool, status: str, error_logs: list)
+        """
         installation_firmware = False
-        error_msg = ""
-        status  = "FAILED"
+        status = "FAILED"
+        error_msg = None
+
         try:
-            CommonSetupCheck.print_separator("FIRMWARE UPDATED STARTED")
-            if os.path.exists(firmware_file_path) == False:
+            CommonSetupCheck.print_separator("🚀 FIRMWARE UPDATE STARTED")
+
+            # ✅ Validate firmware path
+            if not os.path.exists(firmware_file_path):
                 error_logs.append("❗ Invalid firmware path.")
-                return False,status, error_logs
+                print("❌ Firmware path does not exist!")
+                return False, status, error_logs
+
+            # ✅ Prepare working directory
             os.chdir("/root")
-            CommonSetupCheck.print_separator(str(os.getcwd()))
-            os.makedirs("setup_firmware_driver",exist_ok=True)
+            CommonSetupCheck.print_separator(f"📂 Current Directory: {os.getcwd()}")
+            os.makedirs("setup_firmware_driver", exist_ok=True)
             os.chdir("setup_firmware_driver")
 
-            current_path = os.getcwdb().decode()
+            current_path = os.getcwd()
             firmware_file_name_before_taring = os.path.basename(firmware_file_path)
-            # Extract firmware 
-            CommonMethodExecution.run_command(['tar', '-xvf',firmware_file_path, '-C', current_path],f"Extracting firmware file: {firmware_file_path}")
 
-            # List files in current directory
-            CommonMethodExecution.run_command(command =['ls','-l'], description= "Listing files in current directory")
+            # ✅ Extract firmware tar file
+            print(f"📦 Extracting firmware file: {firmware_file_path}")
+            CommonMethodExecution.run_command(
+                ['tar', '-xvf', firmware_file_path, '-C', current_path],
+                f"Extracting firmware file: {firmware_file_path}"
+            )
 
-            # Fecthning Firmware Name :
-            
-            firmware_name = (firmware_file_name_before_taring).split(".")[0]
-            # Updating FileName
-            for file in os.listdir():
-                print(file,firmware_file_name_before_taring)
-                if (file in firmware_file_name_before_taring ) :
-                    firmware_name = file
-            
+            # ✅ List files after extraction
+            CommonMethodExecution.run_command(['ls', '-l'], "Listing files in current directory")
+
+            # ✅ Find best matching folder after extraction
+            finding_file = CommonMethodExecution.find_best_match(firmware_file_name_before_taring, os.listdir())
+            CommonSetupCheck.print_separator("🔍 Firmware Folder With Highest Match Score")
+            print(f"✅ Best Match: {finding_file.get('folder')} ({finding_file.get('score')}%)")
+
+            firmware_name = finding_file.get("folder")
+            print(f"📂 Extracted Folders: {os.listdir()}")
+            print(f"➡️ Selected Firmware Folder: {firmware_name}")
+
+            # ✅ Navigate into firmware directory
             os.chdir(firmware_name)
-            CommonSetupCheck.print_separator(str(os.getcwd()))
-            os.chdir(os.listdir()[0])
-            CommonSetupCheck.print_separator(str(os.getcwd()))
-            print(os.listdir())
+            CommonSetupCheck.print_separator(f"📂 Current Directory: {os.getcwd()}")
+
+            # ✅ Navigate into inner folder if exists
+            inner_folders = os.listdir()
+            if inner_folders:
+                os.chdir(inner_folders[0])
+                CommonSetupCheck.print_separator(f"📂 Inner Directory: {os.getcwd()}")
+                print(f"📂 Contents: {os.listdir()}")
+
+            # ✅ Run firmware update command
+            print("⚙️ Running firmware update...")
+            CommonMethodExecution.run_command(['./nvmupdate64e'], "Executing firmware update tool")
 
             installation_firmware = True
             status = "SUCCESSFUL"
-            CommonMethodExecution.run_command(['./nvmupdate64e'], "Running firmware installation")
+            print("🎉 Firmware update completed successfully!")
 
         except FileNotFoundError as e:
             error_msg = f"❌ File not found: {str(e)}"
-           
+            error_logs.append({"errors": error_msg, "traceback": traceback.format_exc()})
+
         except subprocess.CalledProcessError as e:
             error_msg = f"❌ Subprocess error: {e.output if e.output else str(e)}"
-            error_logs.append({
-                "errors": error_msg,
-                "traceback": traceback.format_exc()
-            })
-           
+            error_logs.append({"errors": error_msg, "traceback": traceback.format_exc()})
+
         except Exception as e:
             error_msg = f"❌ Unexpected error: {str(e)}"
-            error_logs.append({
-                "errors": error_msg,
-                "traceback": traceback.format_exc()
-            })
-        CommonSetupCheck.print_separator("FIRMWARE UPDATION COMPLETED")
-        return installation_firmware,status ,error_msg
+            error_logs.append({"errors": error_msg, "traceback": traceback.format_exc()})
+
+        CommonSetupCheck.print_separator("✅ FIRMWARE UPDATE COMPLETED")
+        return installation_firmware, status, error_logs
             
     @staticmethod
     def driver_update(driver_path, error_logs=[]):
@@ -152,7 +187,7 @@ class FirmwareDriverInstallation:
             )
 
             # ✅ Find best matching folder after extraction
-            finding_file = find_best_match(driver_file_name_before_tarting, os.listdir())
+            finding_file = CommonMethodExecution.find_best_match(driver_file_name_before_tarting, os.listdir())
             CommonSetupCheck.print_separator("🔍 Driver Folder With Highest Match Score")
             print(f"✅ Best Match: {finding_file.get('folder')} ({finding_file.get('score')}%)")
 

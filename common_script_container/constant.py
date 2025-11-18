@@ -1,8 +1,10 @@
 import os
+import re
 import platform
 import subprocess
 import traceback
 from functools import wraps
+from difflib import SequenceMatcher
 # --------------------------------------------------------------------------------------------------
 #                               Constant : dut_ports_config.py   (START)
 # --------------------------------------------------------------------------------------------------
@@ -84,7 +86,36 @@ class CommonMethodExecution:
             print(f"❌ Error during '{description}': {e}")
             return False, str(e)
     
-
+    @staticmethod
+    def find_best_match(tar_filename: str, folder_list: list) -> dict:
+        """
+        Find the folder with the highest similarity to the tar file name.
+        
+        Args:
+            tar_filename (str): Tar file name (e.g., 'ice2.3.10.tar.gz').
+            folder_list (list): List of folder names.
+        
+        Returns:
+            dict: {'folder': best_match_folder, 'score': percentage}
+        """
+        # Remove extensions
+        base_tar = re.sub(r'\.tar\.gz$|\.tgz$|\.zip$', '', tar_filename)
+        normalized_tar = base_tar.lower()
+        
+        best_match = None
+        best_score = 0.0
+        
+        for folder in folder_list:
+            normalized_folder = folder.lower()
+            
+            # Compute similarity ratio
+            score = SequenceMatcher(None, normalized_tar, normalized_folder).ratio() * 100
+            
+            if score > best_score:
+                best_score = score
+                best_match = folder
+        
+        return {'folder': best_match, 'score': round(best_score, 2)}
 
 
 
