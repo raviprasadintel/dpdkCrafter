@@ -191,12 +191,12 @@ class FirmwareDriverInstallation:
             CommonSetupCheck.print_separator("🔍 Driver Folder With Highest Match Score")
             print(f"✅ Best Match: {finding_file.get('folder')} ({finding_file.get('score')}%)")
 
-            driver_name = finding_file.get("folder")
+            driver_folder_name = finding_file.get("folder")
             print(f"📂 Extracted Folders: {os.listdir()}")
-            print(f"➡️ Selected Driver Folder: {driver_name}")
+            print(f"➡️ Selected Driver Folder: {driver_folder_name}")
 
             # ✅ Navigate to driver folder
-            os.chdir(driver_name)
+            os.chdir(driver_folder_name)
             CommonSetupCheck.print_separator(f"📂 Current Directory: {os.getcwd()}")
 
             # ✅ Install dependencies and build driver
@@ -211,17 +211,19 @@ class FirmwareDriverInstallation:
             print(f"✅ Best Match: {finding_file.get('folder')} ({finding_file.get('score')}%)")
 
             driver_name = finding_file.get("folder")
+            if driver_name:
+                driver_name =driver_name.split(".")[0]
             print(f"📂 Extracted Folders: {os.listdir()}")
             print(f"➡️ Selected Driver Folder: {driver_name}")
-            # CommonMethodExecution.run_command(['make'], "Running make")
-            # CommonMethodExecution.run_command(['dmesg', '-c'], "Clearing dmesg logs")
-            # CommonMethodExecution.run_command(['make', 'install'], "Running make install")
+            CommonMethodExecution.run_command(['make'], "Running make")
+            CommonMethodExecution.run_command(['dmesg', '-c'], "Clearing dmesg logs")
+            CommonMethodExecution.run_command(['make', 'install'], "Running make install")
 
-            # # ✅ Reload kernel modules
-            # print("🔁 Reloading kernel modules...")
-            # CommonMethodExecution.run_command(['rmmod', 'irdma'], "Removing irdma module")
-            # CommonMethodExecution.run_command(['rmmod', 'ice'], "Removing ice module")
-            # CommonMethodExecution.run_command(['modprobe', 'ice'], "Loading ice module")
+            # ✅ Reload kernel modules
+            print("🔁 Reloading kernel modules...")
+            CommonMethodExecution.run_command(['rmmod', 'irdma'], "Removing irdma module")
+            CommonMethodExecution.run_command(['rmmod', driver_name], "Removing ice module")
+            CommonMethodExecution.run_command(['modprobe', driver_name], "Loading ice module")
 
             installation_driver = True
             status = "SUCCESS"
@@ -468,4 +470,8 @@ class AutomationScriptForSetupInstalltion:
 
         for pkg in pip_packages:
             self.run_command(pkg, f"Installing Python package {pkg[2]}")
+
+
+
+
 
