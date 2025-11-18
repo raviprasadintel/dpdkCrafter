@@ -11,7 +11,7 @@ Modules Used:
 import os
 import subprocess
 import traceback
-from common_script_container.setup_installation import FirmwareDriverInstallation
+from common_script_container.setup_installation import FirmwareDriverInstallation, PackageInstalltion
 from common_script_container.bus_info_details import PairingManagerInfo
 from common_script_container.dut_ports_config import DutPortConfig
 from common_script_container.dut_crbs_config import DutCrbsConfig
@@ -74,7 +74,7 @@ all_required_variable = [
     ["DRIVER_INSTALL_REQUIRED", False, "Set to TRUE when driver installation is required."],
     ["FIRMWARE_PATH", False, "Path to firmware file (required if FIRMWARE_UPDATE_REQUIRED is TRUE)."],
     ["DRIVER_PATH", False, "Path to driver file (required if DRIVER_INSTALL_REQUIRED is TRUE)."],
-    # ["APT_PACKAGES_INSTALL_REQUIRED",True, "Set this to TRUE if system packages need to be installed; otherwise set to FALSE."]
+    ["APT_PACKAGES_INSTALL_REQUIRED",True, "Set this to TRUE if system packages need to be installed; otherwise set to FALSE."]
 ]
 
 
@@ -100,10 +100,6 @@ def main():
         # OS SYSTEM -: CHECK
         CommonSetupCheck.print_separator("CURRENT SYSTEM OS CHECK")
         os_check = CommonSetupCheck.check_os()
-        
-
-
-
 
         # FIRMWARE INSTALLATION :
         if os.environ.get("FIRMWARE_UPDATE_REQUIRED","").upper() == "TRUE":
@@ -113,7 +109,7 @@ def main():
             status_emoji = "✅" if statement[1].upper() == "SUCCESS" else "❌"
             conclusion.append(
                 {
-                    "FIRMWARE_UPDATE": {
+                    "FIRMWARE_UPDATE_STATUS": {
                         "UPDATED": f"{'✔️' if statement[0] else '❌'}",
                         "STATUS": f"{status_emoji} {statement[1]}",
                         "ERRORS": statement[2] if statement[2] else "None"
@@ -128,7 +124,7 @@ def main():
             status_emoji = "✅" if statement[1].upper() == "SUCCESS" else "❌"
             conclusion.append(
                 {
-                    "DRIVER_UPDATE": {
+                    "DRIVER_UPDATE_STATUS": {
                         "UPDATED": f"{'✔️' if statement[0] else '❌'}",
                         "STATUS": f"{status_emoji} {statement[1]}",
                         "ERRORS": statement[2] if statement[2] else "None"
@@ -138,6 +134,17 @@ def main():
 
 
         # APT PACKAGES INSTALL
+        if os.environ.get("APT_PACKAGES_INSTALL_REQUIRED","").upper() == "TRUE":
+            statement = PackageInstalltion.install_required_packages(os_check)
+            conclusion.append(
+                {
+                    "APT_PACKAGE_INSTALL_STATUS": {
+                        "UPDATED": f"{'✔️' if statement[0] else '❌'}",
+                        "STATUS": f"{status_emoji} {statement[1]}",
+                        "ERRORS": statement[2] if statement[2] else "None"
+                    }
+                }
+            )
 
 
         # # CRYPTO SETTING : Execution
