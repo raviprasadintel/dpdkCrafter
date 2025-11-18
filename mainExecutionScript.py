@@ -162,7 +162,7 @@ def main():
             CommonSetupCheck.print_separator("⚠️ Attempted to enable the interface, but it could not be brought UP.")
         
         print("🧩 Initializing PairingManagerInfo object...")
-        pariting_obj = PairingManagerInfo(up_interface,logs_captured= error_logs)
+        pariting_obj = PairingManagerInfo()
 
         print("\n🔍 Fetching Interface and Bus Pairing Information...\n")
         pariting_obj.fetchingInterFacePairingInfo()
