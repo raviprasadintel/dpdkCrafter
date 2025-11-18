@@ -14,9 +14,7 @@ class FirmwareDriverInstallation(CommonMethodExecution):
         # Setup File-Location container
         
         try:
-            print("checked")
             CommonSetupCheck.print_separator("CHECKING EXECUTINN STAARTED")
-            print("checked")
             if os.path.exists(firmware_file_path) == False:
                 error_logs.append("❗ Invalid firmware path.")
                 return False, error_logs
@@ -26,6 +24,7 @@ class FirmwareDriverInstallation(CommonMethodExecution):
             os.chdir("setup_firmware_driver")
 
             current_path = os.getcwdb().decode()
+            print("firmware_file_path:",firmware_file_path)
             firmware_file_name_before_taring = os.path.basename(firmware_file_path)
             # Extract firmware 
             FirmwareDriverInstallation.run_command(['tar', '-xvf',firmware_file_path, '-C', current_path],f"Extracting firmware file: {firmware_file_path}")

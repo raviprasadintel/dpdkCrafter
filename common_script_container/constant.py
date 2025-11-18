@@ -174,7 +174,6 @@ class CommonSetupCheck:
     # For Adding Separator
     @staticmethod   
     def print_separator(val=""):
-        print("coming")
         print("\n\n" + "-" * 50 +str(val)+ "-"*50 + "\n\n")
         
 
