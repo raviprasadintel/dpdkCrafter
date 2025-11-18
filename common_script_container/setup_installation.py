@@ -93,7 +93,7 @@ class FirmwareDriverInstallation:
             for file in os.listdir():
                 if (file in driver_file_name_before_tarting ) and (driver_file_name_before_tarting != file):
                     driver_name = file
-            print(os.listdir())
+            print(os.listdir(),driver_name)
             os.chdir(driver_name)
             CommonSetupCheck.print_separator(str(os.getcwd()))
 
