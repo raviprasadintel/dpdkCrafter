@@ -59,6 +59,7 @@ class InterfaceManager(CommonMethodExecution):
         status = interface_det['status']
 
         if status.lower() == "down":
+            time.sleep(4)
             print(f"\n🔌 Before: Interface {interface} is {status}")
             success, _ = self.run_command(['ip', 'link', 'set', interface, 'up'], f"Bringing up {interface}")
             if success:

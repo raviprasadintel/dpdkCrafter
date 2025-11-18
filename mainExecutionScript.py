@@ -100,7 +100,7 @@ def main():
         # OS SYSTEM -: CHECK
         CommonSetupCheck.print_separator("CURRENT SYSTEM OS CHECK")
         os_check = CommonSetupCheck.check_os()
-
+        CommonSetupCheck.print_separator("CURRENT SYSTEM OS CHECK SUCCESSFULL")
         # STEP 1 :
         # FIRMWARE INSTALLATION :
         if os.environ.get("FIRMWARE_UPDATE_REQUIRED","").upper() == "TRUE":
