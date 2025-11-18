@@ -3,14 +3,17 @@ import time
 from common_script_container.constant import CommonMethodExecution
 
 
+
+
 class InterfaceManager:
     """
     A class to manage network interfaces using Linux 'ip' commands.
     Provides functionality to check interface status and bring DOWN interfaces UP.
     """
 
-    def __init__(self,log_error = []):
+    def __init__(self,error_logs = []):
         self.interFaceDetails = []
+        self.error_logs = error_logs
 
 
     def interface_details(self,search=""):
@@ -71,9 +74,10 @@ class InterfaceManager:
         Checks all interfaces and brings any DOWN interfaces UP.
         Stores only UP interfaces in self.interFaceDetails.
         """
-        
+
         print("\n🔄 Processing all interfaces...")
         for interface_det in self.interface_details():
+            print(interface_det)
             self.bring_interface_up(interface_det)
 
         self.interFaceDetails = [val for val in self.interface_details() if val['status'].upper() == "UP"]

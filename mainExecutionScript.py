@@ -12,7 +12,7 @@ import os
 import subprocess
 import traceback
 from common_script_container.setup_installation import FirmwareDriverInstallation, PackageInstalltion
-from common_script_container.bus_info_details import PairingManagerInfo
+from common_script_container.bus_info_details import InterfaceManager
 from common_script_container.dut_ports_config import DutPortConfig
 from common_script_container.dut_crbs_config import DutCrbsConfig
 from common_script_container.dut_execution_config import ExecutionCfgUpdate
@@ -150,6 +150,10 @@ def main():
         
         # STEP 3 : 
         # # FETCHING BUS INFO DETAILS
+        interface_man_obj  = InterfaceManager(error_logs= error_logs)
+
+        interface_man_obj.process_all_interfaces()
+
         # print("🧩 Initializing PairingManagerInfo object...")
         # pariting_obj = PairingManagerInfo(error_logs)
 
