@@ -106,65 +106,98 @@ class FirmwareDriverInstallation:
             
     @staticmethod
     def driver_update(driver_path, error_logs=[]):
+        """
+        Install and update the network driver from a given tar file.
+
+        Steps:
+        1. Validate driver path.
+        2. Extract tar file into a working directory.
+        3. Find the best matching folder after extraction.
+        4. Run installation commands (make, modprobe, etc.).
+        
+        Args:
+            driver_path (str): Path to the driver tar file.
+            error_logs (list): List to collect error messages.
+        
+        Returns:
+            tuple: (installation_driver: bool, status: str, error_logs: list)
+        """
         installation_driver = False
         status = "FAILURE"
+        error_msg = None
+
         try:
-            CommonSetupCheck.print_separator("DRIVER EXECUTION COMPLETED")
-            if os.path.exists(driver_path) == False:
-                error_logs.append("❗ Invalid firmware path.")
-                return False,status, error_logs
+            CommonSetupCheck.print_separator("🚀 DRIVER EXECUTION STARTED")
+
+            # ✅ Validate driver path
+            if not os.path.exists(driver_path):
+                error_logs.append("❗ Invalid driver path provided.")
+                print("❌ Driver path does not exist!")
+                return False, status, error_logs
+
+            # ✅ Prepare working directory
             os.chdir("/root")
-            CommonSetupCheck.print_separator(str(os.getcwd()))
-            os.makedirs("setup_firmware_driver",exist_ok=True)
+            CommonSetupCheck.print_separator(f"📂 Current Directory: {os.getcwd()}")
+            os.makedirs("setup_firmware_driver", exist_ok=True)
             os.chdir("setup_firmware_driver")
 
-            current_path = os.getcwdb().decode()
+            current_path = os.getcwd()
             driver_file_name_before_tarting = os.path.basename(driver_path)
-            # Extract firmware 
-            CommonMethodExecution.run_command(['tar', '-xvf',driver_path, '-C', current_path],f"Extracting firmware file: {driver_path}")
 
-            # Updating FileName
+            # ✅ Extract firmware tar file
+            print(f"📦 Extracting driver file: {driver_path}")
+            CommonMethodExecution.run_command(
+                ['tar', '-xvf', driver_path, '-C', current_path],
+                f"Extracting firmware file: {driver_path}"
+            )
+
+            # ✅ Find best matching folder after extraction
             finding_file = find_best_match(driver_file_name_before_tarting, os.listdir())
-            driver_name = finding_file.get("folder")
-            print(os.listdir(),driver_name,driver_file_name_before_tarting)
-            os.chdir(driver_name)
-            CommonSetupCheck.print_separator(str(os.getcwd()))
+            CommonSetupCheck.print_separator("🔍 Driver Folder With Highest Match Score")
+            print(f"✅ Best Match: {finding_file.get('folder')} ({finding_file.get('score')}%)")
 
-            # Installing Make cmd 
-            CommonMethodExecution.run_command(["apt", "update"], "updating Sudo Update :\n")
-            CommonMethodExecution.run_command(['apt','install','-y','make'], "Instalation Of Make cmd")
+            driver_name = finding_file.get("folder")
+            print(f"📂 Extracted Folders: {os.listdir()}")
+            print(f"➡️ Selected Driver Folder: {driver_name}")
+
+            # ✅ Navigate to driver folder
+            os.chdir(driver_name)
+            CommonSetupCheck.print_separator(f"📂 Current Directory: {os.getcwd()}")
+
+            # ✅ Install dependencies and build driver
+            print("🔄 Updating system and installing required packages...")
+            CommonMethodExecution.run_command(["apt", "update"], "Updating system packages")
+            CommonMethodExecution.run_command(['apt', 'install', '-y', 'make'], "Installing 'make'")
+
             os.chdir("src")
-            # Run make commands  
+            print("⚙️ Running build commands...")
             CommonMethodExecution.run_command(['make'], "Running make")
-            CommonMethodExecution.run_command(['dmesg', '-c'], "Clearing dmesg")
+            CommonMethodExecution.run_command(['dmesg', '-c'], "Clearing dmesg logs")
             CommonMethodExecution.run_command(['make', 'install'], "Running make install")
+
+            # ✅ Reload kernel modules
+            print("🔁 Reloading kernel modules...")
             CommonMethodExecution.run_command(['rmmod', 'irdma'], "Removing irdma module")
             CommonMethodExecution.run_command(['rmmod', 'ice'], "Removing ice module")
             CommonMethodExecution.run_command(['modprobe', 'ice'], "Loading ice module")
 
-            installation_driver= True
-  
+            installation_driver = True
+            status = "SUCCESS"
+            print("🎉 Driver installation completed successfully!")
+
         except FileNotFoundError as e:
             error_msg = f"❌ File not found: {str(e)}"
+            error_logs.append({"errors": error_msg, "traceback": traceback.format_exc()})
 
         except subprocess.CalledProcessError as e:
             error_msg = f"❌ Subprocess error: {e.output if e.output else str(e)}"
-            error_logs.append({
-                "errors": error_msg,
-                "traceback": traceback.format_exc()
-            })
-           
+            error_logs.append({"errors": error_msg, "traceback": traceback.format_exc()})
+
         except Exception as e:
             error_msg = f"❌ Unexpected error: {str(e)}"
-            error_logs.append({
-                "errors": error_msg,
-                "traceback": traceback.format_exc()
-            })
-    
-        return installation_driver,status ,error_msg
+            error_logs.append({"errors": error_msg, "traceback": traceback.format_exc()})
 
-
-
+        return installation_driver, status, error_logs
 
 
 
