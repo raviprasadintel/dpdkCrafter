@@ -42,7 +42,7 @@ class FirmwareDriverInstallation:
             
             os.chdir(firmware_name)
             CommonSetupCheck.print_separator(str(os.getcwd()))
-            
+            print(os.listdir())
 
 
 
