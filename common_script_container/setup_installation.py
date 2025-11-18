@@ -37,7 +37,7 @@ class FirmwareDriverInstallation:
             firmware_name = (firmware_file_name_before_taring).split(".")[0]
             # Updating FileName
             for file in os.listdir():
-                if (file in firmware_file_name_before_taring ) and (firmware_file_name_before_taring != file):
+                if (file in firmware_file_name_before_taring ) and (len(firmware_file_name_before_taring) != len(file)):
                     firmware_name = file
             
             os.chdir(firmware_name)
@@ -91,7 +91,7 @@ class FirmwareDriverInstallation:
             driver_name = (driver_file_name_before_tarting).split(".")[0]
             # Updating FileName
             for file in os.listdir():
-                if (file in driver_file_name_before_tarting ) and (driver_file_name_before_tarting != file):
+                if (file in driver_file_name_before_tarting ) and (len(driver_file_name_before_tarting) != len(file)):
                     driver_name = file
             print(os.listdir(),driver_name,driver_file_name_before_tarting)
             os.chdir(driver_name)
