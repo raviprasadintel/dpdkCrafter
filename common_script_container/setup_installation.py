@@ -27,10 +27,10 @@ class FirmwareDriverInstallation(CommonMethodExecution):
             firmware_file_name_before_taring = os.path.basename(firmware_file_path)
             print(firmware_file_name_before_taring,os.path.exists(firmware_file_path))
             # Extract firmware 
-            FirmwareDriverInstallation.run_command(['tar', '-xvf',firmware_file_path, '-C', current_path],f"Extracting firmware file: {firmware_file_path}")
+            FirmwareDriverInstallation.run_command(command =['tar', '-xvf',firmware_file_path, '-C', current_path],description =f"Extracting firmware file: {firmware_file_path}")
 
             # List files in current directory
-            FirmwareDriverInstallation.run_command(['ls','-l'], "Listing files in current directory")
+            FirmwareDriverInstallation.run_command(command =['ls','-l'], description= "Listing files in current directory")
 
             # Fecthning Firmware Name :
             
