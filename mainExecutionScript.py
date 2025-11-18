@@ -149,11 +149,22 @@ def main():
             )
         
         # STEP 3 : 
-        # FETCHING BUS INFO DETAILS
-        print("🧩 Initializing PairingManagerInfo object...")
-        managerInfo = PairingManagerInfo(error_logs)
-        managerInfo.fetchingInterFacePairingInfo()
-        
+        # # FETCHING BUS INFO DETAILS
+        # print("🧩 Initializing PairingManagerInfo object...")
+        # pariting_obj = PairingManagerInfo(error_logs)
+
+        # print("\n🔍 Fetching Interface and Bus Pairing Information...\n")
+        # pariting_obj.fetchingInterFacePairingInfo()
+
+        # print("\n🔗 Fetching Interface Connection Details...\n")
+        # pariting_obj.fetchingPairDetailsFromInterface()
+
+        # print("\nMapping Interface With Bus Info")
+        # interface_details = pariting_obj.mapInterfaceToBus()
+
+        # print(interface_details)
+    
+
         # 
 
         # CHECK FOR CRYPTO DRIVER :

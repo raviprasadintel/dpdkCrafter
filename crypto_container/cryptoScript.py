@@ -46,13 +46,13 @@ class CryptoSetupManager(CommonMethodExecution):
         path = os.getcwd()
         directory = os.listdir()
         if "networking.dataplane.dpdk.dts.local.upstream" in directory:
-            self.run_command(["rm","-rf","networking.dataplane.dpdk.dts.local.upstream"],"Removing Existing Cloning")
+            CommonMethodExecution.run_command(["rm","-rf","networking.dataplane.dpdk.dts.local.upstream"],"Removing Existing Cloning")
         print("\n📍current path : "+str(path))
         
-        self.run_command(["git", "clone", self.dts_url], "Cloning DTS repository")
+        CommonMethodExecution.run_command(["git", "clone", self.dts_url], "Cloning DTS repository")
         os.chdir("networking.dataplane.dpdk.dts.local.upstream")
         self.dts_setup_path =  os.getcwdb().decode()
-        self.run_command(["git", "checkout","-b", "v25"], "Checking out DPDK version v25.03-rc3")
+        CommonMethodExecution.run_command(["git", "checkout","-b", "v25"], "Checking out DPDK version v25.03-rc3")
 
     def clone_intel_ipsc_repo(self):
 
@@ -63,13 +63,13 @@ class CryptoSetupManager(CommonMethodExecution):
         path = os.getcwd()
         directory = os.listdir()
         if "intel-ipsec-mb" in directory:
-            self.run_command(["rm","-rf","intel-ipsec-mb"],"Removing Existing Cloning")
+            CommonMethodExecution.run_command(["rm","-rf","intel-ipsec-mb"],"Removing Existing Cloning")
         print("\n📍current path : "+str(path))
         
-        self.run_command(["git", "clone", self.git_url_intel_ipsec], "Cloning Intel IPSEC")
+        CommonMethodExecution.run_command(["git", "clone", self.git_url_intel_ipsec], "Cloning Intel IPSEC")
         os.chdir("intel-ipsec-mb")
         self.intel_ipsec_path = os.getcwdb().decode()
-        self.run_command(["git", "checkout","-b", "v25"], "Checkout for diffrent Branch")
+        CommonMethodExecution.run_command(["git", "checkout","-b", "v25"], "Checkout for diffrent Branch")
 
     
 
@@ -115,25 +115,25 @@ class CryptoSetupManager(CommonMethodExecution):
             os.chdir(cp_qat_driver_path)
             print(os.getcwdb())
             if os.path.exists(os.path.join(cp_qat_driver_path, qat_driver_file_name)):
-                self.run_command(["rm","-rf",qat_driver_file_name],"Removing If same file was there is QAT driver Folder")
-            self.run_command(["cp",self.qat_driver_path,cp_qat_driver_path],f"Copying file QAT file := {qat_driver_file_name}")
+                CommonMethodExecution.run_command(["rm","-rf",qat_driver_file_name],"Removing If same file was there is QAT driver Folder")
+            CommonMethodExecution.run_command(["cp",self.qat_driver_path,cp_qat_driver_path],f"Copying file QAT file := {qat_driver_file_name}")
             print(os.getcwdb())
-            self.run_command(["tar","-xvf",qat_driver_file_name],f"Taring QAT driver flename : {qat_driver_file_name}")
-            # self.run_command(["make","uninstall"],"CMD : 'Make' doing Uninstall")
+            CommonMethodExecution.run_command(["tar","-xvf",qat_driver_file_name],f"Taring QAT driver flename : {qat_driver_file_name}")
+            # CommonMethodExecution.run_command(["make","uninstall"],"CMD : 'Make' doing Uninstall")
             for file in os.listdir():
                 CommonSetupCheck.print_separator(file)
 
             # Run the configure script to enable SR-IOV in host mode
             # This prepares the build system with specific features enabled
-            self.run_command(["./configure" ,"--enable-icp-sriov=host"],"Run configure script with SR-IOV host mode; no extra env/context")
+            CommonMethodExecution.run_command(["./configure" ,"--enable-icp-sriov=host"],"Run configure script with SR-IOV host mode; no extra env/context")
 
             # Compile the source code using 'make'
             # This builds the project based on the configuration set abov
-            self.run_command(["make"],"Running Make CMD")
+            CommonMethodExecution.run_command(["make"],"Running Make CMD")
 
             # Install the compiled binaries
             # This installs the built software into the system (usually /usr/local or specified prefix
-            self.run_command(["make", "install"],"Running Make CMD")
+            CommonMethodExecution.run_command(["make", "install"],"Running Make CMD")
 
             #########################################################STEP 2 PROCESS START##################################################################
             crypto_driver_folder_path = os.path.join(self.automation_folder_path,self.sw_crypto_driver_folder_name)
@@ -151,27 +151,27 @@ class CryptoSetupManager(CommonMethodExecution):
 
             # Show the current Git branch
             # Helps verify that you're on the correct branch before building
-            self.run_command(["git", "branch"], "Displaying current Git branch")
+            CommonMethodExecution.run_command(["git", "branch"], "Displaying current Git branch")
 
             # Build Intel IPSE with specific safety flags disabled
             # SAFE_LOOKUP, SAFE_DATA, and SAFE_PARAM are likely build-time safety checks
             # -j 30 enables parallel compilation using 30 threads for faster build
-            self.run_command(
+            CommonMethodExecution.run_command(
                 ["make", "SAFE_LOOKUP=n", "SAFE_DATA=n", "SAFE_PARAM=n", "-j", "30"],
                 "Building Intel IPSE with safety checks disabled and parallel jobs"
             )
 
             # Install the compiled Intel IPSE binaries
             # This installs the built components into the system (e.g., libraries, executables)
-            self.run_command(["make", "install"], "Installing Intel IPSE binaries using 'make install'")
+            CommonMethodExecution.run_command(["make", "install"], "Installing Intel IPSE binaries using 'make install'")
 
             # List contents of the 'lib' directory
             # This checks whether the expected library files were generated and placed correctly
-            self.run_command(["ls", "lib"], "Verifying presence of compiled libraries in 'lib' directory")
+            CommonMethodExecution.run_command(["ls", "lib"], "Verifying presence of compiled libraries in 'lib' directory")
 
             # Display all running processes
             # Useful for debugging or verifying if any related services or background processes are active
-            self.run_command(["ps", "-ef"], "Listing all running processes for system inspection")
+            CommonMethodExecution.run_command(["ps", "-ef"], "Listing all running processes for system inspection")
 
             #########################################################STEP 3 PROCESS START##################################################################            
 
@@ -194,14 +194,14 @@ class CryptoSetupManager(CommonMethodExecution):
             # calgery_file_name = os.path.basename(self.calgery_tar_file_path)
 
             
-            self.run_command(["tar", "-cvzf", self.fips_tar_file_path, "FIPS"],"FIPS UNTARING")
+            CommonMethodExecution.run_command(["tar", "-cvzf", self.fips_tar_file_path, "FIPS"],"FIPS UNTARING")
 
             #if Calgery Folder was not there It will create in root directory
             os.makedirs("/root/calgary/",exist_ok=True)
-            self.run_command(["tar", "-cvzf", self.calgery_tar_file_path, "/root/calgary/"],"FIPS UNTARING")
+            CommonMethodExecution.run_command(["tar", "-cvzf", self.calgery_tar_file_path, "/root/calgary/"],"FIPS UNTARING")
 
 
-            self.run_command(["rm", "-rf", "FIPS"],"Removing Unwanted Folder FIPS")
+            CommonMethodExecution.run_command(["rm", "-rf", "FIPS"],"Removing Unwanted Folder FIPS")
 
             ######################################################START STEP 4 PROCESS FOR CRYPTO########################################################################
 
@@ -244,16 +244,16 @@ class CryptoSetupManager(CommonMethodExecution):
                 for fileName in os.listdir():   
                     if ("crbs" in fileName[:4])or ("ports" in fileName[:5])or ("crypto" in fileName[:6]) :
                         if os.path.exists(fileName):
-                            self.run_command(["rm","-rf",fileName],f"Removing File is already avaialable : {fileName}")
-                        self.run_command(["cp",fileName, cp_config_folder_path],f"Coping a file {fileName}")
+                            CommonMethodExecution.run_command(["rm","-rf",fileName],f"Removing File is already avaialable : {fileName}")
+                        CommonMethodExecution.run_command(["cp",fileName, cp_config_folder_path],f"Coping a file {fileName}")
                 
                 # Going Back from conf file one step back 
                 os.chdir("..")
-                self.run_command(["cp","execution.cfg", cp_config_folder_path],f"Coping a file execution.cfg")
-                self.run_command(["cp","perf.sh", cp_config_folder_path],f"Coping a file perf.sh")
+                CommonMethodExecution.run_command(["cp","execution.cfg", cp_config_folder_path],f"Coping a file execution.cfg")
+                CommonMethodExecution.run_command(["cp","perf.sh", cp_config_folder_path],f"Coping a file perf.sh")
                 
 
-                self.run_command(["ls",cp_config_folder_path],f"Showing file which is Copied : directory {cp_config_folder_path}")
+                CommonMethodExecution.run_command(["ls",cp_config_folder_path],f"Showing file which is Copied : directory {cp_config_folder_path}")
                 CommonSetupCheck.print_separator("File Are Copied")
                 # Now We are Copying File Which We will Process , Further.
 
@@ -261,26 +261,26 @@ class CryptoSetupManager(CommonMethodExecution):
             os.chdir(os.path.join(self.dts_setup_path,"dep"))
             CommonSetupCheck.print_separator(f"Current Path {str( os.getcwdb().decode() )}")
             # Coping DPDK FILE DEP folder
-            self.run_command(["cp",self.dpdk_file_path,"."])
+            CommonMethodExecution.run_command(["cp",self.dpdk_file_path,"."])
             dpdk_file_name = os.path.basename(self.dpdk_file_path)
             CommonSetupCheck.print_separator(f"Copied DPDK_FILE : {dpdk_file_name}")
 
             # Running for taring DPDK file
-            self.run_command(["tar","-xvf",dpdk_file_name],f"Taring Dpdk_FILE : => {dpdk_file_name}")
+            CommonMethodExecution.run_command(["tar","-xvf",dpdk_file_name],f"Taring Dpdk_FILE : => {dpdk_file_name}")
 
             # While doing this it will remove dpdk-25.11-rc1.tar.xz => dpdk-25.11-rc1 
             if os.path.exists("dpdk"):
-                self.run_command(["rm","-rf","dpdk"],"If Dpdk is previously available then delet it")
+                CommonMethodExecution.run_command(["rm","-rf","dpdk"],"If Dpdk is previously available then delet it")
             
             # Renaming EX(DPDK-25.11-rc1 to dpdk) File into 
             
             for file_name in os.listdir():
                 if ( file_name in dpdk_file_name) and (len(file_name)< len(dpdk_file_name)):
-                    self.run_command(["mv",file_name,"dpdk"],f"Renaming file {file_name} :=: 'dpdk' ")
+                    CommonMethodExecution.run_command(["mv",file_name,"dpdk"],f"Renaming file {file_name} :=: 'dpdk' ")
                     break
             
-            self.run_command(["tar","-cvzf","dpdk.tar.gz","dpdk"])   
-            self.run_command(["rm","-rf",dpdk_file_name], "Removing Extra file after Taring")
+            CommonMethodExecution.run_command(["tar","-cvzf","dpdk.tar.gz","dpdk"])   
+            CommonMethodExecution.run_command(["rm","-rf",dpdk_file_name], "Removing Extra file after Taring")
 
             updated = {
                 "status":True,

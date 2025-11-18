@@ -37,15 +37,15 @@ class DutCrbsConfig(CommonMethodExecution):
     def write_crbs_config(self,pair_text, file_name="crbs.cfg"):
         # 📁 Step 4: Navigate to the configuration directory
         
-        self.run_command(["pwd"],"Fecthing Current Path\n")
+        CommonMethodExecution.run_command(["pwd"],"Fecthing Current Path\n")
         
         # Adding line break 
         print("\n--------------------------------------------------------------------------------------------------\n")
 
         if os.path.exists(file_name):
-            self.run_command(["chmod","777",file_name],"giving a file access for READ, WRITE and DELETE")
+            CommonMethodExecution.run_command(["chmod","777",file_name],"giving a file access for READ, WRITE and DELETE")
             time.sleep(1)
-            self.run_command(["rm","-rf",file_name],f"Deleting existing File name  :=> {file_name}")
+            CommonMethodExecution.run_command(["rm","-rf",file_name],f"Deleting existing File name  :=> {file_name}")
         
 
         # Creating crbs.cfg File

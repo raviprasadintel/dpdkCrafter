@@ -21,7 +21,7 @@ class ExecutionCfgUpdate(CommonMethodExecution):
             path = dts_path.strip() + "/networking.dataplane.dpdk.dts.local.upstream"
             os.chdir(path)
             self.file_name = "execution.cfg"
-            self.run_command(["chmod", "777", self.file_name], "Giving File Read Write Access")
+            CommonMethodExecution.run_command(["chmod", "777", self.file_name], "Giving File Read Write Access")
             self.execution_data = self.read_file_data()
         except Exception as e:
             print(f"❌ Initialization failed: {e}")
@@ -57,13 +57,13 @@ class ExecutionCfgUpdate(CommonMethodExecution):
             pair_text (str): Text content to write into the execution.cfg file.
         """
         try:
-            self.run_command(["pwd"], "Fetching Current Path")
+            CommonMethodExecution.run_command(["pwd"], "Fetching Current Path")
             print("\n" + "-" * 100 + "\n")
 
             if os.path.exists(self.file_name):
-                self.run_command(["chmod", "777", self.file_name], "Setting file access permissions")
+                CommonMethodExecution.run_command(["chmod", "777", self.file_name], "Setting file access permissions")
                 time.sleep(1)
-                self.run_command(["rm", "-rf", self.file_name], f"Deleting existing file: {self.file_name}")
+                CommonMethodExecution.run_command(["rm", "-rf", self.file_name], f"Deleting existing file: {self.file_name}")
 
             with open(self.file_name, "w", encoding='utf-8') as f:
                 f.write(pair_text)

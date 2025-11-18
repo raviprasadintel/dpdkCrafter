@@ -89,11 +89,11 @@ class DutPortConfig(CommonMethodExecution):
         # Removing Exiting file if File is available
         
         if os.path.exists(file_name):
-            self.run_command(
+            CommonMethodExecution.run_command(
             ["chmod", "777", file_name],
             f"\n\n🔧 Allowing READ, WRITE, and EXECUTE permissions for all users on ➡️ {file_name}"
             )
-            self.run_command(
+            CommonMethodExecution.run_command(
             ["rm", "-rf", file_name],
             f"\n\n🔧 Removing Existing file : ➡️ {file_name}"
             )
@@ -104,25 +104,25 @@ class DutPortConfig(CommonMethodExecution):
 
 
         # 🔐 Step 1: Set full permissions on the configuration file
-        self.run_command(
+        CommonMethodExecution.run_command(
             ["chmod", "777", file_name],
             f"\n\n🔧 Allowing READ, WRITE, and EXECUTE permissions for all users on ➡️ {file_name}"
         )
 
         # 🌐 Step 2: Retrieve brief interface details
-        self.run_command(
+        CommonMethodExecution.run_command(
             ["ip", "-br", "a"],
             "\n\n📡 Fetching brief interface details..."
         )
 
         # 🧠 Step 3: Get detailed network hardware info with bus mapping
-        self.run_command(
+        CommonMethodExecution.run_command(
             ["lshw", "-c", "network", "-businfo"],
             "\n\n🔍 Fetching detailed bus information for network interfaces..."
         )
 
         # 📄 Step 4: Display the updated configuration file for verification
-        self.run_command(
+        CommonMethodExecution.run_command(
             ["cat", file_name],
             "\n\n📑 Showing contents of the updated configuration file for double verification..."
         )
@@ -166,23 +166,23 @@ class DutPortConfig(CommonMethodExecution):
             os.chdir(path)
         
             # 📍 Step 5: Confirm current working directory
-            current_path = self.run_command(["pwd"], description="📂 Fetching current working directory", check_output=True)
+            current_path = CommonMethodExecution.run_command(["pwd"], description="📂 Fetching current working directory", check_output=True)
             print(f"📍 Current Path: {current_path}\n")
 
             # 📝 Step 6: Write the configuration to file
             file_name = self.write_ports_config(updated_text)
 
             # 📦 Step 7: Set file permissions
-            self.run_command(["chmod", "777", file_name], f"🔧 Setting full permissions on ➡️ {file_name}")
+            CommonMethodExecution.run_command(["chmod", "777", file_name], f"🔧 Setting full permissions on ➡️ {file_name}")
 
             # 🌐 Step 8: Get network interface details
-            self.run_command(["ip", "-br", "a"], "📡 Retrieving network interface details")
+            CommonMethodExecution.run_command(["ip", "-br", "a"], "📡 Retrieving network interface details")
 
             # 🧠 Step 9: Fetch bus information
-            self.run_command(["lshw", "-c", "network", "-businfo"], "🔍 Fetching bus information for network interfaces")
+            CommonMethodExecution.run_command(["lshw", "-c", "network", "-businfo"], "🔍 Fetching bus information for network interfaces")
 
             # 📄 Step 10: Display the updated configuration file
-            self.run_command(["cat", file_name], "📑 Displaying updated configuration file for verification")
+            CommonMethodExecution.run_command(["cat", file_name], "📑 Displaying updated configuration file for verification")
 
             # 😴 Step 11: Pause for verification
             print("😴 Sleeping for 3 seconds to allow verification...\n")
