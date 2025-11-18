@@ -71,6 +71,7 @@ class CommonMethodExecution:
             tuple: (success: bool, output: str)
         """
         try:
+            print("ravi")
             print(f"\n🔧 Executing: {description}",command)
             if check_output:
                 result = subprocess.check_output(command, stderr=subprocess.STDOUT, text=True)
