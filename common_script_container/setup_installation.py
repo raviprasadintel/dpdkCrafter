@@ -363,6 +363,7 @@ class AutomationScriptForSetupInstalltion:
         print("\n📍current path : "+str(path))
         os.chdir("dpdk")
         CommonMethodExecution.run_command(["git", "checkout","-b", "v25.03-rc3"], "Checking out DPDK version v25.03-rc3")
+        os.chdir("..")
 
     
 

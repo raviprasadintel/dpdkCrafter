@@ -218,7 +218,7 @@ def main():
                 DPDK_FILE_STATUS = os.environ.get("DPDK_FILE_STATUS").upper() == "TRUE" ,
                 DPDK_FILE_PATH = os.environ.get("DPDK_FILE_PATH","")
             )
-            print("PATH EXACT :",os.getcwd())
+            # COMMING OUT DEP FOLDER
             os.chdir("..")
             # dpdk_file_path = 
 
