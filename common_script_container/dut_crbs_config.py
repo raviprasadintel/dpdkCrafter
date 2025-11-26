@@ -8,7 +8,7 @@ from common_script_container.constant import CommonMethodExecution
 class DutCrbsConfig(CommonMethodExecution):
 
     def __init__(self,dts_path):
-        path = dts_path.strip() + "/networking.dataplane.dpdk.dts.local.upstream/conf"
+        path = os.path.join(dts_path,"conf")
         os.chdir(path)
         self.filter_crbs_data = self.read_file_data() # Filter crbs data to be updated 
 

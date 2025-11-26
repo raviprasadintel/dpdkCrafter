@@ -132,9 +132,11 @@ def main():
         CommonSetupCheck.print_separator("CURRENT SYSTEM OS CHECK")
         os_check = CommonSetupCheck.check_os()
         CommonSetupCheck.print_separator("CURRENT SYSTEM OS CHECK SUCCESSFULL")
+        dts_setup_path = os.environ.get("DTS_INSTALLATION_PATH","")
         # STEP 1 :
         # FIRMWARE INSTALLATION :
         if os.environ.get("FIRMWARE_UPDATE_REQUIRED","").upper() == "TRUE":
+            CommonSetupCheck.print_separator("FIRMWARE UPDATE PROCESS STARTED ...")
             statement = FirmwareDriverInstallation.firmware_update(firmware_file_path = os.environ.get("FIRMWARE_PATH"),error_logs= error_logs)
             
             # Add emoji indicators for status
@@ -152,6 +154,7 @@ def main():
         # STEP 2 :
         # DRIVER UPDATE :
         if os.environ.get("DRIVER_INSTALL_REQUIRED","").upper() == "TRUE":
+            CommonSetupCheck.print_separator("DRIVER UPDATE PROCESS STARTED ...")
             statement = FirmwareDriverInstallation.driver_update(driver_path = os.environ.get("DRIVER_PATH"),error_logs= error_logs)
             # Add emoji indicators for status
             status_emoji = "✅" if statement[1].upper() == "SUCCESS" else "❌"
@@ -168,6 +171,7 @@ def main():
         # STEP 3 :
         # APT PACKAGES INSTALL
         if os.environ.get("APT_PACKAGES_INSTALL_REQUIRED","").upper() == "TRUE":
+            CommonSetupCheck.print_separator("PACKAGE INSTALLATION STARTED ...")
             statement = PackageInstalltion.install_required_packages(os_check)
             conclusion.append(
                 {
@@ -181,11 +185,10 @@ def main():
 
         # STEP 4: Prepare environment and clone repositories
         if os.environ.get("DTS_INSTALLATION_REQUIRED", "FALSE").upper() == "TRUE":
-            dts_setup_path = os.environ.get("DTS_INSTALLATION_PATH")
             dpdk_file_status = os.environ.get("DPDK_FILE_STATUS", "FALSE").upper() == "TRUE"
             dpdk_file_path = os.environ.get("DPDK_FILE_PATH", "")
 
-            CommonSetupCheck.print_separator("📦 DTS Installation Required")
+            CommonSetupCheck.print_separator("📦 DTS/DPDK INSTALLATION PROCESSS STARTED ...")
 
             
             # ✅ Check if DTS setup path exists
@@ -206,7 +209,6 @@ def main():
 
             # CLONING AND INSTALLATION DTS SETUP 
             # GOING TO DTS setup folder to clone dts
-            CommonSetupCheck.print_separator(f"✅CLONING AND INSTALLATION DTS SETUP STARTED ....")
             if os.path.exists(os.path.join(dts_setup_path,"dts_setup")) == True:
                 CommonMethodExecution.run_command(["rm", "-rf", "dts_setup"], "REMOVING EXISTING DTS_SETUP")
             os.chdir(dts_setup_path)
@@ -220,9 +222,8 @@ def main():
             )
             # COMMING OUT DEP FOLDER
             os.chdir("..")
-            # dpdk_file_path = 
-
-            print("PATH EXACT :",os.getcwd())
+            dpdk_file_path = os.getcwd()
+            
         # IF step 5 : 
         if os.environ.get("UPDATE_AUTOMATICALLY_PORTS_CRBS_EXECUTION","").upper() == "TRUE":
             # FETCHING BUS INFO DETAILS
@@ -248,7 +249,31 @@ def main():
             print("\nMapping Interface With Bus Info")
             interface_details = pariting_obj.mapInterfaceToBus()
             print(interface_details)
-    
+
+
+            # Configuring ports.cfg: 
+            ports_config_obj = DutPortConfig(dts_setup_path)
+            print(
+                "\n🔧 Loaded Configuration:\n"
+                "-----------------------------\n"
+                f"🌐 IP Address : {ports_config_obj.ip_address}\n"
+                f"👤 Username   : {ports_config_obj.username}\n"
+                f"🔑 Password   : {'*' * len(ports_config_obj.password) if ports_config_obj.password else 'Not Set'}\n"
+            )
+            ports_config_obj.update_ports(interface_details)
+            # UPDATING : crbs.cfg
+
+            crfs_file_obj = DutCrbsConfig(dts_setup_path) 
+            crfs_file_obj.updating_crbs_file(
+            dut_ip = ports_config_obj.ip_address,
+            dut_user = ports_config_obj.username,
+            dut_passwd = ports_config_obj.password,
+            tester_ip = ports_config_obj.ip_address,
+            tester_passwd = ports_config_obj.password
+            )
+            # UPDATING Execution.cfg 
+            executionObj = ExecutionCfgUpdate(dts_setup_path)
+            executionObj.update_execution_content(ports_config_obj.ip_address)
 
 
 

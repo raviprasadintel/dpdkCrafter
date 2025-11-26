@@ -162,7 +162,7 @@ class DutPortConfig(CommonMethodExecution):
             updated_text = port_config_prompt_update.format(self.ip_address, pair_text)
 
             # 📁 Step 4: Navigate to the configuration directory
-            path = self.dts_setup_path.strip() + "/networking.dataplane.dpdk.dts.local.upstream/conf"
+            path = os.path.join( self.dts_setup_path,"conf")
             os.chdir(path)
         
             # 📍 Step 5: Confirm current working directory

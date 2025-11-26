@@ -18,7 +18,7 @@ class ExecutionCfgUpdate(CommonMethodExecution):
             dts_path (str): Path to the DTS directory.
         """
         try:
-            path = dts_path.strip() + "/networking.dataplane.dpdk.dts.local.upstream"
+            path = dts_path
             os.chdir(path)
             self.file_name = "execution.cfg"
             CommonMethodExecution.run_command(["chmod", "777", self.file_name], "Giving File Read Write Access")
