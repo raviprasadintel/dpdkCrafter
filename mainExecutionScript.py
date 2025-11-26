@@ -223,14 +223,10 @@ def main():
             # dpdk_file_path = 
 
             print("PATH EXACT :",os.getcwd())
-
-
-
         # IF step 5 : 
-        if os.environ.get("UPDATE_AUTOMATICALLY_PORTS_CRBS_EXECUTION","").upper() == True:
+        if os.environ.get("UPDATE_AUTOMATICALLY_PORTS_CRBS_EXECUTION","").upper() == "TRUE":
             # FETCHING BUS INFO DETAILS
             interface_man_obj  = InterfaceManager(error_logs= error_logs)
-
             statement = interface_man_obj.process_all_interfaces()
             up_interface = []
             down_inteface = []
