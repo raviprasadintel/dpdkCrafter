@@ -1,17 +1,18 @@
 import re
 import time
-from script_container.execution.constant import CommonFuntion
+from common_script_container.constant import CommonMethodExecution,CommonSetupCheck
 
 
 # --------------------------------------------------------------------------------------------------
 
-class InterfaceManager(CommonFuntion):
+class InterfaceManager:
     """
     A class to manage network interfaces using Linux 'ip' commands.
     Provides functionality to check interface status and bring DOWN interfaces UP.
     """
 
-    def __init__(self):
+    def __init__(self, error_logs =[]):
+        self.error_logs = error_logs
         self.interFaceDetails = []
 
 
@@ -26,7 +27,7 @@ class InterfaceManager(CommonFuntion):
         Returns:
             list: List of dictionaries with interface name and status.
         """
-        success, output = self.run_command(["ip", "-br", "a"], "Checking Interface Status", check_output=True)
+        success, output = CommonMethodExecution.run_command(["ip", "-br", "a"], "Checking Interface Status", check_output=True)
         if not success:
             return []
 
@@ -59,8 +60,9 @@ class InterfaceManager(CommonFuntion):
         status = interface_det['status']
 
         if status.lower() == "down":
+            time.sleep(4)
             print(f"\n🔌 Before: Interface {interface} is {status}")
-            success, _ = self.run_command(['ip', 'link', 'set', interface, 'up'], f"Bringing up {interface}")
+            success, _ = CommonMethodExecution.run_command(['ip', 'link', 'set', interface, 'up'], f"Bringing up {interface}")
             if success:
                 updated_status = self.interface_details(search=interface)
                 print(f"✅ After: Interface {interface} status ➡️ {updated_status}")
@@ -70,14 +72,63 @@ class InterfaceManager(CommonFuntion):
     def process_all_interfaces(self):
         """
         Checks all interfaces and brings any DOWN interfaces UP.
-        Stores only UP interfaces in self.interFaceDetails.
+        Maintains two lists:
+        - UP interfaces in self.interFaceDetails
+        - DOWN interfaces in a separate list for reporting
         """
-        print("\n🔄 Processing all interfaces...")
-        for interface_det in self.interface_details():
-            self.bring_interface_up(interface_det)
+        print("\n🔄 Processing all interfaces...\n")
+        down_interfaces = []  # Track interfaces that remain DOWN
+        up_interfaces = []    # Track interfaces that are UP after processing
+        try:
+            all_interfaces = self.interface_details()
+            if not all_interfaces:
+                print("❌ No interfaces found!")
+                return
 
-        self.interFaceDetails = [val for val in self.interface_details() if val['status'].upper() == "UP"]
-        print(f"\n📋 Final UP Interfaces: {self.interFaceDetails}")
+            for interface_det in all_interfaces:
+                try:
+                    name = interface_det['name']
+                    status = interface_det['status']
+
+                    print(f"➡️ Checking Interface: {name} | Current Status: {status}")
+
+                    # Attempt to bring interface UP if it's DOWN
+                    if status.upper() == "DOWN":
+                        print(f"🔌 Attempting to bring UP: {name}")
+                        self.bring_interface_up(interface_det)
+
+                        # Check updated status
+                        updated_status = self.interface_details(search=name)
+                        if updated_status and updated_status[0]['status'].upper() == "UP":
+                            print(f"✅ SUCCESS: {name} is now UP")
+                            up_interfaces.append(name)
+                        else:
+                            print(f"❌ FAILED: {name} is still DOWN")
+                            down_interfaces.append(name)
+                    else:
+                        print(f"✅ Already UP: {name}")
+                        up_interfaces.append(name)
+                except Exception as e:
+                    self.error_logs.append(f"❌ Unexpected error: {str(e)}")
+
+            # Update class attribute with UP interfaces
+            self.interFaceDetails = [{'name': iface, 'status': 'UP'} for iface in up_interfaces]
+
+            # Print summary
+            print("\n📋 Interface Summary:")
+            print(f"✅ UP Interfaces ({len(up_interfaces)}): {up_interfaces}")
+            print(f"❌ DOWN Interfaces ({len(down_interfaces)}): {down_interfaces}")
+            CommonSetupCheck.print_separator()
+        except Exception as e:
+            self.error_logs.append(f"❌ Unexpected error: {str(e)}")
+
+        return {
+            "updated": True if len(up_interfaces)>1 else False,
+            "status":"SUCCESSFUL" if len(up_interfaces)>1 else"FAILURE",
+            "up_interface": up_interfaces,
+            "down_interface": down_interfaces,
+            "error_logs": self.error_logs
+        }
 
 
 
@@ -96,11 +147,12 @@ class PairingManagerInfo(InterfaceManager):
         self.pairingInterface = []
         self.mapped_bus_pairs = []
 
+
         # Fetch bus info on initialization
         try:
             self.busInfo()
         except Exception as e:
-            print(f"❌ Error initializing bus info: {e}")
+            self.error_logs.append(f"❌ Error initializing bus info: {e}")
 
     def busInfo(self):
         """
@@ -111,7 +163,7 @@ class PairingManagerInfo(InterfaceManager):
         """
         print("\n🔍 Fetching PCI Bus Info...\n")
         try:
-            success, output = self.run_command(['lshw', '-c', 'network', '-businfo'], "Fetching Bus Info", check_output=True)
+            success, output = CommonMethodExecution.run_command(['lshw', '-c', 'network', '-businfo'], "Fetching Bus Info", check_output=True)
             if not success:
                 return []
 
@@ -132,7 +184,7 @@ class PairingManagerInfo(InterfaceManager):
             self.bus_info = parsed_info
             print(f"🧾 Bus Info Parsed:\n{self.bus_info}\n")
         except Exception as e:
-            print(f"❌ Error parsing bus info: {e}")
+            self.error_logs.append(f"❌ Error parsing bus info: {e}")
 
     def fetchingInterFacePairingInfo(self):
         """
@@ -146,7 +198,7 @@ class PairingManagerInfo(InterfaceManager):
             print(f"📡 Interface Details:\n{interfaceDetails}\n")
             print(f"🧬 Bus Info Details:\n{self.bus_info}\n")
         except Exception as e:
-            print(f"❌ Error fetching interface pairing info: {e}")
+            self.error_logs.append(f"❌ Error fetching interface pairing info: {e}")
 
     def extract_interface_names(self, log_data):
         """
@@ -162,7 +214,7 @@ class PairingManagerInfo(InterfaceManager):
             pattern = r'\b(\w+): NIC Link is (?:Down|up)\b'
             return re.findall(pattern, log_data, re.MULTILINE)
         except Exception as e:
-            print(f"❌ Error extracting interface names: {e}")
+            self.error_logs.append(f"❌ Error extracting interface names: {e}")
             return []
 
     def update_interface_pairs(self, interface_list, existing_pairs):
@@ -186,7 +238,7 @@ class PairingManagerInfo(InterfaceManager):
                     updated_pairs.append(pair)
             return updated_pairs
         except Exception as e:
-            print(f"❌ Error updating interface pairs: {e}")
+            self.error_logs.append(f"❌ Error updating interface pairs: {e}")
             return existing_pairs
 
     def fetchingPairDetailsFromInterface(self):
@@ -197,8 +249,8 @@ class PairingManagerInfo(InterfaceManager):
         """
         try:
             print("\n🧹 Clearing dmesg buffer before starting...\n")
-            self.run_command(["dmesg", "-c"], "Clearing dmesg buffer")
-            self.run_command(["dmesg", "-c"], "Clearing again for safety")
+            CommonMethodExecution.run_command(["dmesg", "-c"], "Clearing dmesg buffer")
+            CommonMethodExecution.run_command(["dmesg", "-c"], "Clearing again for safety")
 
             print("😴 Sleeping for 3 seconds before starting NIC link checks...\n")
             time.sleep(3)
@@ -214,8 +266,8 @@ class PairingManagerInfo(InterfaceManager):
 
                     print(f"🔍 Processing Interface: {interface} | Status: {status}")
 
-                    self.run_command(["ethtool", "-r", interface], f"Resetting {interface}")
-                    success, output = self.run_command(["dmesg", "-c"], f"Checking NIC link for {interface}", check_output=True)
+                    CommonMethodExecution.run_command(["ethtool", "-r", interface], f"Resetting {interface}")
+                    success, output = CommonMethodExecution.run_command(["dmesg", "-c"], f"Checking NIC link for {interface}", check_output=True)
 
                     if success:
                         interface_pair = self.extract_interface_names(output)
@@ -226,11 +278,11 @@ class PairingManagerInfo(InterfaceManager):
                     print("✅ Continuing to next interface...\n")
                     print("🧹 Clearing dmesg buffer...\n")
                 except Exception as e:
-                    print(f"❌ Error processing interface {details.get('name', 'unknown')}: {e}")
+                    self.interFaceDetails.append(f"❌ Error processing interface {details.get('name', 'unknown')}: {e}")
 
             # Final cleanup
-            self.run_command(["dmesg", "-c"], "Clearing dmesg buffer after")
-            self.run_command(["dmesg", "-c"], "Final clear")
+            CommonMethodExecution.run_command(["dmesg", "-c"], "Clearing dmesg buffer after")
+            CommonMethodExecution.run_command(["dmesg", "-c"], "Final clear")
 
             print("😴 Sleeping for 2 seconds before final output...\n")
             time.sleep(2)
@@ -241,7 +293,7 @@ class PairingManagerInfo(InterfaceManager):
             for pair in pairingInterface:
                 print(f"  ✅ {pair[0]} ↔ {pair[1]}")
         except Exception as e:
-            print(f"❌ Error in fetchingPairDetailsFromInterface: {e}")
+            self.error_logs.append(f"❌ Error in fetchingPairDetailsFromInterface: {e}")
 
 
     def mapInterfaceToBus(self):
@@ -284,6 +336,7 @@ class PairingManagerInfo(InterfaceManager):
                 print(f"   🧭 Bus Info   : {bus_pair}\n")
 
             except Exception as e:
+                self.interFaceDetails.append()
                 print(f"❌ Error mapping pair {pair}: {e}")
 
         print("🎯 Completed interface-to-bus mapping.\n\n")
@@ -294,35 +347,3 @@ class PairingManagerInfo(InterfaceManager):
         }
 
 # --------------------------------------------------------------------------------------------------
-
-# #######################################   Main Execution Block   ###########################################################
-
-# if __name__ == "__main__":
-#     print("\n🚀 Starting Interface Pairing Manager...\n")
-
-#     try:
-#         # Initialize and run pairing manager
-#         print("🧩 Initializing PairingManagerInfo object...")
-#         obj = PairingManagerInfo()
-
-#         print("\n🔍 Fetching Interface and Bus Pairing Information...\n")
-#         obj.fetchingInterFacePairingInfo()
-
-#         print("\n🔗 Fetching Interface Connection Details...\n")
-#         obj.fetchingPairDetailsFromInterface()
-
-#         print("\nMapping Interface With Bus Info")
-#         interfaceDetails = obj.mapInterfaceToBus()
-
-#         print(interfaceDetails)
-
-       
-#         # Display the loaded configuration details
-
-     
-#     except Exception as e:
-#         print(f"\n❌ An error occurred during execution: {e}\n")
-
-#     print("\n✅ Script Execution Completed Successfully.\n")
-
-

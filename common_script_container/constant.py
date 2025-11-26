@@ -1,8 +1,10 @@
 import os
+import re
 import platform
 import subprocess
 import traceback
 from functools import wraps
+from difflib import SequenceMatcher
 # --------------------------------------------------------------------------------------------------
 #                               Constant : dut_ports_config.py   (START)
 # --------------------------------------------------------------------------------------------------
@@ -51,16 +53,97 @@ port_config_fail = "🚫 Maximum attempts reached. Authentication failed.\n"
 
 
 # --------------------------------------------------------------------------------------------------
-#                              Constant : COMMON FUNCTION ( START ) 
+#                              Constant : COMMON METHOD ( START ) 
 # --------------------------------------------------------------------------------------------------
 
 
 
-class CommonFuntion:
-
+class CommonMethodExecution:
 
     @staticmethod
-    def check_os(self):
+    def run_command( command, description="", check_output=False,error_log = []):
+        """
+        Executes a shell command.
+
+        Args:
+            command (list): Command and arguments as a list.
+            description (str): Description for logging.
+            check_output (bool): If True, returns command output.
+
+        Returns:
+            tuple: (success: bool, output: str)
+        """
+        try:
+            print(f"\n🔧 Executing: {description}",command)
+            if check_output:
+                result = subprocess.check_output(command, stderr=subprocess.STDOUT, text=True)
+                return True, result
+            else:
+                subprocess.run(command, check=True)
+                return True, ""
+        except subprocess.CalledProcessError as e:
+            print(f"❌ Error during '{description}': {e}")
+            return False, str(e)
+    
+    @staticmethod
+    def find_best_match(tar_filename: str, folder_list: list) -> dict:
+        """
+        Find the folder with the highest similarity to the tar file name.
+        
+        Args:
+            tar_filename (str): Tar file name (e.g., 'ice2.3.10.tar.gz').
+            folder_list (list): List of folder names.
+        
+        Returns:
+            dict: {'folder': best_match_folder, 'score': percentage}
+        """
+        # Remove extensions
+        base_tar = re.sub(r'\.tar\.gz$|\.tgz$|\.zip$', '', tar_filename)
+        normalized_tar = base_tar.lower()
+        
+        best_match = None
+        best_score = 0.0
+        
+        for folder in folder_list:
+            normalized_folder = folder.lower()
+            
+            # Compute similarity ratio
+            score = SequenceMatcher(None, normalized_tar, normalized_folder).ratio() * 100
+            
+            if score > best_score:
+                best_score = score
+                best_match = folder
+        
+        return {'folder': best_match, 'score': round(best_score, 2)}
+
+
+
+
+
+
+
+
+# Common Setup Check 
+
+class CommonSetupCheck:
+
+    @staticmethod
+    def handle_exceptions(func):
+        """
+        Decorator to handle exceptions and print traceback for debugging.
+        """
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            try:
+                return func(*args, **kwargs)
+            except Exception as e:
+                print(f"❌ Exception in '{func.__name__}': {e}")
+                traceback.print_exc()
+                return traceback.print_exc()
+        return wrapper
+    
+    @staticmethod
+    def check_os():
         """
         Retrieve operating system details and return them in a structured format.
         Returns:
@@ -110,6 +193,7 @@ class CommonFuntion:
                 "release": os_release,
                 "detailed_info": detailed_info
             }
+
         except Exception as x:
             print("UNABLE TO FETCH OS VERSION AND ALL THINGS")
             return {
@@ -118,48 +202,12 @@ class CommonFuntion:
                 "release": None,
                 "detailed_info": None
             }
-    def run_command(self, command, description="", check_output=False):
-        """
-        Executes a shell command.
 
-        Args:
-            command (list): Command and arguments as a list.
-            description (str): Description for logging.
-            check_output (bool): If True, returns command output.
-
-        Returns:
-            tuple: (success: bool, output: str)
-        """
-        try:
-            print(f"\n🔧 Executing: {description}")
-            if check_output:
-                result = subprocess.check_output(command, stderr=subprocess.STDOUT, text=True)
-                return True, result
-            else:
-                subprocess.run(command, check=True)
-                return True, ""
-        except subprocess.CalledProcessError as e:
-            print(f"❌ Error during '{description}': {e}")
-            return False, str(e)
+    # For Adding Separator
+    @staticmethod   
+    def print_separator(val=""):
+        print("\n\n" + "-" * 50 +str(val)+ "-"*50 + "\n\n")
         
 
 
 
-
-
-def handle_exceptions(func):
-    """
-    Decorator to handle exceptions and print traceback for debugging.
-    """
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        try:
-            return func(*args, **kwargs)
-        except Exception as e:
-            print(f"❌ Exception in '{func.__name__}': {e}")
-            traceback.print_exc()
-            return None
-    return wrapper
-
-# For printing SEPARATOR
-print_separator = lambda: print("\n\n\n\n" + "-" * 100 + "\n\n\n\n")

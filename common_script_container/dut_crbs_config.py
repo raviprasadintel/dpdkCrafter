@@ -1,14 +1,14 @@
 import re
 import os
 import time
-from script_container.execution.constant import CommonFuntion
+from common_script_container.constant import CommonMethodExecution
 
 
 
-class DutCrbsConfig(CommonFuntion):
+class DutCrbsConfig(CommonMethodExecution):
 
     def __init__(self,dts_path):
-        path = dts_path.strip() + "/networking.dataplane.dpdk.dts.local.upstream/conf"
+        path = os.path.join(dts_path,"conf")
         os.chdir(path)
         self.filter_crbs_data = self.read_file_data() # Filter crbs data to be updated 
 
@@ -37,15 +37,15 @@ class DutCrbsConfig(CommonFuntion):
     def write_crbs_config(self,pair_text, file_name="crbs.cfg"):
         # 📁 Step 4: Navigate to the configuration directory
         
-        self.run_command(["pwd"],"Fecthing Current Path\n")
+        CommonMethodExecution.run_command(["pwd"],"Fecthing Current Path\n")
         
         # Adding line break 
         print("\n--------------------------------------------------------------------------------------------------\n")
 
         if os.path.exists(file_name):
-            self.run_command(["chmod","777",file_name],"giving a file access for READ, WRITE and DELETE")
+            CommonMethodExecution.run_command(["chmod","777",file_name],"giving a file access for READ, WRITE and DELETE")
             time.sleep(1)
-            self.run_command(["rm","-rf",file_name],f"Deleting existing File name  :=> {file_name}")
+            CommonMethodExecution.run_command(["rm","-rf",file_name],f"Deleting existing File name  :=> {file_name}")
         
 
         # Creating crbs.cfg File
@@ -106,56 +106,3 @@ class DutCrbsConfig(CommonFuntion):
         self.write_crbs_config(filter_crbs_data)
 
 # --------------------------------------------------------------------------------------------------
-
-
-# crbs_val = """#DUT crbs Configuration
-# #[DUT IP]
-# #  dut_ip: DUT ip address
-# #  dut_user: Login DUT username
-# #  dut_passwd: [INSECURE] Login DUT password, leaving this blank will force using SSH keys
-# #  os: operation system type linux or freebsd
-# #  tester_ip: Tester ip address
-# #  tester_passwd: [INSECURE] Tester password, leaving this blank will force using SSH keys
-# #  pktgen_group: packet generator group name: ixia/trex/ixia_network
-# #  channels: Board channel number
-# #  bypass_core0: Whether by pass core0
-# #  dut_cores: DUT core list, eg: 1,2,3,4,5,18-22
-# #  snapshot_load_side: tester/dut, specify the dpdk.tar.gz on side
-# #       if value is dut, should combine the params --snapshot to use.
-# #       eg: ./dts --snapshot /root/tester/dpdk.tar.gz
-# [DUT IP1]
-# dut_ip=xxx.xxx.xxx.xxx
-# dut_user=root
-# dut_passwd=
-# os=linux
-# dut_arch=
-# tester_ip=xxx.xxx.xxx.xxx
-# tester_passwd=
-# ixia_group=
-# pktgen_group=
-# channels=4
-# bypass_core0=True
-# dut_cores=
-# snapshot_load_side=tester
-# [DUT IP2]
-# dut_ip=yyy.yyy.yyy.yyy
-# dut_user=root
-# dut_passwd=
-# os=linux
-# dut_arch=
-# tester_ip=yyy.yyy.yyy.yyy
-# tester_passwd=
-# pktgen_group=
-# channels=4
-# bypass_core0=True
-# dut_cores=
-# snapshot_load_side=tester
-# """
-
-# updating_crbs_file(crbs_data= crbs_val, 
-#                    dut_ip = "10.190.213.109", 
-#                    dut_user = "root", 
-#                    dut_passwd = "tester", 
-#                    tester_ip = "10.190.213.109",
-#                    tester_passwd = "tester"
-# )

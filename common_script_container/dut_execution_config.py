@@ -2,10 +2,10 @@ import re
 import os
 import time
 import traceback
-from script_container.execution.constant import CommonFuntion, handle_exceptions
+from common_script_container.constant import CommonMethodExecution, CommonSetupCheck
 
 
-class ExecutionCfgUpdate(CommonFuntion):
+class ExecutionCfgUpdate(CommonMethodExecution):
     """
     Handles reading, updating, and writing to the DTS execution configuration file.
     """
@@ -18,16 +18,16 @@ class ExecutionCfgUpdate(CommonFuntion):
             dts_path (str): Path to the DTS directory.
         """
         try:
-            path = dts_path.strip() + "/networking.dataplane.dpdk.dts.local.upstream"
+            path = dts_path
             os.chdir(path)
             self.file_name = "execution.cfg"
-            self.run_command(["chmod", "777", self.file_name], "Giving File Read Write Access")
+            CommonMethodExecution.run_command(["chmod", "777", self.file_name], "Giving File Read Write Access")
             self.execution_data = self.read_file_data()
         except Exception as e:
             print(f"❌ Initialization failed: {e}")
             traceback.print_exc()
     
-    @handle_exceptions
+    @CommonSetupCheck.handle_exceptions
     def read_file_data(self):
         """
         Reads and returns the contents of the execution.cfg file.
@@ -48,7 +48,7 @@ class ExecutionCfgUpdate(CommonFuntion):
             traceback.print_exc()
             return ""
         
-    @handle_exceptions
+    @CommonSetupCheck.handle_exceptions
     def write_crbs_config(self, pair_text):
         """
         Deletes the existing execution.cfg file and writes a new one with the provided CRB configuration.
@@ -57,13 +57,13 @@ class ExecutionCfgUpdate(CommonFuntion):
             pair_text (str): Text content to write into the execution.cfg file.
         """
         try:
-            self.run_command(["pwd"], "Fetching Current Path")
+            CommonMethodExecution.run_command(["pwd"], "Fetching Current Path")
             print("\n" + "-" * 100 + "\n")
 
             if os.path.exists(self.file_name):
-                self.run_command(["chmod", "777", self.file_name], "Setting file access permissions")
+                CommonMethodExecution.run_command(["chmod", "777", self.file_name], "Setting file access permissions")
                 time.sleep(1)
-                self.run_command(["rm", "-rf", self.file_name], f"Deleting existing file: {self.file_name}")
+                CommonMethodExecution.run_command(["rm", "-rf", self.file_name], f"Deleting existing file: {self.file_name}")
 
             with open(self.file_name, "w", encoding='utf-8') as f:
                 f.write(pair_text)
@@ -72,7 +72,7 @@ class ExecutionCfgUpdate(CommonFuntion):
             print(f"❌ Error writing CRB config: {e}")
             traceback.print_exc()
 
-    @handle_exceptions
+    @CommonSetupCheck.handle_exceptions
     def update_execution_content(self, ip_address):
         """
         Updates the execution.cfg content by:

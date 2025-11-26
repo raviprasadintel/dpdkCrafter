@@ -49,29 +49,8 @@ class AutomationScriptForSetupInstalltion:
         self.error_logs_cmd = []
 
 
-    def check_proxy_setup(self):
-        proxies = ["http_proxy", "https_proxy", "ftp_proxy", "no_proxy"]
-        for proxy in proxies:
-            value = os.environ.get(proxy)
-            if value:
-                print(f"{proxy} is set to: {value}")
-            else:
-                print(f"{proxy} is NOT set")
 
 
-    def setup_proxy_environment(self):
-        """
-        Sets proxy environment variables required for network access behind a corporate proxy on Ubuntu systems.
-        """
-        print("Before Proxy Update : \n")
-        self.check_proxy_setup()
-        os.environ["PATH"] = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin"
-        os.environ["ftp_proxy"] = "http://proxy-iind.intel.com:911"
-        os.environ["http_proxy"] = "http://proxy-iind.intel.com:911"
-        os.environ["https_proxy"] = "http://proxy-iind.intel.com:912"
-        os.environ["no_proxy"] = "localhost,127.0.0.1,intel.com,ger.corp.intel.com"
-        print("After Proxy Update : \n")
-        self.check_proxy_setup()
 
     def run_command(self,command, description, check_output=False):
 
@@ -150,15 +129,15 @@ class AutomationScriptForSetupInstalltion:
         print(f"\n📍 Current working directory: {current_path}\n")
 
         # Extract firmware 
-        self.run_command(['tar', '-xvf', self.firmware_file_path, '-C', current_path],
+        CommonMethodExecution.run_command(['tar', '-xvf', self.firmware_file_path, '-C', current_path],
                     f"Extracting firmware file: {self.firmware_file_path}")
         
         # Extrating driver 
-        self.run_command(['tar', '-xvf', self.driver_path, '-C', current_path],
+        CommonMethodExecution.run_command(['tar', '-xvf', self.driver_path, '-C', current_path],
                     f"Extracting driver file: {self.driver_path}")
 
         # List files in current directory
-        success, output = self.run_command(['ls'], "Listing files in current directory", check_output=True)
+        success, output = CommonMethodExecution.run_command(['ls'], "Listing files in current directory", check_output=True)
         if not success:
             print("⚠️ Failed to list files.")
             
@@ -168,14 +147,14 @@ class AutomationScriptForSetupInstalltion:
         if firmware_name in output:
             try:
                 os.chdir(firmware_name)
-                success, output = self.run_command(['ls', '-p'], "Listing contents of firmware directory", check_output=True)
+                success, output = CommonMethodExecution.run_command(['ls', '-p'], "Listing contents of firmware directory", check_output=True)
                 if success:
                     # Find first folder (lines ending with '/')
                     folders = [line for line in output.splitlines() if line.endswith('/')]
                     if folders:
                         os.chdir(folders[0].rstrip('/'))
                         installation_driver = True
-                        self.run_command(['./nvmupdate64e'], "Running firmware installation")
+                        CommonMethodExecution.run_command(['./nvmupdate64e'], "Running firmware installation")
                         
                     else:
                         print("⚠️ No subdirectory found to enter.")
@@ -192,7 +171,7 @@ class AutomationScriptForSetupInstalltion:
         
         # Changing the directory root setup directory
         os.chdir(setup_file_path)
-        success, output = self.run_command(['ls','-l'], "Listing files in current directory", check_output=True)
+        success, output = CommonMethodExecution.run_command(['ls','-l'], "Listing files in current directory", check_output=True)
         # Fetching current driver data 
         if not success:
             print("⚠️ Failed to list files.")
@@ -206,18 +185,18 @@ class AutomationScriptForSetupInstalltion:
                 os.chdir(folder_name)
                 try:
                     # Installing Make cmd 
-                    self.run_command(["apt", "update"], "updating Sudo Update :\n")
-                    self.run_command(['apt','install','-y','make'], "Instalation Of Make cmd")
+                    CommonMethodExecution.run_command(["apt", "update"], "updating Sudo Update :\n")
+                    CommonMethodExecution.run_command(['apt','install','-y','make'], "Instalation Of Make cmd")
 
                     os.chdir("src")
                     # Run make commands
                     
-                    self.run_command(['make'], "Running make")
-                    self.run_command(['dmesg', '-c'], "Clearing dmesg")
-                    self.run_command(['make', 'install'], "Running make install")
-                    self.run_command(['rmmod', 'irdma'], "Removing irdma module")
-                    self.run_command(['rmmod', 'ice'], "Removing ice module")
-                    self.run_command(['modprobe', 'ice'], "Loading ice module")
+                    CommonMethodExecution.run_command(['make'], "Running make")
+                    CommonMethodExecution.run_command(['dmesg', '-c'], "Clearing dmesg")
+                    CommonMethodExecution.run_command(['make', 'install'], "Running make install")
+                    CommonMethodExecution.run_command(['rmmod', 'irdma'], "Removing irdma module")
+                    CommonMethodExecution.run_command(['rmmod', 'ice'], "Removing ice module")
+                    CommonMethodExecution.run_command(['modprobe', 'ice'], "Loading ice module")
 
                     installation_driver= True
                 except Exception as x:
@@ -245,7 +224,7 @@ class AutomationScriptForSetupInstalltion:
        
         path = os.getcwd()
         print("\n📍current path : "+str(path))
-        self.run_command(["git", "clone", self.dts_url], "Cloning DTS repository")
+        CommonMethodExecution.run_command(["git", "clone", self.dts_url], "Cloning DTS repository")
         os.chdir("networking.dataplane.dpdk.dts.local.upstream")
         os.chdir("dep")
         
@@ -254,13 +233,13 @@ class AutomationScriptForSetupInstalltion:
         """
         Clones the public DPDK repository and checks out a specific version.
         """
-        self.run_command(["git", "clone", self.dpdk_url], "Cloning DPDK repository")
+        CommonMethodExecution.run_command(["git", "clone", self.dpdk_url], "Cloning DPDK repository")
 
-        self.run_command(["tar", "-czvf", "dpdk.tar.gz", "dpdk/"],"taring dpdk file")
+        CommonMethodExecution.run_command(["tar", "-czvf", "dpdk.tar.gz", "dpdk/"],"taring dpdk file")
         path = os.getcwd()
         print("\n📍current path : "+str(path))
         os.chdir("dpdk")
-        self.run_command(["git", "checkout","-b", "v25.03-rc3"], "Checking out DPDK version v25.03-rc3")
+        CommonMethodExecution.run_command(["git", "checkout","-b", "v25.03-rc3"], "Checking out DPDK version v25.03-rc3")
 
     def install_required_packages(self):
 
@@ -288,8 +267,7 @@ class AutomationScriptForSetupInstalltion:
         ]
 
 
-        self.setup_proxy_environment()
-
+ 
         pip_packages = [
             ["pip3", "install", "xlrd", "--break-system-packages"],
             ["pip3", "install", "xlwt", "--break-system-packages"],
@@ -299,10 +277,10 @@ class AutomationScriptForSetupInstalltion:
         ]
 
         for pkg in apt_packages:
-            self.run_command(pkg, f"Installing {' '.join(pkg[3:]) if len(pkg) > 3 else pkg[1]}")
+            CommonMethodExecution.run_command(pkg, f"Installing {' '.join(pkg[3:]) if len(pkg) > 3 else pkg[1]}")
 
         for pkg in pip_packages:
-            self.run_command(pkg, f"Installing Python package {pkg[2]}")
+            CommonMethodExecution.run_command(pkg, f"Installing Python package {pkg[2]}")
 
 
 
@@ -334,7 +312,6 @@ if __name__ == "__main__":
         # Step 3: Prepare environment for DPDK/DTS setup
         os.chdir("/root/testing")  # Change to root directory
         script.creating_folder_setup("dts_setup")
-        script.setup_proxy_environment()
 
         # Step 4: Clone DPDK and DTS repositories
         print("\n🚀 Starting DPDK and DTS setup process...\n")

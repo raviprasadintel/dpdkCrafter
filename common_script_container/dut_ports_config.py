@@ -4,16 +4,16 @@ import socket
 import traceback
 
 
-from script_container.execution.constant import (port_config_prompt_update, 
+from common_script_container.constant import (port_config_prompt_update, 
                       port_config_auth_prompt, port_config_auth_confirm,
                       port_config_success, port_config_fail, 
                       port_config_mismatch)
 
 # Importing Common Method :
-from script_container.execution.constant import CommonFuntion
+from common_script_container.constant import CommonMethodExecution
 
 
-class DutPortConfig(CommonFuntion):
+class DutPortConfig(CommonMethodExecution):
     def __init__(self,dts_path):
         self.dts_setup_path = dts_path 
         # Initialize configuration
@@ -89,11 +89,11 @@ class DutPortConfig(CommonFuntion):
         # Removing Exiting file if File is available
         
         if os.path.exists(file_name):
-            self.run_command(
+            CommonMethodExecution.run_command(
             ["chmod", "777", file_name],
             f"\n\n🔧 Allowing READ, WRITE, and EXECUTE permissions for all users on ➡️ {file_name}"
             )
-            self.run_command(
+            CommonMethodExecution.run_command(
             ["rm", "-rf", file_name],
             f"\n\n🔧 Removing Existing file : ➡️ {file_name}"
             )
@@ -104,25 +104,25 @@ class DutPortConfig(CommonFuntion):
 
 
         # 🔐 Step 1: Set full permissions on the configuration file
-        self.run_command(
+        CommonMethodExecution.run_command(
             ["chmod", "777", file_name],
             f"\n\n🔧 Allowing READ, WRITE, and EXECUTE permissions for all users on ➡️ {file_name}"
         )
 
         # 🌐 Step 2: Retrieve brief interface details
-        self.run_command(
+        CommonMethodExecution.run_command(
             ["ip", "-br", "a"],
             "\n\n📡 Fetching brief interface details..."
         )
 
         # 🧠 Step 3: Get detailed network hardware info with bus mapping
-        self.run_command(
+        CommonMethodExecution.run_command(
             ["lshw", "-c", "network", "-businfo"],
             "\n\n🔍 Fetching detailed bus information for network interfaces..."
         )
 
         # 📄 Step 4: Display the updated configuration file for verification
-        self.run_command(
+        CommonMethodExecution.run_command(
             ["cat", file_name],
             "\n\n📑 Showing contents of the updated configuration file for double verification..."
         )
@@ -162,27 +162,27 @@ class DutPortConfig(CommonFuntion):
             updated_text = port_config_prompt_update.format(self.ip_address, pair_text)
 
             # 📁 Step 4: Navigate to the configuration directory
-            path = self.dts_setup_path.strip() + "/networking.dataplane.dpdk.dts.local.upstream/conf"
+            path = os.path.join( self.dts_setup_path,"conf")
             os.chdir(path)
         
             # 📍 Step 5: Confirm current working directory
-            current_path = self.run_command(["pwd"], description="📂 Fetching current working directory", check_output=True)
+            current_path = CommonMethodExecution.run_command(["pwd"], description="📂 Fetching current working directory", check_output=True)
             print(f"📍 Current Path: {current_path}\n")
 
             # 📝 Step 6: Write the configuration to file
             file_name = self.write_ports_config(updated_text)
 
             # 📦 Step 7: Set file permissions
-            self.run_command(["chmod", "777", file_name], f"🔧 Setting full permissions on ➡️ {file_name}")
+            CommonMethodExecution.run_command(["chmod", "777", file_name], f"🔧 Setting full permissions on ➡️ {file_name}")
 
             # 🌐 Step 8: Get network interface details
-            self.run_command(["ip", "-br", "a"], "📡 Retrieving network interface details")
+            CommonMethodExecution.run_command(["ip", "-br", "a"], "📡 Retrieving network interface details")
 
             # 🧠 Step 9: Fetch bus information
-            self.run_command(["lshw", "-c", "network", "-businfo"], "🔍 Fetching bus information for network interfaces")
+            CommonMethodExecution.run_command(["lshw", "-c", "network", "-businfo"], "🔍 Fetching bus information for network interfaces")
 
             # 📄 Step 10: Display the updated configuration file
-            self.run_command(["cat", file_name], "📑 Displaying updated configuration file for verification")
+            CommonMethodExecution.run_command(["cat", file_name], "📑 Displaying updated configuration file for verification")
 
             # 😴 Step 11: Pause for verification
             print("😴 Sleeping for 3 seconds to allow verification...\n")
@@ -194,42 +194,3 @@ class DutPortConfig(CommonFuntion):
             print("\n\nException as x => ", x)
             traceback.print_exc()
 # --------------------------------------------------------------------------------------------------
-
-# if __name__ == "__main__":
-   
-#     print("Starting -> Port Updating Process")
-#     dts_path = "/root/testing/dts_setup/"
-#     ports_config_obj = DutPortConfig(dts_path)
-    
-#     # Display the loaded configuration details
-
-#     # Example Showing Interface Deatails    
-#     interfaceDetails = {   'bus_info': [{'bus': 'pci@0000:17:00.0', 'device': 'ens260f0np0', 'description': 'Ethernet Controller X710 for 10GBASE-T'}, 
-#                   {'bus': 'pci@0000:17:00.1', 'device': 'ens260f1np1', 'description': 'Ethernet Controller X710 for 10GBASE-T'}, 
-#                   {'bus': 'pci@0000:31:00.0', 'device': 'ens786f0', 'description': 'I350 Gigabit Network Connection'}, 
-#                   {'bus': 'pci@0000:31:00.1', 'device': 'ens786f1', 'description': 'I350 Gigabit Network Connection'}, 
-#                   {'bus': 'pci@0000:31:00.2', 'device': 'ens786f2', 'description': 'I350 Gigabit Network Connection'}, 
-#                   {'bus': 'pci@0000:31:00.3', 'device': 'ens786f3', 'description': 'I350 Gigabit Network Connection'}, 
-#                   {'bus': 'pci@0000:4b:00.0', 'device': 'ens785f0np0', 'description': 'Ethernet Controller E810-C for QSFP'}, 
-#                   {'bus': 'pci@0000:4b:00.1', 'device': 'ens785f1np1', 'description': 'Ethernet Controller E810-C for QSFP'}, 
-#                   {'bus': 'pci@0000:b1:00.0', 'device': 'ens801f0np0', 'description': 'Ethernet Controller E810-C for QSFP'}, 
-#                   {'bus': 'pci@0000:b1:00.1', 'device': 'ens801f1np1', 'description': 'Ethernet Controller E810-C for QSFP'}, 
-#                   {'bus': 'pci@0000:ca:00.0', 'device': 'ens802f0np0', 'description': 'Ethernet Controller E810-C for QSFP'}, 
-#                   {'bus': 'pci@0000:ca:00.1', 'device': 'ens802f1np1', 'description': 'Ethernet Controller E810-C for QSFP'}],
-#         'interface_connection': [['ens802f0np0', 'ens801f0np0'], ['ens802f1np1', 'ens801f1np1']], 
-#         'mapped_pair': [{'interface': ['ens802f0np0', 'ens801f0np0'], 'bus_info': ['0000:ca:00.0', '0000:b1:00.0']}, 
-#                         {'interface': ['ens802f1np1', 'ens801f1np1'], 'bus_info': ['0000:ca:00.1', '0000:b1:00.1']}]
-#     }
-
-#     print(
-#         "\n🔧 Loaded Configuration:\n"
-#         "-----------------------------\n"
-#         f"🌐 IP Address : {ports_config_obj.ip_address}\n"
-#         f"👤 Username   : {ports_config_obj.username}\n"
-#         f"🔑 Password   : {'*' * len(ports_config_obj.password) if ports_config_obj.password else 'Not Set'}\n"
-#     )
-
-
-#     ports_config_obj.update_ports(interfaceDetails)
-
-
