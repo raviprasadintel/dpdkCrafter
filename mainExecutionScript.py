@@ -168,21 +168,21 @@ def main():
                 }
             )
         
-        # STEP 4 : 
+        # STEP 4 :  'HAVE TO UNCOMMENT AFTER DTS SETUP'
         # # FETCHING BUS INFO DETAILS
-        interface_man_obj  = InterfaceManager(error_logs= error_logs)
+        # interface_man_obj  = InterfaceManager(error_logs= error_logs)
 
-        statement = interface_man_obj.process_all_interfaces()
-        up_interface = []
-        down_inteface = []
-        up_interface += statement["up_interface"]
-        down_inteface += statement['down_interface']
+        # statement = interface_man_obj.process_all_interfaces()
+        # up_interface = []
+        # down_inteface = []
+        # up_interface += statement["up_interface"]
+        # down_inteface += statement['down_interface']
 
-        if len(up_interface) <=0:
-            CommonSetupCheck.print_separator("⚠️ Attempted to enable the interface, but it could not be brought UP.")
+        # if len(up_interface) <=0:
+        #     CommonSetupCheck.print_separator("⚠️ Attempted to enable the interface, but it could not be brought UP.")
         
         # STEP 5
-        # Mapping bus info into 'HAVE TO UNCOMMENT AFTER DTS SETUP'
+        # Mapping bus info into 
         # print("🧩 Initializing PairingManagerInfo object...")
         # pariting_obj = PairingManagerInfo()
 
