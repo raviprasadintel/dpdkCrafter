@@ -227,6 +227,11 @@ def main():
             # CLONING AND INSTALLATION DTS SETUP 
             # GOING TO DTS setup folder to clone dts
             CommonSetupCheck.print_separator(f"✅CLONING AND INSTALLATION DTS SETUP STARTED ....")
+            if os.path.exists(os.path.join(dts_setup_path,"dts_setup")) == True:
+                CommonMethodExecution.run_command(["rm", "-rf", "dts_setup"], "REMOVING EXISTING DTS_SETUP")
+            os.chdir(dts_setup_path)
+            os.makedirs("dts_setup",exist_ok=True)
+            dts_setup_path = os.path.join(dts_setup_path,"dts_setup")
             os.chdir(dts_setup_path)
             AutomationScriptForSetupInstalltion.clone_dts_repo(os.environ.get("GIT_USERNAME"),os.environ.get("GIT_TOKEN"))
             AutomationScriptForSetupInstalltion.clone_dpdk_repo(
