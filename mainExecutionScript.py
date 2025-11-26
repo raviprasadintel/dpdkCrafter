@@ -33,7 +33,7 @@ class EnvValidator:
             value = os.environ.get(var_name)
             message_list[var_name] = message
             if is_required and not value:
-                missing_vars.append(f"{var_name}: {message}")
+                missing_vars.append(f"\n{var_name}: {message}")
             elif not is_required and not value:
                 optional_missing.append(var_name)
 
@@ -55,10 +55,10 @@ class EnvValidator:
             not os.environ.get("DTS_RUN")
             ):
 
-            mess = (f"✅ If DTS_INSTALLATION_REQUIRED is set to TRUE, these variables are required."
-                    f"GIT_USERNAME : {message_list["GIT_USERNAME"]}"
-                    f"GIT_TOKEN : {message_list["GIT_TOKEN"]}"
-                    f"DTS_INSTALLATION_PATH : {message_list["DTS_INSTALLATION_PATH"]}"
+            mess = (f"✅ If DTS_INSTALLATION_REQUIRED is set to TRUE, these variables are required.\n"
+                    f"GIT_USERNAME : {message_list["GIT_USERNAME"]}\n"
+                    f"GIT_TOKEN : {message_list["GIT_TOKEN"]}\n"
+                    f"DTS_INSTALLATION_PATH : {message_list["DTS_INSTALLATION_PATH"]}\n"
                     f"DTS_RUN : {message_list["DTS_RUN"]}"
                    
                     )
