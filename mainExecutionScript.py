@@ -30,6 +30,7 @@ class EnvValidator:
         message = {}
         # First pass: check required variables
         for var_name, is_required, message in var_list:
+            print(var_name,type(var_name))
             value = os.environ.get(var_name)
             message[var_name] = message
             if is_required and not value:
