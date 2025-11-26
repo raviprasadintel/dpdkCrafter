@@ -251,7 +251,6 @@ def main():
 
             print("\nMapping Interface With Bus Info")
             interface_details = pariting_obj.mapInterfaceToBus()
-
             print(interface_details)
     
 
