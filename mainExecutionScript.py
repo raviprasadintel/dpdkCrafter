@@ -219,9 +219,9 @@ def main():
                 DPDK_FILE_PATH = os.environ.get("DPDK_FILE_PATH","")
             )
             os.chdir("..")
-            dpdk_file_path = os.getcwd()
+            # dpdk_file_path = 
 
-            print("PATH EXACT :",dpdk_file_path)
+            print("PATH EXACT :",os.getcwd())
 
 
 
