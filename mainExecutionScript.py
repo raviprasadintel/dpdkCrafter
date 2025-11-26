@@ -11,7 +11,7 @@ Modules Used:
 import os
 import subprocess
 import traceback
-from common_script_container.setup_installation import FirmwareDriverInstallation, PackageInstalltion
+from common_script_container.setup_installation import FirmwareDriverInstallation, PackageInstalltion, AutomationScriptForSetupInstalltion
 from common_script_container.bus_info_details import InterfaceManager,PairingManagerInfo
 from common_script_container.dut_ports_config import DutPortConfig
 from common_script_container.dut_crbs_config import DutCrbsConfig
@@ -51,8 +51,7 @@ class EnvValidator:
         if os.environ.get("DTS_INSTALLATION_REQUIRED","").upper() == "TRUE" and(
             not os.environ.get("GIT_USERNAME") or 
             not os.environ.get("GIT_TOKEN") or
-            not os.environ.get("DTS_INSTALLATION_PATH") or
-            not os.environ.get("DTS_RUN")
+            not os.environ.get("DTS_INSTALLATION_PATH")
             ):
 
             mess = (f"✅ If DTS_INSTALLATION_REQUIRED is set to TRUE, these variables are required.\n"
@@ -183,20 +182,20 @@ def main():
             CommonSetupCheck.print_separator("⚠️ Attempted to enable the interface, but it could not be brought UP.")
         
         # STEP 5
-        # Mapping bus info into
-        print("🧩 Initializing PairingManagerInfo object...")
-        pariting_obj = PairingManagerInfo()
+        # Mapping bus info into 'HAVE TO UNCOMMENT AFTER DTS SETUP'
+        # print("🧩 Initializing PairingManagerInfo object...")
+        # pariting_obj = PairingManagerInfo()
 
-        print("\n🔍 Fetching Interface and Bus Pairing Information...\n")
-        pariting_obj.fetchingInterFacePairingInfo()
+        # print("\n🔍 Fetching Interface and Bus Pairing Information...\n")
+        # pariting_obj.fetchingInterFacePairingInfo()
 
-        print("\n🔗 Fetching Interface Connection Details...\n")
-        pariting_obj.fetchingPairDetailsFromInterface()
+        # print("\n🔗 Fetching Interface Connection Details...\n")
+        # pariting_obj.fetchingPairDetailsFromInterface()
 
-        print("\nMapping Interface With Bus Info")
-        interface_details = pariting_obj.mapInterfaceToBus()
+        # print("\nMapping Interface With Bus Info")
+        # interface_details = pariting_obj.mapInterfaceToBus()
 
-        print(interface_details)
+        # print(interface_details)
     
 
 
@@ -213,7 +212,8 @@ def main():
             if os.path.exists(dts_setup_path):
                 CommonSetupCheck.print_separator(f"✅ DTS setup path exists: {dts_setup_path}")
             else:
-                CommonSetupCheck.print_separator(f"⚠️ DTS setup path not found. Creating: {dts_setup_path}")
+                dts_setup_path = os.getcwd()
+                CommonSetupCheck.print_separator(f"⚠️ DTS setup path not found. Creating in same Directory : {dts_setup_path}")
 
             if dpdk_file_status:
                 print(f"🔍 Checking DPDK file path: {dpdk_file_path}")
@@ -223,6 +223,16 @@ def main():
                     print("✅ Valid DPDK file path found.")
             else:
                 CommonSetupCheck.print_separator("ℹ️ DPDK file status is FALSE. Proceeding with cloning DPDK repository...")
+
+            # CLONING AND INSTALLATION DTS SETUP 
+            # GOING TO DTS setup folder to clone dts
+            CommonSetupCheck.print_separator(f"✅CLONING AND INSTALLATION DTS SETUP STARTED ....")
+            os.chdir(dts_setup_path)
+            AutomationScriptForSetupInstalltion.clone_dts_repo(os.environ.get("GIT_USERNAME"),os.environ.get("GIT_TOKEN"))
+            AutomationScriptForSetupInstalltion.clone_dpdk_repo(
+                DPDK_FILE_STATUS = os.environ.get("DPDK_FILE_STATUS").upper() == "TRUE" ,
+                DPDK_FILE_PATH = os.environ.get("DPDK_FILE_PATH","")
+            )
 
 
         # CHECK FOR CRYPTO DRIVER :

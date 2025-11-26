@@ -314,14 +314,9 @@ class PackageInstalltion:
 
 
 class AutomationScriptForSetupInstalltion:
-
-    def __init__(self):
-        # # Github Credential integration username and token with url for verfication \ Authentication
-        self.dts_url = "https://{}:{}@github.com/intel-sandbox/networking.dataplane.dpdk.dts.local.upstream.git"
-        self.dpdk_url = "https://github.com/DPDK/dpdk.git"
-
+    dts_url = "https://{}:{}@github.com/intel-sandbox/networking.dataplane.dpdk.dts.local.upstream.git"
+    dpdk_url = "https://github.com/DPDK/dpdk.git"
     
-
 
     # def creating_folder_setup(self,setup_file_name= "setup_firmware_driver"):
 
@@ -339,27 +334,31 @@ class AutomationScriptForSetupInstalltion:
     # ###################################   Dpdk and Dts Setup Script       ##################################################################
 
 
-
-    def clone_dts_repo(self):
+    @staticmethod
+    def clone_dts_repo(git_username,token):
 
         """
         Clones the private DTS repository using GitHub credentials.
         """
-       
         path = os.getcwd()
+        dts_url = AutomationScriptForSetupInstalltion.dts_url.format(git_username,token)
         print("\n📍current path : "+str(path))
-        CommonMethodExecution.run_command(["git", "clone", self.dts_url], "Cloning DTS repository")
+        CommonMethodExecution.run_command(["git", "clone", dts_url], "Cloning DTS repository")
         os.chdir("networking.dataplane.dpdk.dts.local.upstream")
         os.chdir("dep")
         
-    def clone_dpdk_repo(self):
+    def clone_dpdk_repo(DPDK_FILE_STATUS=False,DPDK_FILE_PATH = ""):
 
         """
         Clones the public DPDK repository and checks out a specific version.
         """
-        CommonMethodExecution.run_command(["git", "clone", self.dpdk_url], "Cloning DPDK repository")
+        if DPDK_FILE_STATUS == False:
+            dpdkurl = AutomationScriptForSetupInstalltion.dpdk_url
+            CommonMethodExecution.run_command(["git", "clone",dpdkurl ], "Cloning DPDK repository")
+            DPDK_FILE_PATH = "dpdk.tar.gz"
+            
 
-        CommonMethodExecution.run_command(["tar", "-czvf", "dpdk.tar.gz", "dpdk/"],"taring dpdk file")
+        CommonMethodExecution.run_command(["tar", "-czvf", DPDK_FILE_PATH, "dpdk/"],"taring dpdk file")
         path = os.getcwd()
         print("\n📍current path : "+str(path))
         os.chdir("dpdk")
