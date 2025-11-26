@@ -51,17 +51,27 @@ class EnvValidator:
         if os.environ.get("DTS_INSTALLATION_REQUIRED","").upper() == "TRUE" and(
             not os.environ.get("GIT_USERNAME") or 
             not os.environ.get("GIT_TOKEN") or
-            not os.environ.get("DTS_INSTALLATION_PATH")
+            not os.environ.get("DTS_INSTALLATION_PATH") or
+            not os.environ.get("UPDATE_AUTOMATICALLY_PORTS_CRBS_EXECUTION") 
             ):
 
             mess = (f"✅ If DTS_INSTALLATION_REQUIRED is set to TRUE, these variables are required.\n"
                     f"GIT_USERNAME : {message_list["GIT_USERNAME"]}\n"
                     f"GIT_TOKEN : {message_list["GIT_TOKEN"]}\n"
                     f"DTS_INSTALLATION_PATH : {message_list["DTS_INSTALLATION_PATH"]}\n"
-                    f"DTS_RUN : {message_list["DTS_RUN"]}"
+                    f"DTS_RUN : {message_list["DTS_RUN"]}\n"
+                    f"UPDATE_AUTOMATICALLY_PORTS_CRBS_EXECUTION : {message_list["DTS_RUN"]}\n"
                    
                     )
             missing_vars.append(mess)
+        if os.environ.get("DTS_INSTALLATION_REQUIRED","").upper() == "FALSE" and(
+            os.environ.get("UPDATE_AUTOMATICALLY_PORTS_CRBS_EXECUTION","").upper() =="TRUE") and(
+            not os.environ.get("DTS_INSTALLATION_PATH")
+            ):
+
+            mess = "Automatic update of CRBS.CFG, PORTS.CFG, and EXECUTION.CFG is enabled (UPDATE_AUTOMATICALLY_PORTS_CRBS_EXECUTION=TRUE)\n REQUIRED : DTS_INSTALLATION_PATH \n\n Exampls /root/dts_setup/networking.dataplane.dpdk.dts.local.upstreamg \n\n"
+            missing_vars.append(mess)
+
         # Final validation
         if missing_vars:
             error_message = "\n".join(missing_vars)
@@ -84,6 +94,7 @@ all_required_variable = [
     ["GIT_USERNAME", False, "Git username required to access private repositories."],
     ["GIT_TOKEN", False, "GitHub token required for authentication and secure repository access."],
     ["DTS_RUN", False, "Determines whether DTS should be executed (default is FALSE)."],
+    ["UPDATE_AUTOMATICALLY_PORTS_CRBS_EXECUTION", False, "Set to TRUE to automatically update CRBS.CFG, PORTS.CFG, and EXECUTION.CFG based on system configuration; set to FALSE to disable automatic updates."],
     # ["QAT_DRIVER_PATH", True,
     #  "Path to the QAT driver archive (e.g., QAT20.L.1.2.30-00109.tar.gz) used for updating QAT examples."],
     # ["FIPS_TAR_FILE_PATH", True, "Path to the FIPS tarball (e.g., fips.tar.gz) for cryptographic validation."],
@@ -167,39 +178,8 @@ def main():
                     }
                 }
             )
-        
-        # STEP 4 :  'HAVE TO UNCOMMENT AFTER DTS SETUP'
-        # # FETCHING BUS INFO DETAILS
-        # interface_man_obj  = InterfaceManager(error_logs= error_logs)
 
-        # statement = interface_man_obj.process_all_interfaces()
-        # up_interface = []
-        # down_inteface = []
-        # up_interface += statement["up_interface"]
-        # down_inteface += statement['down_interface']
-
-        # if len(up_interface) <=0:
-        #     CommonSetupCheck.print_separator("⚠️ Attempted to enable the interface, but it could not be brought UP.")
-        
-        # STEP 5
-        # Mapping bus info into 
-        # print("🧩 Initializing PairingManagerInfo object...")
-        # pariting_obj = PairingManagerInfo()
-
-        # print("\n🔍 Fetching Interface and Bus Pairing Information...\n")
-        # pariting_obj.fetchingInterFacePairingInfo()
-
-        # print("\n🔗 Fetching Interface Connection Details...\n")
-        # pariting_obj.fetchingPairDetailsFromInterface()
-
-        # print("\nMapping Interface With Bus Info")
-        # interface_details = pariting_obj.mapInterfaceToBus()
-
-        # print(interface_details)
-    
-
-
-        # STEP 6: Prepare environment and clone repositories
+        # STEP 4: Prepare environment and clone repositories
         if os.environ.get("DTS_INSTALLATION_REQUIRED", "FALSE").upper() == "TRUE":
             dts_setup_path = os.environ.get("DTS_INSTALLATION_PATH")
             dpdk_file_status = os.environ.get("DPDK_FILE_STATUS", "FALSE").upper() == "TRUE"
@@ -238,6 +218,42 @@ def main():
                 DPDK_FILE_STATUS = os.environ.get("DPDK_FILE_STATUS").upper() == "TRUE" ,
                 DPDK_FILE_PATH = os.environ.get("DPDK_FILE_PATH","")
             )
+            os.chdir("..")
+            dpdk_file_path = os.getcwd()
+
+            print("PATH EXACT :",dpdk_file_path)
+
+
+
+        # IF step 5 : 
+        if os.environ.get("UPDATE_AUTOMATICALLY_PORTS_CRBS_EXECUTION","").upper() == True:
+            # FETCHING BUS INFO DETAILS
+            interface_man_obj  = InterfaceManager(error_logs= error_logs)
+
+            statement = interface_man_obj.process_all_interfaces()
+            up_interface = []
+            down_inteface = []
+            up_interface += statement["up_interface"]
+            down_inteface += statement['down_interface']
+
+            if len(up_interface) <=0:
+                CommonSetupCheck.print_separator("⚠️ Attempted to enable the interface, but it could not be brought UP.")
+            # Mapping bus info into 
+            print("🧩 Initializing PairingManagerInfo object...")
+            pariting_obj = PairingManagerInfo()
+
+            print("\n🔍 Fetching Interface and Bus Pairing Information...\n")
+            pariting_obj.fetchingInterFacePairingInfo()
+
+            print("\n🔗 Fetching Interface Connection Details...\n")
+            pariting_obj.fetchingPairDetailsFromInterface()
+
+            print("\nMapping Interface With Bus Info")
+            interface_details = pariting_obj.mapInterfaceToBus()
+
+            print(interface_details)
+    
+
 
 
         # CHECK FOR CRYPTO DRIVER :
