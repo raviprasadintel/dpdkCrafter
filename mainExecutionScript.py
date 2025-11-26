@@ -27,12 +27,11 @@ class EnvValidator:
         missing_vars = []
         optional_missing = []
 
-        message = {}
+        message_list = {}
         # First pass: check required variables
         for var_name, is_required, message in var_list:
-            print(var_name,type(var_name))
             value = os.environ.get(var_name)
-            message[var_name] = message
+            message_list[var_name] = message
             if is_required and not value:
                 missing_vars.append(f"{var_name}: {message}")
             elif not is_required and not value:
@@ -41,13 +40,13 @@ class EnvValidator:
         # Conditional checks
         dpdk_file_status = os.environ.get("DPDK_FILE_STATUS", "").upper()
         if dpdk_file_status == "TRUE" and not os.environ.get("DPDK_FILE_PATH"):
-            missing_vars.append(message["DPDK_FILE_PATH"])
+            missing_vars.append(message_list["DPDK_FILE_PATH"])
 
         if os.environ.get("FIRMWARE_UPDATE_REQUIRED", "").upper() == "TRUE" and not os.environ.get("FIRMWARE_PATH"):
-            missing_vars.append(message["FIRMWARE_PATH"])
+            missing_vars.append(message_list["FIRMWARE_PATH"])
 
         if os.environ.get("DRIVER_INSTALL_REQUIRED", "").upper() == "TRUE" and not os.environ.get("DRIVER_PATH"):
-            missing_vars.append(message["DRIVER_PATH"])
+            missing_vars.append(message_list["DRIVER_PATH"])
         
         if os.environ.get("DTS_INSTALLATION_REQUIRED","").upper() == "TRUE" and(
             not os.environ.get("GIT_USERNAME") or 
@@ -57,10 +56,10 @@ class EnvValidator:
             ):
 
             mess = (f"✅ If DTS_INSTALLATION_REQUIRED is set to TRUE, these variables are required."
-                    f"GIT_USERNAME : {message["GIT_USERNAME"]}"
-                    f"GIT_TOKEN : {message["GIT_TOKEN"]}"
-                    f"DTS_INSTALLATION_PATH : {message["DTS_INSTALLATION_PATH"]}"
-                    f"DTS_RUN : {message["DTS_RUN"]}"
+                    f"GIT_USERNAME : {message_list["GIT_USERNAME"]}"
+                    f"GIT_TOKEN : {message_list["GIT_TOKEN"]}"
+                    f"DTS_INSTALLATION_PATH : {message_list["DTS_INSTALLATION_PATH"]}"
+                    f"DTS_RUN : {message_list["DTS_RUN"]}"
                    
                     )
             missing_vars.append(mess)
