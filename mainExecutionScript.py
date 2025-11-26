@@ -27,9 +27,11 @@ class EnvValidator:
         missing_vars = []
         optional_missing = []
 
+        message = {}
         # First pass: check required variables
         for var_name, is_required, message in var_list:
             value = os.environ.get(var_name)
+            message[var_name] = message
             if is_required and not value:
                 missing_vars.append(f"{var_name}: {message}")
             elif not is_required and not value:
@@ -38,14 +40,29 @@ class EnvValidator:
         # Conditional checks
         dpdk_file_status = os.environ.get("DPDK_FILE_STATUS", "").upper()
         if dpdk_file_status == "TRUE" and not os.environ.get("DPDK_FILE_PATH"):
-            missing_vars.append("DPDK_FILE_PATH: Required because DPDK_FILE_STATUS is TRUE.")
+            missing_vars.append(message["DPDK_FILE_PATH"])
 
         if os.environ.get("FIRMWARE_UPDATE_REQUIRED", "").upper() == "TRUE" and not os.environ.get("FIRMWARE_PATH"):
-            missing_vars.append("FIRMWARE_PATH: Required because FIRMWARE_UPDATE_REQUIRED is TRUE.")
+            missing_vars.append(message["FIRMWARE_PATH"])
 
         if os.environ.get("DRIVER_INSTALL_REQUIRED", "").upper() == "TRUE" and not os.environ.get("DRIVER_PATH"):
-            missing_vars.append("DRIVER_PATH: Required because DRIVER_INSTALL_REQUIRED is TRUE.")
+            missing_vars.append(message["DRIVER_PATH"])
+        
+        if os.environ.get("DTS_INSTALLATION_REQUIRED","").upper() == "TRUE" and(
+            not os.environ.get("GIT_USERNAME") or 
+            not os.environ.get("GIT_TOKEN") or
+            not os.environ.get("DTS_INSTALLATION_PATH") or
+            not os.environ.get("DTS_RUN")
+            ):
 
+            mess = (f"✅ If DTS_INSTALLATION_REQUIRED is set to TRUE, these variables are required."
+                    f"GIT_USERNAME : {message["GIT_USERNAME"]}"
+                    f"GIT_TOKEN : {message["GIT_TOKEN"]}"
+                    f"DTS_INSTALLATION_PATH : {message["DTS_INSTALLATION_PATH"]}"
+                    f"DTS_RUN : {message["DTS_RUN"]}"
+                   
+                    )
+            missing_vars.append(mess)
         # Final validation
         if missing_vars:
             error_message = "\n".join(missing_vars)
@@ -57,14 +74,17 @@ class EnvValidator:
 
 
 all_required_variable = [
-    # ["GIT_USERNAME", True, "Git username required to access private repositories."],
-    # ["GIT_TOKEN", True, "GitHub token required for authentication and secure repository access."],
-    # ["DPDK_FILE_STATUS", True,
-    #  "If TRUE, use the DPDK file for installation; otherwise clone from the repository. "
-    #  "If TRUE, DPDK_FILE_PATH must be provided."],
-    # ["DPDK_FILE_PATH", False, "Path to the DPDK tarball used for installation (required if DPDK_FILE_STATUS is TRUE)."],
-    # ["DTS_INSTALLATION_PATH", True, "Path where the DTS (DPDK Test Suite) is installed."],
-    # ["DTS_RUN", False, "Determines whether DTS should be executed (default is FALSE)."],
+    ["DPDK_FILE_STATUS", True,
+     "If TRUE, use the DPDK file for installation; otherwise clone from the repository. "
+     "If TRUE, DPDK_FILE_PATH must be provided."],
+    ["DPDK_FILE_PATH", False, "Path to the DPDK tarball used for installation (required if DPDK_FILE_STATUS is TRUE)."],
+
+    # For Dts setup this thing is required 
+    ["DTS_INSTALLATION_REQUIRED", True,"Set to TRUE if DTS installation is required; FALSE to skip installation."],
+    ["DTS_INSTALLATION_PATH", False, "Path where the DTS (DPDK Test Suite) is installed."],
+    ["GIT_USERNAME", False, "Git username required to access private repositories."],
+    ["GIT_TOKEN", False, "GitHub token required for authentication and secure repository access."],
+    ["DTS_RUN", False, "Determines whether DTS should be executed (default is FALSE)."],
     # ["QAT_DRIVER_PATH", True,
     #  "Path to the QAT driver archive (e.g., QAT20.L.1.2.30-00109.tar.gz) used for updating QAT examples."],
     # ["FIPS_TAR_FILE_PATH", True, "Path to the FIPS tarball (e.g., fips.tar.gz) for cryptographic validation."],
@@ -87,9 +107,10 @@ def main():
     1. Update firmware.
     2. Update driver
     3. Install required packages
-    4. Prepare environment and clone repositories
-    5. Fetch interface pairing info and map bus details
-    6. Configure DUT ports
+    4. Trying to make interface UP 
+    5. Mapping Inteerface with, bus details using `DMESG -C`
+    6. Prepare environment and clone repositories
+    7. Configure DUT ports
     """
 
     error_logs = []
@@ -118,7 +139,7 @@ def main():
                 }
             )
 
-        # STEP 1 :
+        # STEP 2 :
         # DRIVER UPDATE :
         if os.environ.get("DRIVER_INSTALL_REQUIRED","").upper() == "TRUE":
             statement = FirmwareDriverInstallation.driver_update(driver_path = os.environ.get("DRIVER_PATH"),error_logs= error_logs)
@@ -134,7 +155,7 @@ def main():
                 }
             )
 
-        # STEP 2 :
+        # STEP 3 :
         # APT PACKAGES INSTALL
         if os.environ.get("APT_PACKAGES_INSTALL_REQUIRED","").upper() == "TRUE":
             statement = PackageInstalltion.install_required_packages(os_check)
@@ -148,7 +169,7 @@ def main():
                 }
             )
         
-        # STEP 3 : 
+        # STEP 4 : 
         # # FETCHING BUS INFO DETAILS
         interface_man_obj  = InterfaceManager(error_logs= error_logs)
 
@@ -161,6 +182,8 @@ def main():
         if len(up_interface) <=0:
             CommonSetupCheck.print_separator("⚠️ Attempted to enable the interface, but it could not be brought UP.")
         
+        # STEP 5
+        # Mapping bus info into
         print("🧩 Initializing PairingManagerInfo object...")
         pariting_obj = PairingManagerInfo()
 
@@ -176,7 +199,31 @@ def main():
         print(interface_details)
     
 
-        # 
+
+        # STEP 6: Prepare environment and clone repositories
+        if os.environ.get("DTS_INSTALLATION_REQUIRED", "FALSE").upper() == "TRUE":
+            dts_setup_path = os.environ.get("DTS_INSTALLATION_PATH")
+            dpdk_file_status = os.environ.get("DPDK_FILE_STATUS", "FALSE").upper() == "TRUE"
+            dpdk_file_path = os.environ.get("DPDK_FILE_PATH", "")
+
+            CommonSetupCheck.print_separator("📦 DTS Installation Required")
+
+            
+            # ✅ Check if DTS setup path exists
+            if os.path.exists(dts_setup_path):
+                CommonSetupCheck.print_separator(f"✅ DTS setup path exists: {dts_setup_path}")
+            else:
+                CommonSetupCheck.print_separator(f"⚠️ DTS setup path not found. Creating: {dts_setup_path}")
+
+            if dpdk_file_status:
+                print(f"🔍 Checking DPDK file path: {dpdk_file_path}")
+                if not os.path.exists(dpdk_file_path):
+                    CommonSetupCheck.print_separator("⚠️ Provided DPDK path is invalid. Proceeding with cloning DPDK repository...")
+                else:
+                    print("✅ Valid DPDK file path found.")
+            else:
+                CommonSetupCheck.print_separator("ℹ️ DPDK file status is FALSE. Proceeding with cloning DPDK repository...")
+
 
         # CHECK FOR CRYPTO DRIVER :
         # # CRYPTO SETTING : Execution
