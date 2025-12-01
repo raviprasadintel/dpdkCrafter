@@ -269,7 +269,7 @@ class PackageInstalltion:
                 ["sudo", "timedatectl", "set-ntp", "false"],
                 ["sudo", "timedatectl", "set-time", current_time],
                 ["sudo", "timedatectl", "set-ntp", "true"],
-                [installer_name, "update"],
+                [installer_name, "update","-y"],
                 [installer_name, "install", "-y", "gcc"],
                 [installer_name, "install", "-y", "build-essential"],
                 [installer_name, "install", "-y", "meson"],
