@@ -129,12 +129,11 @@ def main():
     error_logs = []
     conclusion = []
     try:
-        print("\n🚀 Starting Setup Scripts...\n")
+        CommonSetupCheck.print_separator("🚀 Starting Setup Scripts...\n\n",header=False)
         # STEP 0 :
         # OS SYSTEM -: CHECK
         CommonSetupCheck.print_separator("CURRENT SYSTEM OS CHECK")
         os_check = CommonSetupCheck.check_os()
-        CommonSetupCheck.print_separator("CURRENT SYSTEM OS CHECK SUCCESSFULL")
         dts_setup_path = os.environ.get("DTS_INSTALLATION_PATH","")
         # STEP 1 :
         # FIRMWARE INSTALLATION :
