@@ -1,5 +1,5 @@
 import os
-import re
+import time
 import subprocess
 import traceback
 from datetime import datetime
@@ -259,10 +259,12 @@ class PackageInstalltion:
             current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             os_name = os_system.get("os_name","LINUX").strip().lower()
             installer_name = "apt"
-            if os_name == "openeuler":
+            if  "openeuler" in os_name.lower():
                 installer_name = "yum"
-            elif os_name == "ubuntu":
+            elif "ubuntu" in os_name.lower():
                 installer_name = "apt"
+            elif "fedora" in os_name.lower():
+                installer_name = "yum"
             apt_packages = [
                 ["sudo", "timedatectl", "set-ntp", "false"],
                 ["sudo", "timedatectl", "set-time", current_time],
@@ -285,7 +287,6 @@ class PackageInstalltion:
                 [installer_name, "install", "-y", "pkg-config"],
                 [installer_name, "install", "-y", "lldpad"]
             ]
-
             pip_packages = [
                 ["pip3", "install", "xlrd", "--break-system-packages"],
                 ["pip3", "install", "xlwt", "--break-system-packages"],
@@ -362,6 +363,9 @@ class AutomationScriptForSetupInstalltion:
         path = os.getcwd()
         print("\n📍current path : "+str(path))
         os.chdir("dpdk")
+        CommonMethodExecution.run_command(["cat","VERSION"], "CHECKING DPDK VERSION")
+        print("TIME SLEEP 5 SEC ")
+        time.sleep(5)
         CommonMethodExecution.run_command(["git", "checkout","-b", "v25.03-rc3"], "Checking out DPDK version v25.03-rc3")
         os.chdir("..")
 
