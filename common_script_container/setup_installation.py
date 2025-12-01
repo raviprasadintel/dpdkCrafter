@@ -294,6 +294,11 @@ class PackageInstalltion:
                 ["pip3", "install", "pyelftools", "--break-system-packages"],
 
             ]
+            if "fedora" in os_name.lower():
+                pip_packages.append(["pip3", "install","gitpython"])
+                pip_packages.append(["pip3","install","texttable"])
+                pip_packages.append(["pip3","install","jinja2"])
+                pip_packages.append(["pip3","install","texttables"])
 
             for pkg in apt_packages:
                 CommonMethodExecution.run_command(pkg, f"Installing {' '.join(pkg[3:]) if len(pkg) > 3 else pkg[1]}")
