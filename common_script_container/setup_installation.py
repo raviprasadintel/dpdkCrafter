@@ -290,8 +290,13 @@ class PackageInstalltion:
                 ["pip3", "install", "pyelftools", "--break-system-packages"],
 
             ]
+
             if "fedora" in os_name.lower():
-                apt_packages = [["sudo", "yum", "update", "-y", "--skip-broken"]] + apt_packages
+                apt_packages = [["sudo", "yum", "update", "-y", "--skip-broken"],
+                                [installer_name, "install", "-y", "meson"]
+                                ,[installer_name, "install", "-y", "python3-scapy"],
+                                [installer_name, "install", "-y", "python3-ninja"],
+                                ] 
                 pip_packages.append(["pip3", "install","gitpython"])
                 pip_packages.append(["pip3","install","texttable"])
                 pip_packages.append(["pip3","install","jinja2"])
