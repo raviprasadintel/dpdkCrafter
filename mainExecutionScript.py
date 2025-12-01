@@ -198,10 +198,10 @@ def main():
             
             # ✅ Check if DTS setup path exists
             if os.path.exists(dts_setup_path):
-                CommonSetupCheck.print_separator(f"✅ DTS setup path exists: {dts_setup_path}")
+                CommonSetupCheck.print_separator(f"\n✅ DTS setup path exists: {dts_setup_path}\n",header=False)
             else:
                 dts_setup_path = os.getcwd()
-                CommonSetupCheck.print_separator(f"⚠️ DTS setup path not found. Creating in same Directory : {dts_setup_path}")
+                CommonSetupCheck.print_separator(f"\n⚠️ DTS setup path not found. Creating in same Directory : {dts_setup_path}\n",header=False)
 
             if dpdk_file_status:
                 print(f"🔍 Checking DPDK file path: {dpdk_file_path}")
@@ -231,7 +231,7 @@ def main():
                     }
                 }
             )
-            dts_setup  = statement[0].upper() == "SUCCESS"
+            dts_setup  = statement[0].upper() != "SUCCESS"
             if statement[0].upper() == "SUCCESS":
                 statement = AutomationScriptForSetupInstalltion.clone_dpdk_repo(
                     DPDK_FILE_STATUS = os.environ.get("DPDK_FILE_STATUS").upper() == "TRUE" ,
@@ -250,7 +250,7 @@ def main():
                 # COMMING OUT DEP FOLDER
                 os.chdir("..")
                 dpdk_file_path = os.getcwd()
-                dpdk_setup = statement[0].upper() == "SUCCESS"
+                dpdk_setup = statement[0].upper() != "SUCCESS"
         if (os.environ.get("DTS_INSTALLATION_REQUIRED", "FALSE").upper() == "TRUE")and(dts_setup or dpdk_setup):
             conclusion_print(conclusion)
             return 
