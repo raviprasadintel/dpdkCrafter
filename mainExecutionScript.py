@@ -356,7 +356,7 @@ def main():
         print(error_msg)
         return False, error_msg
     
-    CommonSetupCheck.print_separator("Error Throw :\n")
+    CommonSetupCheck.print_separator("Error Throw :\n",header=False)
     for errors in error_logs:
         print(errors)
 
