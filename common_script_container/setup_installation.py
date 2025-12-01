@@ -266,10 +266,6 @@ class PackageInstalltion:
             elif "fedora" in os_name.lower():
                 installer_name = "yum"
             apt_packages = [
-                ["sudo", "timedatectl", "set-ntp", "false"],
-                ["sudo", "timedatectl", "set-time", current_time],
-                ["sudo", "timedatectl", "set-ntp", "true"],
-                [installer_name, "update","-y"],
                 [installer_name, "install", "-y", "gcc"],
                 [installer_name, "install", "-y", "build-essential"],
                 [installer_name, "install", "-y", "meson"],
@@ -295,10 +291,19 @@ class PackageInstalltion:
 
             ]
             if "fedora" in os_name.lower():
+                apt_packages = [["sudo", "yum", "update", "-y", "--skip-broken"]] + apt_packages
                 pip_packages.append(["pip3", "install","gitpython"])
                 pip_packages.append(["pip3","install","texttable"])
                 pip_packages.append(["pip3","install","jinja2"])
                 pip_packages.append(["pip3","install","texttables"])
+            
+            if "ubunto" in os_name.lower():
+                apt_packages = [
+                    ["sudo", "timedatectl", "set-ntp", "false"],
+                    ["sudo", "timedatectl", "set-time", current_time],
+                    ["sudo", "timedatectl", "set-ntp", "true"],
+                    [installer_name, "update","-y"],
+                ]+ apt_packages
 
             for pkg in apt_packages:
                 CommonMethodExecution.run_command(pkg, f"Installing {' '.join(pkg[3:]) if len(pkg) > 3 else pkg[1]}")
