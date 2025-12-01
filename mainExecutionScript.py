@@ -342,7 +342,7 @@ def main():
         return False, error_msg
     except subprocess.CalledProcessError as e:
         error_msg = f"❌ Subprocess error: {e.output if e.output else str(e)}"
-        error_logs({
+        error_logs.append({
             "errors": error_msg,
             "traceback": traceback.format_exc()
         })
@@ -350,12 +350,16 @@ def main():
         return False, error_msg
     except Exception as e:
         error_msg = f"❌ Unexpected error: {str(e)}"
-        error_logs({
+        error_logs.append({
             "errors": error_msg,
             "traceback": traceback.format_exc()
         })
         print(error_msg)
         return False, error_msg
+    
+    CommonSetupCheck.print_separator("Error Throw :\n")
+    for errors in error_logs:
+        print(errors)
 
     # print("\n✅ Script Execution Completed Successfully.\nDisplaying - Errors Logs\n")
 
