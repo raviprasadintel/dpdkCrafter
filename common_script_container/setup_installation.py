@@ -316,7 +316,7 @@ class PackageInstalltion:
             for pkg in pip_packages:
                 CommonMethodExecution.run_command(pkg, f"Installing Python package {pkg[2]}")
             packages_installer = True
-            status = "SUCCESSFUL"
+            status = "SUCCESS"
         except subprocess.CalledProcessError as e:
             error_msg = f"❌ Subprocess error: {e.output if e.output else str(e)}"
             error_logs.append({"errors": error_msg, "traceback": traceback.format_exc()})
@@ -356,33 +356,41 @@ class AutomationScriptForSetupInstalltion:
         """
         Clones the private DTS repository using GitHub credentials.
         """
-        path = os.getcwd()
-        dts_url = AutomationScriptForSetupInstalltion.dts_url.format(git_username,token)
-        print("\n📍current path : "+str(path))
-        CommonMethodExecution.run_command(["git", "clone", dts_url], "Cloning DTS repository")
-        os.chdir("networking.dataplane.dpdk.dts.local.upstream")
-        os.chdir("dep")
+        try:
+            path = os.getcwd()
+            dts_url = AutomationScriptForSetupInstalltion.dts_url.format(git_username,token)
+            print("\n📍current path : "+str(path))
+            CommonMethodExecution.run_command(["git", "clone", dts_url], "Cloning DTS repository")
+            os.chdir("networking.dataplane.dpdk.dts.local.upstream")
+            os.chdir("dep")
+            return "SUCCESS",""
+        except Exception as x:
+            return "FAILURE",str(x)
         
     def clone_dpdk_repo(DPDK_FILE_STATUS=False,DPDK_FILE_PATH = ""):
 
         """
         Clones the public DPDK repository and checks out a specific version.
         """
-        if DPDK_FILE_STATUS == False:
-            dpdkurl = AutomationScriptForSetupInstalltion.dpdk_url
-            CommonMethodExecution.run_command(["git", "clone",dpdkurl ], "Cloning DPDK repository")
-            DPDK_FILE_PATH = "dpdk.tar.gz"
-            
+        try:
+            if DPDK_FILE_STATUS == False:
+                dpdkurl = AutomationScriptForSetupInstalltion.dpdk_url
+                CommonMethodExecution.run_command(["git", "clone",dpdkurl ], "Cloning DPDK repository")
+                DPDK_FILE_PATH = "dpdk.tar.gz"
+                
 
-        CommonMethodExecution.run_command(["tar", "-czvf", DPDK_FILE_PATH, "dpdk/"],"taring dpdk file")
-        path = os.getcwd()
-        print("\n📍current path : "+str(path))
-        os.chdir("dpdk")
-        CommonMethodExecution.run_command(["cat","VERSION"], "CHECKING DPDK VERSION")
-        print("TIME SLEEP 5 SEC ")
-        time.sleep(5)
-        CommonMethodExecution.run_command(["git", "checkout","-b", "v25.03-rc3"], "Checking out DPDK version v25.03-rc3")
-        os.chdir("..")
+            CommonMethodExecution.run_command(["tar", "-czvf", DPDK_FILE_PATH, "dpdk/"],"taring dpdk file")
+            path = os.getcwd()
+            print("\n📍current path : "+str(path))
+            os.chdir("dpdk")
+            CommonMethodExecution.run_command(["cat","VERSION"], "CHECKING DPDK VERSION")
+            print("TIME SLEEP 5 SEC ")
+            time.sleep(5)
+            CommonMethodExecution.run_command(["git", "checkout","-b", "v25.03-rc3"], "Checking out DPDK version v25.03-rc3")
+            os.chdir("..")
+            return "SUCCESS",""
+        except Exception as x:
+            return "FAILURE",str(x)
 
     
 

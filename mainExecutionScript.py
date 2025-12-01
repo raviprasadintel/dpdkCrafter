@@ -107,6 +107,10 @@ all_required_variable = [
 ]
 
 
+def conclusion_print(conclusion):
+    CommonSetupCheck.print_separator("PRINTING CONCLUSION")
+    for con in conclusion:
+        print(con)
 
 
 def main():
@@ -172,6 +176,7 @@ def main():
         if os.environ.get("APT_PACKAGES_INSTALL_REQUIRED","").upper() == "TRUE":
             CommonSetupCheck.print_separator("PACKAGE INSTALLATION STARTED ...")
             statement = PackageInstalltion.install_required_packages(os_check)
+            status_emoji = "✅" if statement[1].upper() == "SUCCESS" else "❌"
             conclusion.append(
                 {
                     "APT_PACKAGE_INSTALL_STATUS": {
@@ -183,6 +188,8 @@ def main():
             )
 
         # STEP 4: Prepare environment and clone repositories
+        dts_setup = False
+        dpdk_setup = False
         if os.environ.get("DTS_INSTALLATION_REQUIRED", "FALSE").upper() == "TRUE":
             dpdk_file_status = os.environ.get("DPDK_FILE_STATUS", "FALSE").upper() == "TRUE"
             dpdk_file_path = os.environ.get("DPDK_FILE_PATH", "")
@@ -214,14 +221,40 @@ def main():
             os.makedirs("dts_setup",exist_ok=True)
             dts_setup_path = os.path.join(dts_setup_path,"dts_setup")
             os.chdir(dts_setup_path)
-            AutomationScriptForSetupInstalltion.clone_dts_repo(os.environ.get("GIT_USERNAME"),os.environ.get("GIT_TOKEN"))
-            AutomationScriptForSetupInstalltion.clone_dpdk_repo(
-                DPDK_FILE_STATUS = os.environ.get("DPDK_FILE_STATUS").upper() == "TRUE" ,
-                DPDK_FILE_PATH = os.environ.get("DPDK_FILE_PATH","")
+            statement =AutomationScriptForSetupInstalltion.clone_dts_repo(os.environ.get("GIT_USERNAME"),os.environ.get("GIT_TOKEN"))
+            status_emoji = "✅" if statement[0].upper() == "SUCCESS" else "❌"
+            conclusion.append(
+                {
+                    "DTS-CLONING": {
+                        "UPDATED": f"{'✔️' if statement[0] else '❌'}",
+                        "STATUS": f"{status_emoji} {statement[1]}",
+                        "ERRORS": statement[1] if statement[1] else "None"
+                    }
+                }
             )
-            # COMMING OUT DEP FOLDER
-            os.chdir("..")
-            dpdk_file_path = os.getcwd()
+            dts_setup  = statement[0].upper() == "SUCCESS"
+            if statement[0].upper() == "SUCCESS":
+                statement = AutomationScriptForSetupInstalltion.clone_dpdk_repo(
+                    DPDK_FILE_STATUS = os.environ.get("DPDK_FILE_STATUS").upper() == "TRUE" ,
+                    DPDK_FILE_PATH = os.environ.get("DPDK_FILE_PATH","")
+                )
+                status_emoji = "✅" if statement[0].upper() == "SUCCESS" else "❌"
+                conclusion.append(
+                    {
+                        "DPDK-CLONING": {
+                            "UPDATED": f"{'✔️' if statement[0] else '❌'}",
+                            "STATUS": f"{status_emoji} {statement[1]}",
+                            "ERRORS": statement[1] if statement[1] else "None"
+                        }
+                    }
+                )
+                # COMMING OUT DEP FOLDER
+                os.chdir("..")
+                dpdk_file_path = os.getcwd()
+                dpdk_setup = statement[0].upper() == "SUCCESS"
+        if (os.environ.get("DTS_INSTALLATION_REQUIRED", "FALSE").upper() == "TRUE")and(dts_setup or dpdk_setup):
+            conclusion_print(conclusion)
+            return 
             
         # IF step 5 : 
         if os.environ.get("UPDATE_AUTOMATICALLY_PORTS_CRBS_EXECUTION","").upper() == "TRUE":
@@ -325,15 +358,12 @@ def main():
 
         #     ports_config_obj.update_ports(interface_details)
 
-
-        CommonSetupCheck.print_separator("PRINTING CONCLUSION")
-        for con in conclusion:
-            print(con)
-
-
-
-
-
+        CommonSetupCheck.print_separator("Error Throw :\n",header=False)
+        for errors in error_logs:
+            print(errors)
+        conclusion_print(conclusion)
+        return 
+            
 
     except FileNotFoundError as e:
         error_msg = f"❌ File not found: {str(e)}"
@@ -356,9 +386,7 @@ def main():
         print(error_msg)
         return False, error_msg
     
-    CommonSetupCheck.print_separator("Error Throw :\n",header=False)
-    for errors in error_logs:
-        print(errors)
+    
 
     # print("\n✅ Script Execution Completed Successfully.\nDisplaying - Errors Logs\n")
 
