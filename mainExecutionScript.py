@@ -281,6 +281,7 @@ def main():
             interface_details = pariting_obj.mapInterfaceToBus()
             print(interface_details)
 
+            print(dts_setup_path)
 
             # Configuring ports.cfg: 
             ports_config_obj = DutPortConfig(dts_setup_path)
