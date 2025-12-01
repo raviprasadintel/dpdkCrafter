@@ -218,6 +218,7 @@ def main():
                 CommonMethodExecution.run_command(["rm", "-rf", "dts_setup"], "REMOVING EXISTING DTS_SETUP")
             os.chdir(dts_setup_path)
             os.makedirs("dts_setup",exist_ok=True)
+            print("path verfication", os.getcwd())
             dts_setup_path = os.path.join(dts_setup_path,"dts_setup")
             os.chdir(dts_setup_path)
             statement =AutomationScriptForSetupInstalltion.clone_dts_repo(os.environ.get("GIT_USERNAME"),os.environ.get("GIT_TOKEN"))
@@ -232,6 +233,7 @@ def main():
                 }
             )
             dts_setup  = statement[0].upper() != "SUCCESS"
+            print("path verfication", os.getcwd())
             if statement[0].upper() == "SUCCESS":
                 statement = AutomationScriptForSetupInstalltion.clone_dpdk_repo(
                     DPDK_FILE_STATUS = os.environ.get("DPDK_FILE_STATUS").upper() == "TRUE" ,
@@ -250,6 +252,7 @@ def main():
                 # COMMING OUT DEP FOLDER
                 os.chdir("..")
                 dpdk_file_path = os.getcwd()
+                print("path verfication", os.getcwd())
                 dpdk_setup = statement[0].upper() != "SUCCESS"
         if (os.environ.get("DTS_INSTALLATION_REQUIRED", "FALSE").upper() == "TRUE")and(dts_setup or dpdk_setup):
             conclusion_print(conclusion)
