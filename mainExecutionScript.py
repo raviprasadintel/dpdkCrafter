@@ -89,7 +89,7 @@ all_required_variable = [
     ["DPDK_FILE_PATH", False, "Path to the DPDK tarball used for installation (required if DPDK_FILE_STATUS is TRUE)."],
 
     # For Dts setup this thing is required 
-    ["DTS_INSTALLATION_REQUIRED", True,"Set to TRUE if DTS installation is required; FALSE to skip installation."],
+    ["DTS_INSTALLATION_REQUIRED", False,"Set to TRUE if DTS installation is required; FALSE to skip installation."],
     ["DTS_INSTALLATION_PATH", False, "Path where the DTS (DPDK Test Suite) is installed."],
     ["GIT_USERNAME", False, "Git username required to access private repositories."],
     ["GIT_TOKEN", False, "GitHub token required for authentication and secure repository access."],
