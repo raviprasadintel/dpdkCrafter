@@ -325,7 +325,6 @@ class PackageInstalltion:
             error_msg = f"❌ Unexpected error: {str(e)}"
             error_logs.append({"errors": error_msg, "traceback": traceback.format_exc()})
         
-        CommonSetupCheck.print_separator("🚀 DRIVER EXECUTION COMPLETED")
         return packages_installer, status, error_logs
 
 
