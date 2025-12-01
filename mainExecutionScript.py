@@ -51,8 +51,7 @@ class EnvValidator:
         if os.environ.get("DTS_INSTALLATION_REQUIRED","").upper() == "TRUE" and(
             not os.environ.get("GIT_USERNAME") or 
             not os.environ.get("GIT_TOKEN") or
-            not os.environ.get("DTS_INSTALLATION_PATH") or
-            not os.environ.get("UPDATE_AUTOMATICALLY_PORTS_CRBS_EXECUTION") 
+            not os.environ.get("DTS_INSTALLATION_PATH") 
             ):
 
             mess = (f"✅ If DTS_INSTALLATION_REQUIRED is set to TRUE, these variables are required.\n"
