@@ -292,21 +292,51 @@ def main():
                 f"👤 Username   : {ports_config_obj.username}\n"
                 f"🔑 Password   : {'*' * len(ports_config_obj.password) if ports_config_obj.password else 'Not Set'}\n"
             )
-            ports_config_obj.update_ports(interface_details)
+            statement = ports_config_obj.update_ports(interface_details)
+
+            status_emoji = "✅" if statement[0].upper() == "SUCCESS" else "❌"
+            conclusion.append(
+                {
+                    "PORTS.CFG-UPDATE-STATUS": {
+                        "UPDATED": f"{'✔️' if statement[0] else '❌'}",
+                        "STATUS": f"{status_emoji} {statement[1]}",
+                        "ERRORS": statement[1] if statement[1] else "None"
+                    }
+                }
+            )
             # UPDATING : crbs.cfg
 
             crfs_file_obj = DutCrbsConfig(dts_setup_path) 
-            crfs_file_obj.updating_crbs_file(
+            statement = crfs_file_obj.updating_crbs_file(
             dut_ip = ports_config_obj.ip_address,
             dut_user = ports_config_obj.username,
             dut_passwd = ports_config_obj.password,
             tester_ip = ports_config_obj.ip_address,
             tester_passwd = ports_config_obj.password
             )
+            status_emoji = "✅" if statement[0].upper() == "SUCCESS" else "❌"
+            conclusion.append(
+                {
+                    "CRBS.CFG-UPDATE-STATUS": {
+                        "UPDATED": f"{'✔️' if statement[0] else '❌'}",
+                        "STATUS": f"{status_emoji} {statement[1]}",
+                        "ERRORS": statement[1] if statement[1] else "None"
+                    }
+                }
+            )
             # UPDATING Execution.cfg 
             executionObj = ExecutionCfgUpdate(dts_setup_path)
-            executionObj.update_execution_content(ports_config_obj.ip_address)
-
+            statement = executionObj.update_execution_content(ports_config_obj.ip_address)
+            status_emoji = "✅" if statement[0].upper() == "SUCCESS" else "❌"
+            conclusion.append(
+                {
+                    "EXECUTION.CFG-UPDATE-STATUS": {
+                        "UPDATED": f"{'✔️' if statement[0] else '❌'}",
+                        "STATUS": f"{status_emoji} {statement[1]}",
+                        "ERRORS": statement[1] if statement[1] else "None"
+                    }
+                }
+            )
 
 
         # CHECK FOR CRYPTO DRIVER :

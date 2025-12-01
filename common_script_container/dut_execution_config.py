@@ -118,6 +118,9 @@ class ExecutionCfgUpdate(CommonMethodExecution):
             updated_data = updated_data.strip()
 
             self.write_crbs_config(updated_data)
-        except Exception as e:
-            print(f"❌ Error while updating execution content: {e}")
+            return "SUCCESS","UPDATED"
+        except Exception as x:
+            print("\n\nException as x => ", x)
             traceback.print_exc()
+            return "FAILURE", str(x)
+

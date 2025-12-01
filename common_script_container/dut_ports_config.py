@@ -190,7 +190,9 @@ class DutPortConfig(CommonMethodExecution):
 
             # ✅ Step 12: Resume process
             print("✅ Awake and starting interface pairing check!\n")
+            return "SUCCESS","UPDATED"
         except Exception as x:
             print("\n\nException as x => ", x)
             traceback.print_exc()
+            return "FAILURE", str(x)
 # --------------------------------------------------------------------------------------------------

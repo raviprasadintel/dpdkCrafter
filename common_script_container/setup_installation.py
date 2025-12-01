@@ -363,8 +363,6 @@ class AutomationScriptForSetupInstalltion:
                 dpdkurl = AutomationScriptForSetupInstalltion.dpdk_url
                 CommonMethodExecution.run_command(["git", "clone",dpdkurl ], "Cloning DPDK repository")
                 DPDK_FILE_PATH = "dpdk.tar.gz"
-                
-
             CommonMethodExecution.run_command(["tar", "-czvf", DPDK_FILE_PATH, "dpdk/"],"taring dpdk file")
             path = os.getcwd()
             print("\n📍current path : "+str(path))

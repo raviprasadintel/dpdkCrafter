@@ -1,6 +1,7 @@
 import re
 import os
 import time
+import traceback
 from common_script_container.constant import CommonMethodExecution
 
 
@@ -60,49 +61,53 @@ class DutCrbsConfig(CommonMethodExecution):
         Extract and update the first DUT block from crbs_data.
         All other DUT blocks are ignored. Updates username and password if provided.
         """
+        try:
+            crbs_data =self.crbs_data  if self.crbs_data  else ""
 
-        crbs_data =self.crbs_data  if self.crbs_data  else ""
+            filter_crbs_data = ""
+            filter_status = 0
 
-        filter_crbs_data = ""
-        filter_status = 0
-
-    
-        # 🔍 Step 1: Iterate through lines to find the first DUT block
-        for line in crbs_data.splitlines():
-            # Match either [DUT IPx] or [IPv4]
-            matches = re.findall(r"\[DUT IP\d+\]|\[\d{1,3}(?:\.\d{1,3}){3}\]", line)
-            if matches:
-                filter_status += 1
-                
-            if filter_status > 1:
-                # Stop collecting after the first DUT block ends
-                break
-            filter_crbs_data += (line+"\n")
-
-        # 🛠️ Step 2: Update fields if username and password are provided
-        if dut_user:
-            filter_crbs_data = re.sub(r"dut_user=.*", f"dut_user={dut_user}", filter_crbs_data)
-        if dut_ip:
-            filter_crbs_data = re.sub(r"\[DUT IP1\].*", f"[{dut_ip}]", filter_crbs_data)
-            filter_crbs_data = re.sub(r"dut_ip=.*",f"dut_ip={dut_ip}",filter_crbs_data)
-        if dut_passwd:
-            filter_crbs_data = re.sub(r"dut_passwd=.*", f"dut_passwd={dut_passwd}", filter_crbs_data)
-        if tester_passwd:
-            filter_crbs_data = re.sub(r"tester_passwd=.*", f"tester_passwd={tester_passwd}", filter_crbs_data)
-        if tester_ip:
-            filter_crbs_data = re.sub(r"tester_ip=.*",f"tester_ip={tester_ip}", filter_crbs_data)
         
-        # 📄 Step 3: Display the updated block
-        print("📝 Updated DUT Configuration Block:\n")
-        for line in filter_crbs_data.splitlines():
-            print(line)
+            # 🔍 Step 1: Iterate through lines to find the first DUT block
+            for line in crbs_data.splitlines():
+                # Match either [DUT IPx] or [IPv4]
+                matches = re.findall(r"\[DUT IP\d+\]|\[\d{1,3}(?:\.\d{1,3}){3}\]", line)
+                if matches:
+                    filter_status += 1
+                    
+                if filter_status > 1:
+                    # Stop collecting after the first DUT block ends
+                    break
+                filter_crbs_data += (line+"\n")
 
-        # 😴 Step 5: Pause briefly to allow user to verify
-        print("\n\n😴 Sleeping for 3 seconds to allow verification of the updated configuration...\n")
-        time.sleep(3)
-        # ✅ Step 6: Resume process
-        print("✅ Awake and starting interface pairing check!\n")
-        
-        self.write_crbs_config(filter_crbs_data)
+            # 🛠️ Step 2: Update fields if username and password are provided
+            if dut_user:
+                filter_crbs_data = re.sub(r"dut_user=.*", f"dut_user={dut_user}", filter_crbs_data)
+            if dut_ip:
+                filter_crbs_data = re.sub(r"\[DUT IP1\].*", f"[{dut_ip}]", filter_crbs_data)
+                filter_crbs_data = re.sub(r"dut_ip=.*",f"dut_ip={dut_ip}",filter_crbs_data)
+            if dut_passwd:
+                filter_crbs_data = re.sub(r"dut_passwd=.*", f"dut_passwd={dut_passwd}", filter_crbs_data)
+            if tester_passwd:
+                filter_crbs_data = re.sub(r"tester_passwd=.*", f"tester_passwd={tester_passwd}", filter_crbs_data)
+            if tester_ip:
+                filter_crbs_data = re.sub(r"tester_ip=.*",f"tester_ip={tester_ip}", filter_crbs_data)
+            
+            # 📄 Step 3: Display the updated block
+            print("📝 Updated DUT Configuration Block:\n")
+            for line in filter_crbs_data.splitlines():
+                print(line)
 
+            # 😴 Step 5: Pause briefly to allow user to verify
+            print("\n\n😴 Sleeping for 3 seconds to allow verification of the updated configuration...\n")
+            time.sleep(3)
+            # ✅ Step 6: Resume process
+            print("✅ Awake and starting interface pairing check!\n")
+            
+            self.write_crbs_config(filter_crbs_data)
+            return "SUCCESS","UPDATED"
+        except Exception as x:
+            print("\n\nException as x => ", x)
+            traceback.print_exc()
+            return "FAILURE", str(x)
 # --------------------------------------------------------------------------------------------------
