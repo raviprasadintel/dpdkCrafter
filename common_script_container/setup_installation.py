@@ -292,7 +292,7 @@ class PackageInstalltion:
             ]
 
             if "fedora" in os_name.lower():
-                apt_packages = [["sudo", "yum", "update", "-y", "--skip-broken"],
+                apt_packages = [["yum", "update", "-y"],
                                 [installer_name, "install", "-y", "meson"]
                                 ,[installer_name, "install", "-y", "python3-scapy"],
                                 [installer_name, "install", "-y", "python3-ninja"],
@@ -332,19 +332,6 @@ class PackageInstalltion:
 class AutomationScriptForSetupInstalltion:
     dts_url = "https://{}:{}@github.com/intel-sandbox/networking.dataplane.dpdk.dts.local.upstream.git"
     dpdk_url = "https://github.com/DPDK/dpdk.git"
-    
-
-    # def creating_folder_setup(self,setup_file_name= "setup_firmware_driver"):
-
-    #     """
-    #     Creates a setup directory for firmware and driver extraction.
-    #     Changes working directory to the newly created folder.
-    #     """
-    #     print("📁 Creating folder for firmware and driver setup if it doesn't exist...")
-    #     os.makedirs(setup_file_name, exist_ok=True)
-    #     os.chdir(setup_file_name)
-    #     setup_file_path = os.getcwdb().decode()
-    #     return setup_file_path
     
 
     # ###################################   Dpdk and Dts Setup Script       ##################################################################
