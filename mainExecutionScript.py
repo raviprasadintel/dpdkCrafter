@@ -340,6 +340,8 @@ def main():
                 }
             )
 
+        if (os.environ.get("DTS_RUN","").upper() == "TRUE") and((os.environ.get("UPDATE_AUTOMATICALLY_PORTS_CRBS_EXECUTION","").upper() == "TRUE")or (os.environ.get("DTS_INSTALLATION_REQUIRED", "FALSE").upper() == "TRUE") ):
+            os.chdir(dts_setup_path)
 
         # CHECK FOR CRYPTO DRIVER :
         # # CRYPTO SETTING : Execution
