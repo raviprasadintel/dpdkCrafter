@@ -391,7 +391,7 @@ def main():
         #     ports_config_obj.update_ports(interface_details)
 
 
-        conclusion_print(conclusion)
+        conclusion_print(conclusion,error_logs)
          
             
 
