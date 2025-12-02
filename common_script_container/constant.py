@@ -207,7 +207,8 @@ class CommonSetupCheck:
     @staticmethod   
     def print_separator(val="",header =True):
         if header:
-            print("\n\n" + "-" * 50 +str(val)+ "-"*50 + "\n\n")
+            number = (100-len(val))// 2
+            print("\n\n" + "-" * number +str(val)+ "-"*number + "\n\n")
         else:
             print(val)
         
