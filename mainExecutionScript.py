@@ -107,7 +107,10 @@ all_required_variable = [
 ]
 
 
-def conclusion_print(conclusion):
+def conclusion_print(conclusion,error_logs):
+    CommonSetupCheck.print_separator("Error Throw :\n",header=False)
+    for errors in error_logs:
+        print(errors)
     CommonSetupCheck.print_separator("PRINTING CONCLUSION")
     for con in conclusion:
         print(con)
@@ -254,7 +257,7 @@ def main():
                 dts_setup_path = os.getcwd()
                 dpdk_setup = statement[0].upper() != "SUCCESS"
         if (os.environ.get("DTS_INSTALLATION_REQUIRED", "FALSE").upper() == "TRUE")and(dts_setup or dpdk_setup):
-            conclusion_print(conclusion)
+            conclusion_print(conclusion,error_logs)
             return 
             
         # IF step 5 : 
@@ -387,11 +390,9 @@ def main():
 
         #     ports_config_obj.update_ports(interface_details)
 
-        CommonSetupCheck.print_separator("Error Throw :\n",header=False)
-        for errors in error_logs:
-            print(errors)
+
         conclusion_print(conclusion)
-        return 
+         
             
 
     except FileNotFoundError as e:
