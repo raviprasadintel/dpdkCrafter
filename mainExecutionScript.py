@@ -82,7 +82,7 @@ class EnvValidator:
 
 
 all_required_variable = [
-    ["DPDK_FILE_STATUS", True,
+    ["DPDK_FILE_STATUS", False,
      "If TRUE, use the DPDK file for installation; otherwise clone from the repository. "
      "If TRUE, DPDK_FILE_PATH must be provided."],
     ["DPDK_FILE_PATH", False, "Path to the DPDK tarball used for installation (required if DPDK_FILE_STATUS is TRUE)."],
