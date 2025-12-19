@@ -235,7 +235,6 @@ def fetchching_bus_info(ssh,timeout=10):
     print("\n🔍 Fetching PCI Bus Info...\n")
     try:
         status, out, err = run_cmd(ssh,"lshw -c network -businfo", timeout=timeout)
-        print(status,out)
         if not status:
             return []
         
@@ -244,7 +243,6 @@ def fetchching_bus_info(ssh,timeout=10):
 
         parsed_info = []
         for line in lines.splitlines():
-            print(line)
             match = re.match(pattern, line.strip())
             if match:
                 bus, device, description = match.groups()
@@ -253,7 +251,7 @@ def fetchching_bus_info(ssh,timeout=10):
                     'device': device,
                     'description': description
                 })
-
+        print("bus info",parsed_info)
         bus_info = parsed_info
         return bus_info
     except Exception as e:
