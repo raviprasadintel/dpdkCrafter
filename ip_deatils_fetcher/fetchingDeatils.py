@@ -376,7 +376,7 @@ def process_hosts(hosts):
                 record["bus_info"] = fetchching_bus_info(ssh=ssh)
 
                 pair_info = fetchingPairDetailsFromInterface(ssh=ssh,interFaceDetails=interFaceDetails) 
-                record["pair_info"] = pair_info if pair_info else "Unable to detact Pair "
+                record["pair_info"] = pair_info if pair_info else "Unable to detect a pair. Please ensure the PCI address is listed under the kernel driver"
             else:
                 record["error"] = (record["error"] + "; " + logs).strip("; ")
 
