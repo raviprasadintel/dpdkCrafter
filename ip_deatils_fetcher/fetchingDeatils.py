@@ -246,14 +246,94 @@ def fetchching_bus_info(ssh,timeout=10):
                     'device': device,
                     'description': description
                 })
-        print("bus info",parsed_info)
         bus_info = parsed_info
         return bus_info
     except Exception as e:
         print(e)
         ERROR_LOGS.append(f"❌ Error parsing bus info: {e}")
         return []
+def extract_interface_names( log_data):
+    """
+    Extracts all network interface names from NIC link status messages.
+
+    Args:
+        log_data (str): The full dmesg output as a string.
+
+    Returns:
+        List[str]: A list of interface names (e.g., 'ens801f1np1').
+    """
+    try:
+        pattern = r'\b(\w+): NIC Link is (?:Down|up)\b'
+        return re.findall(pattern, log_data, re.MULTILINE)
+    except Exception as e:
+        ERROR_LOGS.append(f"❌ Error extracting interface names: {e}")
+        return []
+def update_interface_pairs(interface_list, existing_pairs):
+    """
+    Creates non-repeating interface pairs from the input list.
+    Only adds a pair if it doesn't already exist in either order.
+
+    Args:
+        interface_list (list): List of interface names.
+        existing_pairs (list): List of existing pairs (each pair is a list of two interfaces).
+
+    Returns:
+        list: Updated list of valid interface pairs.
+    """
+    try:
+        updated_pairs = existing_pairs.copy()
+        for i in range(0, len(interface_list) - 1, 2):
+            pair = [interface_list[i], interface_list[i + 1]]
+            reverse_pair = [interface_list[i + 1], interface_list[i]]
+            if pair not in updated_pairs and reverse_pair not in updated_pairs:
+                updated_pairs.append(pair)
+        return updated_pairs
+    except Exception as e:
+        ERROR_LOGS.append(f"❌ Error updating interface pairs: {e}")
+        return existing_pairs
     
+def fetchingPairDetailsFromInterface(ssh,timeout =10,interFaceDetails=[]):
+    """
+    Processes all UP interfaces and attempts to fetch pairing details using `ethtool` and `dmesg`.
+    Extracts interface names from NIC link messages and avoids redundant processing.
+    Updates the pairingInterface list with interfaces that show link activity.
+    """
+    try:
+
+        status, out, err = run_cmd(ssh,"dmesg -c ", timeout=timeout)
+        status, out, err = run_cmd(ssh,"dmesg -c ", timeout=timeout)
+
+        pairingInterface = []
+    
+        for details in interFaceDetails:
+            try:
+                interface = details['name']
+                status = details['status']
+
+                print(f"🔍 Processing Interface: {interface} | Status: {status}")
+
+                run_cmd(ssh,f"ethtool -r {interface}", timeout=timeout)
+                success, out, err = run_cmd(ssh,"dmesg -c ", timeout=timeout)
+
+                if success:
+                    interface_pair = extract_interface_names(out)
+                    pairingInterface = update_interface_pairs(interface_pair, pairingInterface)
+
+               
+            except Exception as e:
+                ERROR_LOGS.append(f"❌ Error processing interface {details.get('name', 'unknown')}: {e}")
+
+        # Final cleanup
+        status, out, err = run_cmd(ssh,"dmesg -c ", timeout=timeout)
+        status, out, err = run_cmd(ssh,"dmesg -c ", timeout=timeout)
+
+        print("\n🔗 Final Interface Pairings:")
+        for pair in pairingInterface:
+            print(f"  ✅ {pair[0]} ↔ {pair[1]}")
+        return   pairingInterface
+    except Exception as e:
+        ERROR_LOGS.append(f"❌ Error in fetchingPairDetailsFromInterface: {e}")  
+        return []
 def process_hosts(hosts):
     results = []
     for ip, username, password in hosts:
@@ -291,8 +371,12 @@ def process_hosts(hosts):
                 enterface_name = [{"name":val.get("name"),"pci":val.get("pci")} for val in data if "name" in val] 
                 record["dpdk_devbind_s"] = enterface_name
 
-                record["ip_details"] = ip_details_scrapper(ssh=ssh)
+                interFaceDetails = ip_details_scrapper(ssh=ssh)
+                record["ip_details"] = interFaceDetails
                 record["bus_info"] = fetchching_bus_info(ssh=ssh)
+
+                pair_info = fetchingPairDetailsFromInterface(ssh=ssh,interFaceDetails=interFaceDetails) 
+                record["pair_info"] = pair_info
 
             else:
                 record["error"] = (record["error"] + "; " + logs).strip("; ")
