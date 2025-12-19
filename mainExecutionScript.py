@@ -142,7 +142,8 @@ def main():
 
             print("\n=== RESULTS ===")
             for r in results:
-                print(r)
+                for key , val in r.items():
+                    print(key, ": ",val)
 
         else:
             CommonSetupCheck.print_separator("🚀 Starting Setup Scripts...\n\n",header=False)
