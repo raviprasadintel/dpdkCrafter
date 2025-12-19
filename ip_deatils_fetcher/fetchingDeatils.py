@@ -243,7 +243,7 @@ def fetchching_bus_info(ssh,timeout=10):
         pattern = r'^(pci@\S+)\s+(\S+)\s+network\s+(.*)$'
 
         parsed_info = []
-        for line in lines:
+        for line in lines.splitlines():
             print(line)
             match = re.match(pattern, line.strip())
             if match:
