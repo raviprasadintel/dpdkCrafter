@@ -134,7 +134,7 @@ def main():
     try:
         if 1:
             hosts_input = [
-                # ["10.138.182.136", "root", "tester"],
+                ["10.138.182.136", "root", "tester"],
                 ["10.138.182.176", "root", "tester"],
             ]
             
