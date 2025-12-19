@@ -211,7 +211,7 @@ def ip_details_scrapper(ssh,timeout =10, search=""):
 
     status, out, err = run_cmd(ssh,"ip -br a", timeout=timeout)
     if status != 0:
-        return "FAILURE", f"prep failed: {err or out}"
+        return []
     interface_status = []
 
     for line in out.splitlines():
@@ -231,7 +231,32 @@ def ip_details_scrapper(ssh,timeout =10, search=""):
     # Filter by search term if provided
     return [iface for iface in interface_status if search in iface['name']] if search else interface_status
 
+def fetchching_bus_info(ssh,timeout=10):
+    print("\n🔍 Fetching PCI Bus Info...\n")
+    try:
+        status, out, err = run_cmd(ssh,"lshw -c network -businfo", timeout=timeout)
+        if not status:
+            return []
 
+        lines = out.strip().split('\n')[1:]  # Skip the header
+        pattern = r'^(pci@\S+)\s+(\S+)\s+network\s+(.*)$'
+
+        parsed_info = []
+        for line in lines:
+            match = re.match(pattern, line.strip())
+            if match:
+                bus, device, description = match.groups()
+                parsed_info.append({
+                    'bus': bus,
+                    'device': device,
+                    'description': description
+                })
+
+        bus_info = parsed_info
+        return bus_info
+    except Exception as e:
+        ERROR_LOGS.append(f"❌ Error parsing bus info: {e}")
+        return []
     
 def process_hosts(hosts):
     """Process hosts sequentially; hosts is list of [ip, username, password]."""
@@ -272,6 +297,7 @@ def process_hosts(hosts):
                 record["dpdk_devbind_s"] = enterface_name
 
                 record["ip_details"] = ip_details_scrapper(ssh=ssh)
+                record["bus_info"] = fetchching_bus_info(ssh=ssh)
 
             else:
                 record["error"] = (record["error"] + "; " + logs).strip("; ")

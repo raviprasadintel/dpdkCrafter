@@ -144,6 +144,7 @@ def main():
             for r in results:
                 for key , val in r.items():
                     print(key, ": ",val)
+                print("\n\n")
 
         else:
             CommonSetupCheck.print_separator("🚀 Starting Setup Scripts...\n\n",header=False)
