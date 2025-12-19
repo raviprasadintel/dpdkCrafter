@@ -302,7 +302,7 @@ def fetchingPairDetailsFromInterface(ssh,timeout =10,interFaceDetails=[]):
 
         status, out, err = run_cmd(ssh,"dmesg -c ", timeout=timeout)
         status, out, err = run_cmd(ssh,"dmesg -c ", timeout=timeout)
-
+        time.sleep(3)
         pairingInterface = []
     
         for details in interFaceDetails:
@@ -312,10 +312,13 @@ def fetchingPairDetailsFromInterface(ssh,timeout =10,interFaceDetails=[]):
 
                 print(f"🔍 Processing Interface: {interface} | Status: {status}")
 
-                run_cmd(ssh,f"ethtool -r {interface}", timeout=timeout)
+                status, out, err= run_cmd(ssh,f"ethtool -r {interface}", timeout=timeout)
                 success, out, err = run_cmd(ssh,"dmesg -c ", timeout=timeout)
                 print(out,success != 0)
-
+                print("😴 Sleeping for 2 seconds before next interface...\n")
+                time.sleep(2)
+                print("✅ Continuing to next interface...\n")
+                print("🧹 Clearing dmesg buffer...\n")
                 if success != 0:
                     continue
                 interface_pair = extract_interface_names(out)
