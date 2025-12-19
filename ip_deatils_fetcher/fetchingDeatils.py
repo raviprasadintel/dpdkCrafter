@@ -319,6 +319,7 @@ def fetchingPairDetailsFromInterface(ssh,timeout =10,interFaceDetails=[]):
                 if status != 0:
                     continue
                 interface_pair = extract_interface_names(out)
+                print("\n\n\ninterface_pair",interface_pair)
                 pairingInterface = update_interface_pairs(interface_pair, pairingInterface)
 
                
