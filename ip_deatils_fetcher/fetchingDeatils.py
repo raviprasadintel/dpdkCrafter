@@ -314,9 +314,9 @@ def fetchingPairDetailsFromInterface(ssh,timeout =10,interFaceDetails=[]):
 
                 run_cmd(ssh,f"ethtool -r {interface}", timeout=timeout)
                 success, out, err = run_cmd(ssh,"dmesg -c ", timeout=timeout)
-                print(out)
+                print(out,success != 0)
 
-                if status != 0:
+                if success != 0:
                     continue
                 interface_pair = extract_interface_names(out)
                 print("\n\n\ninterface_pair",interface_pair)
