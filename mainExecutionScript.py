@@ -18,7 +18,7 @@ from common_script_container.dut_crbs_config import DutCrbsConfig
 from common_script_container.dut_execution_config import ExecutionCfgUpdate
 from common_script_container.constant import CommonMethodExecution, CommonSetupCheck
 from crypto_container.cryptoScript import CryptoSetupManager
-
+from ip_deatils_fetcher.fetchingDeatils import process_hosts
 
 
 class EnvValidator:
@@ -132,268 +132,281 @@ def main():
     error_logs = []
     conclusion = []
     try:
-        CommonSetupCheck.print_separator("🚀 Starting Setup Scripts...\n\n",header=False)
-        # STEP 0 :
-        # OS SYSTEM -: CHECK
-        CommonSetupCheck.print_separator("CURRENT SYSTEM OS CHECK")
-        os_check = CommonSetupCheck.check_os()
-        dts_setup_path = os.environ.get("DTS_INSTALLATION_PATH","")
-        # STEP 1 :
-        # FIRMWARE INSTALLATION :
-        if os.environ.get("FIRMWARE_UPDATE_REQUIRED","").upper() == "TRUE":
-            CommonSetupCheck.print_separator("FIRMWARE UPDATE PROCESS STARTED ...")
-            statement = FirmwareDriverInstallation.firmware_update(firmware_file_path = os.environ.get("FIRMWARE_PATH"),error_logs= error_logs)
+        if 1:
+            hosts_input = [
+                ["10.138.182.136", "root", "tester"],
+                # ["10.138.182.176", "root", "tester"],
+            ]
             
-            # Add emoji indicators for status
-            status_emoji = "✅" if statement[1].upper() == "SUCCESS" else "❌"
-            conclusion.append(
-                {
-                    "FIRMWARE_UPDATE_STATUS": {
-                        "UPDATED": f"{'✔️' if statement[0] else '❌'}",
-                        "STATUS": f"{status_emoji} {statement[1]}",
-                        "ERRORS": statement[2] if statement[2] else "None"
+            results = process_hosts(hosts_input)
+
+            print("\n=== RESULTS ===")
+            for r in results:
+                print(r)
+
+        else:
+            CommonSetupCheck.print_separator("🚀 Starting Setup Scripts...\n\n",header=False)
+            # STEP 0 :
+            # OS SYSTEM -: CHECK
+            CommonSetupCheck.print_separator("CURRENT SYSTEM OS CHECK")
+            os_check = CommonSetupCheck.check_os()
+            dts_setup_path = os.environ.get("DTS_INSTALLATION_PATH","")
+            # STEP 1 :
+            # FIRMWARE INSTALLATION :
+            if os.environ.get("FIRMWARE_UPDATE_REQUIRED","").upper() == "TRUE":
+                CommonSetupCheck.print_separator("FIRMWARE UPDATE PROCESS STARTED ...")
+                statement = FirmwareDriverInstallation.firmware_update(firmware_file_path = os.environ.get("FIRMWARE_PATH"),error_logs= error_logs)
+                
+                # Add emoji indicators for status
+                status_emoji = "✅" if statement[1].upper() == "SUCCESS" else "❌"
+                conclusion.append(
+                    {
+                        "FIRMWARE_UPDATE_STATUS": {
+                            "UPDATED": f"{'✔️' if statement[0] else '❌'}",
+                            "STATUS": f"{status_emoji} {statement[1]}",
+                            "ERRORS": statement[2] if statement[2] else "None"
+                        }
                     }
-                }
-            )
-
-        # STEP 2 :
-        # DRIVER UPDATE :
-        if os.environ.get("DRIVER_INSTALL_REQUIRED","").upper() == "TRUE":
-            CommonSetupCheck.print_separator("DRIVER UPDATE PROCESS STARTED ...")
-            statement = FirmwareDriverInstallation.driver_update(driver_path = os.environ.get("DRIVER_PATH"),error_logs= error_logs)
-            # Add emoji indicators for status
-            status_emoji = "✅" if statement[1].upper() == "SUCCESS" else "❌"
-            conclusion.append(
-                {
-                    "DRIVER_UPDATE_STATUS": {
-                        "UPDATED": f"{'✔️' if statement[0] else '❌'}",
-                        "STATUS": f"{status_emoji} {statement[1]}",
-                        "ERRORS": statement[2] if statement[2] else "None"
-                    }
-                }
-            )
-
-        # STEP 3 :
-        # APT PACKAGES INSTALL
-        if os.environ.get("APT_PACKAGES_INSTALL_REQUIRED","").upper() == "TRUE":
-            CommonSetupCheck.print_separator("PACKAGE INSTALLATION STARTED ...")
-            statement = PackageInstalltion.install_required_packages(os_check)
-            status_emoji = "✅" if statement[1].upper() == "SUCCESS" else "❌"
-            conclusion.append(
-                {
-                    "APT_PACKAGE_INSTALL_STATUS": {
-                        "UPDATED": f"{'✔️' if statement[0] else '❌'}",
-                        "STATUS": f"{status_emoji} {statement[1]}",
-                        "ERRORS": statement[2] if statement[2] else "None"
-                    }
-                }
-            )
-
-        # STEP 4: Prepare environment and clone repositories
-        dts_setup = False
-        dpdk_setup = False
-        if os.environ.get("DTS_INSTALLATION_REQUIRED", "FALSE").upper() == "TRUE":
-            dpdk_file_status = os.environ.get("DPDK_FILE_STATUS", "FALSE").upper() == "TRUE"
-            dpdk_file_path = os.environ.get("DPDK_FILE_PATH", "")
-
-            CommonSetupCheck.print_separator("📦 DTS/DPDK INSTALLATION PROCESSS STARTED ...")
-
-            
-            # ✅ Check if DTS setup path exists
-            if os.path.exists(dts_setup_path):
-                CommonSetupCheck.print_separator(f"\n✅ DTS setup path exists: {dts_setup_path}\n",header=False)
-            else:
-                dts_setup_path = os.getcwd()
-                CommonSetupCheck.print_separator(f"\n⚠️ DTS setup path not found. Creating in same Directory : {dts_setup_path}\n",header=False)
-
-            if dpdk_file_status:
-                print(f"🔍 Checking DPDK file path: {dpdk_file_path}")
-                if not os.path.exists(dpdk_file_path):
-                    CommonSetupCheck.print_separator("⚠️ Provided DPDK path is invalid. Proceeding with cloning DPDK repository...")
-                else:
-                    print("✅ Valid DPDK file path found.")
-            else:
-                CommonSetupCheck.print_separator("ℹ️ DPDK file status is FALSE. Proceeding with cloning DPDK repository...")
-
-            # CLONING AND INSTALLATION DTS SETUP 
-            # GOING TO DTS setup folder to clone dts
-            if os.path.exists(os.path.join(dts_setup_path,"dts_setup")) == True:
-                CommonMethodExecution.run_command(["rm", "-rf", "dts_setup"], "REMOVING EXISTING DTS_SETUP")
-            os.chdir(dts_setup_path)
-            os.makedirs("dts_setup",exist_ok=True)
-           
-            dts_setup_path = os.path.join(dts_setup_path,"dts_setup")
-            os.chdir(dts_setup_path)
-            statement =AutomationScriptForSetupInstalltion.clone_dts_repo(os.environ.get("GIT_USERNAME"),os.environ.get("GIT_TOKEN"))
-            status_emoji = "✅" if statement[0].upper() == "SUCCESS" else "❌"
-            conclusion.append(
-                {
-                    "DTS-CLONING": {
-                        "UPDATED": f"{'✔️' if statement[0] else '❌'}",
-                        "STATUS": f"{status_emoji} {statement[1]}",
-                        "ERRORS": statement[1] if statement[1] else "None"
-                    }
-                }
-            )
-            dts_setup  = statement[0].upper() != "SUCCESS"
-          
-            if statement[0].upper() == "SUCCESS":
-                statement = AutomationScriptForSetupInstalltion.clone_dpdk_repo(
-                    DPDK_FILE_STATUS = os.environ.get("DPDK_FILE_STATUS").upper() == "TRUE" ,
-                    DPDK_FILE_PATH = os.environ.get("DPDK_FILE_PATH","")
                 )
+
+            # STEP 2 :
+            # DRIVER UPDATE :
+            if os.environ.get("DRIVER_INSTALL_REQUIRED","").upper() == "TRUE":
+                CommonSetupCheck.print_separator("DRIVER UPDATE PROCESS STARTED ...")
+                statement = FirmwareDriverInstallation.driver_update(driver_path = os.environ.get("DRIVER_PATH"),error_logs= error_logs)
+                # Add emoji indicators for status
+                status_emoji = "✅" if statement[1].upper() == "SUCCESS" else "❌"
+                conclusion.append(
+                    {
+                        "DRIVER_UPDATE_STATUS": {
+                            "UPDATED": f"{'✔️' if statement[0] else '❌'}",
+                            "STATUS": f"{status_emoji} {statement[1]}",
+                            "ERRORS": statement[2] if statement[2] else "None"
+                        }
+                    }
+                )
+
+            # STEP 3 :
+            # APT PACKAGES INSTALL
+            if os.environ.get("APT_PACKAGES_INSTALL_REQUIRED","").upper() == "TRUE":
+                CommonSetupCheck.print_separator("PACKAGE INSTALLATION STARTED ...")
+                statement = PackageInstalltion.install_required_packages(os_check)
+                status_emoji = "✅" if statement[1].upper() == "SUCCESS" else "❌"
+                conclusion.append(
+                    {
+                        "APT_PACKAGE_INSTALL_STATUS": {
+                            "UPDATED": f"{'✔️' if statement[0] else '❌'}",
+                            "STATUS": f"{status_emoji} {statement[1]}",
+                            "ERRORS": statement[2] if statement[2] else "None"
+                        }
+                    }
+                )
+
+            # STEP 4: Prepare environment and clone repositories
+            dts_setup = False
+            dpdk_setup = False
+            if os.environ.get("DTS_INSTALLATION_REQUIRED", "FALSE").upper() == "TRUE":
+                dpdk_file_status = os.environ.get("DPDK_FILE_STATUS", "FALSE").upper() == "TRUE"
+                dpdk_file_path = os.environ.get("DPDK_FILE_PATH", "")
+
+                CommonSetupCheck.print_separator("📦 DTS/DPDK INSTALLATION PROCESSS STARTED ...")
+
+                
+                # ✅ Check if DTS setup path exists
+                if os.path.exists(dts_setup_path):
+                    CommonSetupCheck.print_separator(f"\n✅ DTS setup path exists: {dts_setup_path}\n",header=False)
+                else:
+                    dts_setup_path = os.getcwd()
+                    CommonSetupCheck.print_separator(f"\n⚠️ DTS setup path not found. Creating in same Directory : {dts_setup_path}\n",header=False)
+
+                if dpdk_file_status:
+                    print(f"🔍 Checking DPDK file path: {dpdk_file_path}")
+                    if not os.path.exists(dpdk_file_path):
+                        CommonSetupCheck.print_separator("⚠️ Provided DPDK path is invalid. Proceeding with cloning DPDK repository...")
+                    else:
+                        print("✅ Valid DPDK file path found.")
+                else:
+                    CommonSetupCheck.print_separator("ℹ️ DPDK file status is FALSE. Proceeding with cloning DPDK repository...")
+
+                # CLONING AND INSTALLATION DTS SETUP 
+                # GOING TO DTS setup folder to clone dts
+                if os.path.exists(os.path.join(dts_setup_path,"dts_setup")) == True:
+                    CommonMethodExecution.run_command(["rm", "-rf", "dts_setup"], "REMOVING EXISTING DTS_SETUP")
+                os.chdir(dts_setup_path)
+                os.makedirs("dts_setup",exist_ok=True)
+            
+                dts_setup_path = os.path.join(dts_setup_path,"dts_setup")
+                os.chdir(dts_setup_path)
+                statement =AutomationScriptForSetupInstalltion.clone_dts_repo(os.environ.get("GIT_USERNAME"),os.environ.get("GIT_TOKEN"))
                 status_emoji = "✅" if statement[0].upper() == "SUCCESS" else "❌"
                 conclusion.append(
                     {
-                        "DPDK-CLONING": {
+                        "DTS-CLONING": {
                             "UPDATED": f"{'✔️' if statement[0] else '❌'}",
                             "STATUS": f"{status_emoji} {statement[1]}",
                             "ERRORS": statement[1] if statement[1] else "None"
                         }
                     }
                 )
-                # COMMING OUT DEP FOLDER
-                os.chdir("..")
-                dts_setup_path = os.getcwd()
-                dpdk_setup = statement[0].upper() != "SUCCESS"
-        if (os.environ.get("DTS_INSTALLATION_REQUIRED", "FALSE").upper() == "TRUE")and(dts_setup or dpdk_setup):
-            conclusion_print(conclusion,error_logs)
-            return 
+                dts_setup  = statement[0].upper() != "SUCCESS"
             
-        # IF step 5 : 
-        if os.environ.get("UPDATE_AUTOMATICALLY_PORTS_CRBS_EXECUTION","").upper() == "TRUE":
-            # FETCHING BUS INFO DETAILS
-            interface_man_obj  = InterfaceManager(error_logs= error_logs)
-            statement = interface_man_obj.process_all_interfaces()
-            up_interface = []
-            down_inteface = []
-            up_interface += statement["up_interface"]
-            down_inteface += statement['down_interface']
+                if statement[0].upper() == "SUCCESS":
+                    statement = AutomationScriptForSetupInstalltion.clone_dpdk_repo(
+                        DPDK_FILE_STATUS = os.environ.get("DPDK_FILE_STATUS").upper() == "TRUE" ,
+                        DPDK_FILE_PATH = os.environ.get("DPDK_FILE_PATH","")
+                    )
+                    status_emoji = "✅" if statement[0].upper() == "SUCCESS" else "❌"
+                    conclusion.append(
+                        {
+                            "DPDK-CLONING": {
+                                "UPDATED": f"{'✔️' if statement[0] else '❌'}",
+                                "STATUS": f"{status_emoji} {statement[1]}",
+                                "ERRORS": statement[1] if statement[1] else "None"
+                            }
+                        }
+                    )
+                    # COMMING OUT DEP FOLDER
+                    os.chdir("..")
+                    dts_setup_path = os.getcwd()
+                    dpdk_setup = statement[0].upper() != "SUCCESS"
+            if (os.environ.get("DTS_INSTALLATION_REQUIRED", "FALSE").upper() == "TRUE")and(dts_setup or dpdk_setup):
+                conclusion_print(conclusion,error_logs)
+                return 
+                
+            # IF step 5 : 
+            if os.environ.get("UPDATE_AUTOMATICALLY_PORTS_CRBS_EXECUTION","").upper() == "TRUE":
+                # FETCHING BUS INFO DETAILS
+                interface_man_obj  = InterfaceManager(error_logs= error_logs)
+                statement = interface_man_obj.process_all_interfaces()
+                up_interface = []
+                down_inteface = []
+                up_interface += statement["up_interface"]
+                down_inteface += statement['down_interface']
 
-            if len(up_interface) <=0:
-                CommonSetupCheck.print_separator("⚠️ Attempted to enable the interface, but it could not be brought UP.")
-            # Mapping bus info into 
-            print("🧩 Initializing PairingManagerInfo object...")
-            pariting_obj = PairingManagerInfo()
+                if len(up_interface) <=0:
+                    CommonSetupCheck.print_separator("⚠️ Attempted to enable the interface, but it could not be brought UP.")
+                # Mapping bus info into 
+                print("🧩 Initializing PairingManagerInfo object...")
+                pariting_obj = PairingManagerInfo()
 
-            print("\n🔍 Fetching Interface and Bus Pairing Information...\n")
-            pariting_obj.fetchingInterFacePairingInfo()
+                print("\n🔍 Fetching Interface and Bus Pairing Information...\n")
+                pariting_obj.fetchingInterFacePairingInfo()
 
-            print("\n🔗 Fetching Interface Connection Details...\n")
-            pariting_obj.fetchingPairDetailsFromInterface()
+                print("\n🔗 Fetching Interface Connection Details...\n")
+                pariting_obj.fetchingPairDetailsFromInterface()
 
-            print("\nMapping Interface With Bus Info")
-            interface_details = pariting_obj.mapInterfaceToBus()
+                print("\nMapping Interface With Bus Info")
+                interface_details = pariting_obj.mapInterfaceToBus()
 
-            # Configuring ports.cfg: 
-            ports_config_obj = DutPortConfig(dts_setup_path)
-            print(
-                "\n🔧 Loaded Configuration:\n"
-                "-----------------------------\n"
-                f"🌐 IP Address : {ports_config_obj.ip_address}\n"
-                f"👤 Username   : {ports_config_obj.username}\n"
-                f"🔑 Password   : {'*' * len(ports_config_obj.password) if ports_config_obj.password else 'Not Set'}\n"
-            )
-            statement = ports_config_obj.update_ports(interface_details)
+                # Configuring ports.cfg: 
+                ports_config_obj = DutPortConfig(dts_setup_path)
+                print(
+                    "\n🔧 Loaded Configuration:\n"
+                    "-----------------------------\n"
+                    f"🌐 IP Address : {ports_config_obj.ip_address}\n"
+                    f"👤 Username   : {ports_config_obj.username}\n"
+                    f"🔑 Password   : {'*' * len(ports_config_obj.password) if ports_config_obj.password else 'Not Set'}\n"
+                )
+                statement = ports_config_obj.update_ports(interface_details)
 
-            status_emoji = "✅" if statement[0].upper() == "SUCCESS" else "❌"
-            conclusion.append(
-                {
-                    "PORTS.CFG-UPDATE-STATUS": {
-                        "UPDATED": f"{'✔️' if statement[0] else '❌'}",
-                        "STATUS": f"{status_emoji} {statement[1]}",
-                        "ERRORS": statement[1] if statement[1] else "None"
+                status_emoji = "✅" if statement[0].upper() == "SUCCESS" else "❌"
+                conclusion.append(
+                    {
+                        "PORTS.CFG-UPDATE-STATUS": {
+                            "UPDATED": f"{'✔️' if statement[0] else '❌'}",
+                            "STATUS": f"{status_emoji} {statement[1]}",
+                            "ERRORS": statement[1] if statement[1] else "None"
+                        }
                     }
-                }
-            )
-            # UPDATING : crbs.cfg
+                )
+                # UPDATING : crbs.cfg
 
-            crfs_file_obj = DutCrbsConfig(dts_setup_path) 
-            statement = crfs_file_obj.updating_crbs_file(
-            dut_ip = ports_config_obj.ip_address,
-            dut_user = ports_config_obj.username,
-            dut_passwd = ports_config_obj.password,
-            tester_ip = ports_config_obj.ip_address,
-            tester_passwd = ports_config_obj.password
-            )
-            status_emoji = "✅" if statement[0].upper() == "SUCCESS" else "❌"
-            conclusion.append(
-                {
-                    "CRBS.CFG-UPDATE-STATUS": {
-                        "UPDATED": f"{'✔️' if statement[0] else '❌'}",
-                        "STATUS": f"{status_emoji} {statement[1]}",
-                        "ERRORS": statement[1] if statement[1] else "None"
+                crfs_file_obj = DutCrbsConfig(dts_setup_path) 
+                statement = crfs_file_obj.updating_crbs_file(
+                dut_ip = ports_config_obj.ip_address,
+                dut_user = ports_config_obj.username,
+                dut_passwd = ports_config_obj.password,
+                tester_ip = ports_config_obj.ip_address,
+                tester_passwd = ports_config_obj.password
+                )
+                status_emoji = "✅" if statement[0].upper() == "SUCCESS" else "❌"
+                conclusion.append(
+                    {
+                        "CRBS.CFG-UPDATE-STATUS": {
+                            "UPDATED": f"{'✔️' if statement[0] else '❌'}",
+                            "STATUS": f"{status_emoji} {statement[1]}",
+                            "ERRORS": statement[1] if statement[1] else "None"
+                        }
                     }
-                }
-            )
-            # UPDATING Execution.cfg 
-            executionObj = ExecutionCfgUpdate(dts_setup_path)
-            statement = executionObj.update_execution_content(ports_config_obj.ip_address)
-            status_emoji = "✅" if statement[0].upper() == "SUCCESS" else "❌"
-            conclusion.append(
-                {
-                    "EXECUTION.CFG-UPDATE-STATUS": {
-                        "UPDATED": f"{'✔️' if statement[0] else '❌'}",
-                        "STATUS": f"{status_emoji} {statement[1]}",
-                        "ERRORS": statement[1] if statement[1] else "None"
+                )
+                # UPDATING Execution.cfg 
+                executionObj = ExecutionCfgUpdate(dts_setup_path)
+                statement = executionObj.update_execution_content(ports_config_obj.ip_address)
+                status_emoji = "✅" if statement[0].upper() == "SUCCESS" else "❌"
+                conclusion.append(
+                    {
+                        "EXECUTION.CFG-UPDATE-STATUS": {
+                            "UPDATED": f"{'✔️' if statement[0] else '❌'}",
+                            "STATUS": f"{status_emoji} {statement[1]}",
+                            "ERRORS": statement[1] if statement[1] else "None"
+                        }
                     }
-                }
-            )
+                )
 
-        if (os.environ.get("DTS_RUN","").upper() == "TRUE") and((os.environ.get("UPDATE_AUTOMATICALLY_PORTS_CRBS_EXECUTION","").upper() == "TRUE")or (os.environ.get("DTS_INSTALLATION_REQUIRED", "FALSE").upper() == "TRUE") ):
-            os.chdir(dts_setup_path)
+            if (os.environ.get("DTS_RUN","").upper() == "TRUE") and((os.environ.get("UPDATE_AUTOMATICALLY_PORTS_CRBS_EXECUTION","").upper() == "TRUE")or (os.environ.get("DTS_INSTALLATION_REQUIRED", "FALSE").upper() == "TRUE") ):
+                os.chdir(dts_setup_path)
 
-        # CHECK FOR CRYPTO DRIVER :
-        # # CRYPTO SETTING : Execution
-        # cryptObj = CryptoSetupManager(
-        # dts_setup_path=os.environ.get("DTS_INSTALLTION_PATH",""), 
-        # dpdk_file_path=os.environ.get("DPDK_FILE_PATH"),
-        # automation_folder_path= "/root/automation/",
-        # git_user= os.environ.get("GIT_USERNAME"),
-        # git_token= os.environ.get("GIT_TOKEN"),
-        # qat_driver_path = os.environ.get("QAT_DRIVER_PATH"),
-        # fips_tar_file_path = os.environ.get("FIPS_TAR_FILE_PATH"),
-        # calgery_tar_file_path= os.environ.get("CALGARY_TAR_FILE_PATH"),
-        # logs_captured=error_logs
-        # )
+            # CHECK FOR CRYPTO DRIVER :
+            # # CRYPTO SETTING : Execution
+            # cryptObj = CryptoSetupManager(
+            # dts_setup_path=os.environ.get("DTS_INSTALLTION_PATH",""), 
+            # dpdk_file_path=os.environ.get("DPDK_FILE_PATH"),
+            # automation_folder_path= "/root/automation/",
+            # git_user= os.environ.get("GIT_USERNAME"),
+            # git_token= os.environ.get("GIT_TOKEN"),
+            # qat_driver_path = os.environ.get("QAT_DRIVER_PATH"),
+            # fips_tar_file_path = os.environ.get("FIPS_TAR_FILE_PATH"),
+            # calgery_tar_file_path= os.environ.get("CALGARY_TAR_FILE_PATH"),
+            # logs_captured=error_logs
+            # )
 
-        # status_execution = cryptObj.crypto_execution_script()
+            # status_execution = cryptObj.crypto_execution_script()
 
-        # if status_execution['status']:
-        #     # Fetching Current Bus Info DETAILS..
-     
+            # if status_execution['status']:
+            #     # Fetching Current Bus Info DETAILS..
+        
 
-        #     print("\n🔍 Fetching Interface and Bus Pairing Information...\n")
-        #     managerInfo.fetchingInterFacePairingInfo()
+            #     print("\n🔍 Fetching Interface and Bus Pairing Information...\n")
+            #     managerInfo.fetchingInterFacePairingInfo()
 
-        #     print("\n🔗 Fetching Interface Connection Details...\n")
-        #     managerInfo.fetchingPairDetailsFromInterface()
+            #     print("\n🔗 Fetching Interface Connection Details...\n")
+            #     managerInfo.fetchingPairDetailsFromInterface()
 
-        #     print("\nMapping Interface With Bus Info")
-        #     interface_details = managerInfo.mapInterfaceToBus()
+            #     print("\nMapping Interface With Bus Info")
+            #     interface_details = managerInfo.mapInterfaceToBus()
 
-        #     print("INTERFACE DETAILS :\n\n",interface_details)
+            #     print("INTERFACE DETAILS :\n\n",interface_details)
 
-        #     # GETTING FILE PATH WHILE RUNNING ABAOVE CMD WE WILL GET
-        #     dts_driver_path = status_execution['dts_driver_path']
-        #     config_file_folder_path = status_execution['config_file_folder_path']
+            #     # GETTING FILE PATH WHILE RUNNING ABAOVE CMD WE WILL GET
+            #     dts_driver_path = status_execution['dts_driver_path']
+            #     config_file_folder_path = status_execution['config_file_folder_path']
 
-        #     # STEP : Configure DUT ports [ports.cfg]
-        #     output_file_path = os.path.join(dts_driver_path,"conf","ports.cfg")
-        #     ports_config_obj = DutPortConfig(dts_driver_path)
+            #     # STEP : Configure DUT ports [ports.cfg]
+            #     output_file_path = os.path.join(dts_driver_path,"conf","ports.cfg")
+            #     ports_config_obj = DutPortConfig(dts_driver_path)
 
-        #     print(
-        #         "\n🔧 Loaded Configuration:\n"
-        #         "-----------------------------\n"
-        #         f"🌐 IP Address : {ports_config_obj.ip_address}\n"
-        #         f"👤 Username   : {ports_config_obj.username}\n"
-        #         f"🔑 Password   : {'*' * len(ports_config_obj.password) if ports_config_obj.password else 'Not Set'}\n"
-        #     )
+            #     print(
+            #         "\n🔧 Loaded Configuration:\n"
+            #         "-----------------------------\n"
+            #         f"🌐 IP Address : {ports_config_obj.ip_address}\n"
+            #         f"👤 Username   : {ports_config_obj.username}\n"
+            #         f"🔑 Password   : {'*' * len(ports_config_obj.password) if ports_config_obj.password else 'Not Set'}\n"
+            #     )
 
-        #     ports_config_obj.update_ports(interface_details)
+            #     ports_config_obj.update_ports(interface_details)
 
 
-        conclusion_print(conclusion,error_logs)
+            conclusion_print(conclusion,error_logs)
          
             
 
@@ -427,7 +440,7 @@ def main():
 
 if __name__ == "__main__":
     # CHECKING ALL VARIABLE ASSIGN PROPERLY
-    EnvValidator.validate_env_vars(all_required_variable)
+    # EnvValidator.validate_env_vars(all_required_variable)
 
     # EXECUTING STARTED
     main()
