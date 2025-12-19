@@ -238,12 +238,13 @@ def fetchching_bus_info(ssh,timeout=10):
         print(status,out)
         if not status:
             return []
-        print(out)
+        
         lines = out.strip()[1:]  # Skip the header
         pattern = r'^(pci@\S+)\s+(\S+)\s+network\s+(.*)$'
 
         parsed_info = []
         for line in lines:
+            print(line)
             match = re.match(pattern, line.strip())
             if match:
                 bus, device, description = match.groups()
