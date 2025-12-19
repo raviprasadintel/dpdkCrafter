@@ -199,10 +199,8 @@ def network_filter_data(lines):
             if m:
                 d = m.groupdict()
                 d["active"] = "*Active*" in line
-                print(d)
+              
                 result.append(d)
-            else:
-                print("No match (flexible)")
 
         i += 1
     return result
@@ -235,12 +233,9 @@ def fetchching_bus_info(ssh,timeout=10):
     print("\n🔍 Fetching PCI Bus Info...\n")
     try:
         status, out, err = run_cmd(ssh,"lshw -c network -businfo", timeout=timeout)
-        if not status:
-            return []
         
         lines = out.strip()[1:]  # Skip the header
         pattern = r'^(pci@\S+)\s+(\S+)\s+network\s+(.*)$'
-
         parsed_info = []
         for line in lines.splitlines():
             match = re.match(pattern, line.strip())
@@ -260,7 +255,6 @@ def fetchching_bus_info(ssh,timeout=10):
         return []
     
 def process_hosts(hosts):
-    """Process hosts sequentially; hosts is list of [ip, username, password]."""
     results = []
     for ip, username, password in hosts:
         record = {
