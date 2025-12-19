@@ -207,6 +207,32 @@ def network_filter_data(lines):
         i += 1
     return result
 
+def ip_details_scrapper(ssh,timeout =10, search=""):
+
+    status, out, err = run_cmd(ssh,"ip -br a", timeout=timeout)
+    if status != 0:
+        return "FAILURE", f"prep failed: {err or out}"
+    interface_status = []
+
+    for line in out.splitlines():
+        match = re.match(r'^(\S+)\s+(UP|DOWN)(?:\s+(.*))?$', line)
+        if not match:
+            continue  # Skip lines that don't match the expected format
+
+        name, status, ip_info = match.groups()
+        ip_info = ip_info.strip() if ip_info else ""
+
+        # Skip if IPv4 is present
+        if re.search(r'\b(?:\d{1,3}\.){3}\d{1,3}/\d+\b', ip_info):
+            continue
+
+        interface_status.append({'name': name, 'status': status})
+
+    # Filter by search term if provided
+    return [iface for iface in interface_status if search in iface['name']] if search else interface_status
+
+
+    
 def process_hosts(hosts):
     """Process hosts sequentially; hosts is list of [ip, username, password]."""
     results = []
@@ -244,6 +270,8 @@ def process_hosts(hosts):
                 data = list(network_filter_data(logs.splitlines()))
                 enterface_name = [{"name":val.get("name"),"pci":val.get("pci")} for val in data if "name" in val] 
                 record["dpdk_devbind_s"] = enterface_name
+
+                record["ip_details"] = ip_details_scrapper(ssh=ssh)
 
             else:
                 record["error"] = (record["error"] + "; " + logs).strip("; ")
