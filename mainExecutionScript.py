@@ -135,7 +135,7 @@ def main():
         if 1:
             hosts_input = [
                 ["10.138.182.136", "root", "tester"],
-                # ["10.138.182.176", "root", "tester"],
+                ["10.138.182.176", "root", "tester"],
             ]
             
             results = process_hosts(hosts_input)
