@@ -235,6 +235,7 @@ def fetchching_bus_info(ssh,timeout=10):
     print("\n🔍 Fetching PCI Bus Info...\n")
     try:
         status, out, err = run_cmd(ssh,"lshw -c network -businfo", timeout=timeout)
+        print(status,out)
         if not status:
             return []
         print(out)
