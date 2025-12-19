@@ -237,8 +237,8 @@ def fetchching_bus_info(ssh,timeout=10):
         status, out, err = run_cmd(ssh,"lshw -c network -businfo", timeout=timeout)
         if not status:
             return []
-
-        lines = out.strip().split('\n')[1:]  # Skip the header
+        print(out)
+        lines = out.strip()[1:]  # Skip the header
         pattern = r'^(pci@\S+)\s+(\S+)\s+network\s+(.*)$'
 
         parsed_info = []
@@ -255,6 +255,7 @@ def fetchching_bus_info(ssh,timeout=10):
         bus_info = parsed_info
         return bus_info
     except Exception as e:
+        print(e)
         ERROR_LOGS.append(f"❌ Error parsing bus info: {e}")
         return []
     
